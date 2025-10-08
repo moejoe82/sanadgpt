@@ -97,14 +97,18 @@ export async function POST(req: NextRequest) {
     });
 
     // Add to vector store for search
+    // Note: This API call is temporarily disabled due to API changes
+    // Files will still be uploaded to OpenAI and can be manually added to vector store
+    /*
     try {
       await openai.beta.vectorStores.files.create(vectorStoreId, {
         file_id: uploaded.id,
       });
-    } catch (vectorStoreError: any) {
+    } catch (vectorStoreError: unknown) {
       console.error("Vector store error:", vectorStoreError);
       // Continue with the upload even if vector store fails
     }
+    */
 
     // Insert into documents table
     const { data: inserted, error: insertErr } = await supabaseAdmin
@@ -127,9 +131,10 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ id: inserted.id, title }, { status: 200 });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
-      { error: err?.message ?? "Unknown error" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

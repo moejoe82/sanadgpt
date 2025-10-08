@@ -24,7 +24,7 @@ export async function createResponsesMessage(params: {
 
   const response = await client.chat.completions.create({
     model,
-    messages: messages as any,
+    messages: messages as Array<{ role: "system" | "user"; content: string }>,
   });
 
   const text = response.choices[0]?.message?.content ?? "";

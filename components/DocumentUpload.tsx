@@ -87,7 +87,7 @@ export default function DocumentUpload() {
       }
 
       setState("hashing");
-      const hash = await sha256HexBrowser(file);
+      await sha256HexBrowser(file);
 
       // Build form-data
       const form = new FormData();
@@ -125,7 +125,7 @@ export default function DocumentUpload() {
       setMessage("تم رفع المستند بنجاح. | Document uploaded successfully.");
       setProgress(100);
       setFile(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setState("error");
       try {
         const xhr = err as XMLHttpRequest;

@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,7 +15,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -30,7 +28,7 @@ export default function LoginPage() {
 
       // Use window.location.href to force a full page reload and ensure session is available
       window.location.href = "/dashboard";
-    } catch (err: any) {
+    } catch {
       setError("An unexpected error occurred");
       setLoading(false);
     }

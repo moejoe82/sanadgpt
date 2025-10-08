@@ -23,7 +23,7 @@ export async function extractTextFromDocument(
   if (mimeType === "application/pdf") {
     // Lazy import to avoid bundling if unused
     const pdfParse = await import("pdf-parse");
-    const result = await (pdfParse as any).default(fileBuffer);
+    const result = await (pdfParse as unknown as { default: (buffer: Buffer) => Promise<{ text: string }> }).default(fileBuffer);
     return result.text;
   }
 
@@ -80,9 +80,9 @@ export async function extractTextFromFile(file: File): Promise<string> {
       // This will only work in environments where Buffer is available (e.g., server-side)
       // For pure browser usage, consider a browser PDF extractor (e.g., pdfjs-dist)
       const nodeBuffer = Buffer.from(arrayBuffer as ArrayBuffer);
-      const result = await (pdfParse as any).default(nodeBuffer);
+      const result = await (pdfParse as unknown as { default: (buffer: Buffer) => Promise<{ text: string }> }).default(nodeBuffer);
       return result.text;
-    } catch (err) {
+    } catch {
       throw new Error(
         "PDF parsing is not available in this environment. Run on server or add a browser-compatible PDF parser."
       );

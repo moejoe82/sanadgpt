@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Best-effort cleanup (storage + OpenAI). Errors here won't fail the request.
-    const cleanupTasks: Promise<any>[] = [];
+    const cleanupTasks: Promise<unknown>[] = [];
 
     // Remove from Supabase Storage
     cleanupTasks.push(
@@ -76,9 +76,10 @@ export async function POST(req: NextRequest) {
     Promise.allSettled(cleanupTasks).catch(() => {});
 
     return NextResponse.json({ ok: true });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
-      { error: err?.message ?? "Unknown error" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

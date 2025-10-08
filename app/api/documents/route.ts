@@ -1,9 +1,9 @@
 export const runtime = "nodejs";
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     // For testing, get all documents (bypassing auth for now)
     const { data: documents, error } = await supabaseAdmin
@@ -16,9 +16,10 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ documents });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
-      { error: err?.message ?? "Unknown error" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

@@ -55,7 +55,7 @@ You are DiwanGPT, a bilingual (Arabic/English) audit assistant.
 
     // Extract the content from the response - use output_text for Responses API
     const content =
-      (response as any).output_text ||
+      (response as { output_text?: string }).output_text ||
       "I couldn't process your request. Please try again.";
 
     return new Response(JSON.stringify({ content }), {
@@ -63,9 +63,10 @@ You are DiwanGPT, a bilingual (Arabic/English) audit assistant.
         "Content-Type": "application/json",
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
     return new Response(
-      JSON.stringify({ error: err?.message ?? "Unknown error" }),
+      JSON.stringify({ error: errorMessage }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },

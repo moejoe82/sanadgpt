@@ -29,17 +29,6 @@ export default function ChatInterface() {
     );
   }, []);
 
-  const setAssistantCitations = useCallback(
-    (
-      id: string,
-      citations: Array<{ title?: string; url?: string; page?: number }>
-    ) => {
-      setMessages((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, citations } : m))
-      );
-    },
-    []
-  );
 
   async function send() {
     if (!input.trim() || loading) return;
@@ -113,7 +102,7 @@ export default function ChatInterface() {
           updateAssistant(assistantId, data.content);
         }
       }
-    } catch (e) {
+    } catch {
       updateAssistant(
         messages[messages.length - 1]?.id || "",
         "حدث خطأ في الإجابة. | An error occurred."
