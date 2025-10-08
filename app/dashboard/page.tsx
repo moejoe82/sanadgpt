@@ -1,0 +1,151 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import ChatInterface from "@/components/ChatInterface";
+import DocumentUpload from "@/components/DocumentUpload";
+import DocumentsList from "@/components/DocumentsList";
+
+type TabKey = "chat" | "upload" | "documents" | "admin";
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TabKey>("chat");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!mounted) return;
+      if (!user) {
+        router.replace("/login");
+        setLoading(false);
+        return;
+      }
+      setEmail(user.email ?? null);
+
+      // Fetch user role - handle gracefully if table doesn't exist or has RLS issues
+      try {
+        const { data, error } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (error) {
+          console.warn("Could not fetch user role:", error.message);
+          // Temporary workaround: check if email is admin@diwangpt.com
+          if (user.email === "admin@diwangpt.com") {
+            console.log("Using email-based admin detection for:", user.email);
+            setIsAdmin(true);
+          }
+        } else if (data?.role === "admin") {
+          setIsAdmin(true);
+        }
+      } catch (err) {
+        console.warn("Error fetching user role:", err);
+        // Temporary workaround: check if email is admin@diwangpt.com
+        if (user.email === "admin@diwangpt.com") {
+          console.log("Using email-based admin detection for:", user.email);
+          setIsAdmin(true);
+        }
+      }
+      setLoading(false);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [router]);
+
+  // Compute tabs BEFORE any conditional returns to keep hooks order stable
+  const tabs = useMemo(() => {
+    const base: { key: TabKey; label: string }[] = [
+      { key: "chat", label: "المحادثة / Chat" },
+      { key: "upload", label: "رفع / Upload" },
+      { key: "documents", label: "المستندات / Documents" },
+    ];
+    if (isAdmin) base.push({ key: "admin", label: "الإدارة / Admin" });
+    return base;
+  }, [isAdmin]);
+
+  // Instead of early returns, render conditional UI blocks to preserve hooks order
+
+  async function logout() {
+    await supabase.auth.signOut();
+    router.replace("/login");
+  }
+
+  return (
+    <div dir="rtl" className="min-h-screen flex flex-col">
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-black/40 z-10">
+          <div className="text-center">
+            <div className="h-8 w-8 border-4 border-slate-300 border-t-slate-900 rounded-full animate-spin mx-auto mb-4" />
+            <div className="text-slate-600">جاري التحميل... / Loading...</div>
+          </div>
+        </div>
+      )}
+      {/* Top Bar */}
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-white/90 dark:bg-slate-900/80">
+        <div className="flex items-center gap-2">
+          <div className="text-lg font-semibold">DiwanGPT</div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-slate-700 dark:text-slate-300">
+            {email || (loading ? "..." : "")}
+          </div>
+          <button
+            onClick={logout}
+            className="rounded-md bg-slate-900 text-white px-3 py-1.5 hover:bg-slate-800"
+          >
+            خروج / Logout
+          </button>
+        </div>
+      </div>
+
+      {/* Body with RTL sidebar */}
+      <div className="flex flex-1 overflow-hidden">
+        <aside className="w-64 border-l bg-white/90 dark:bg-slate-900/80 p-4 space-y-2">
+          {tabs.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setActiveTab(t.key)}
+              className={
+                "w-full text-right rounded-md px-3 py-2 transition " +
+                (activeTab === t.key
+                  ? "bg-slate-900 text-white"
+                  : "hover:bg-slate-100 dark:hover:bg-slate-800")
+              }
+            >
+              {t.label}
+            </button>
+          ))}
+        </aside>
+
+        <main className="flex-1 p-4 overflow-auto">
+          {!email ? null : activeTab === "chat" ? <ChatInterface /> : null}
+          {activeTab === "upload" && (
+            <div className="max-w-2xl mx-auto">
+              <DocumentUpload />
+            </div>
+          )}
+          {activeTab === "documents" && <DocumentsList />}
+          {activeTab === "admin" && (
+            <div className="text-right">
+              <h2 className="text-lg font-semibold mb-2">الإدارة / Admin</h2>
+              <p className="text-sm text-slate-700 dark:text-slate-300">
+                لا توجد عناصر إدارية بعد. / No admin items yet.
+              </p>
+            </div>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}
