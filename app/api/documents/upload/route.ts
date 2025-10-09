@@ -96,19 +96,29 @@ export async function POST(req: NextRequest) {
       purpose: "assistants",
     });
 
-    // Add to vector store for search
-    // Note: This API call is temporarily disabled due to API changes
-    // Files will still be uploaded to OpenAI and can be manually added to vector store
-    /*
+    // Add to vector store for search using REST API
     try {
-      await openai.beta.vectorStores.files.create(vectorStoreId, {
-        file_id: uploaded.id,
-      });
+      const vectorStoreResponse = await fetch(
+        `https://api.openai.com/v1/vector_stores/${vectorStoreId}/files`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            file_id: uploaded.id,
+          }),
+        }
+      );
+
+      if (!vectorStoreResponse.ok) {
+        console.error("Vector store error:", await vectorStoreResponse.text());
+      }
     } catch (vectorStoreError: unknown) {
       console.error("Vector store error:", vectorStoreError);
       // Continue with the upload even if vector store fails
     }
-    */
 
     // Insert into documents table
     const { data: inserted, error: insertErr } = await supabaseAdmin
@@ -133,9 +143,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ id: inserted.id, title }, { status: 200 });
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
