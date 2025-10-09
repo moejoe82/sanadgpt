@@ -30,6 +30,7 @@ interface Analytics {
 }
 
 export default function AdminDashboard() {
+  // Admin dashboard for managing documents and users
   const [activeTab, setActiveTab] = useState("overview");
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
