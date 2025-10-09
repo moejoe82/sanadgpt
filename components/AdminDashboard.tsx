@@ -40,6 +40,7 @@ interface Analytics {
 export default function AdminDashboard() {
   // Admin dashboard for managing documents and users
   // Force deployment with latest TypeScript fixes
+  // Redeploy to pick up environment variables
   const [activeTab, setActiveTab] = useState("overview");
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
