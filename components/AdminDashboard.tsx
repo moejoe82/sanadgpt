@@ -53,21 +53,21 @@ export default function AdminDashboard() {
       // Load users (simplified - in real app you'd have a users table)
       const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
 
-      const docsByStatus = docs.reduce((acc, doc) => {
+      const docsByStatus = (docs || []).reduce((acc, doc) => {
         acc[doc.status] = (acc[doc.status] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
 
       setAnalytics({
-        totalDocuments: docs.length,
-        totalUsers: authUsers.users.length,
+        totalDocuments: (docs || []).length,
+        totalUsers: (authUsers?.users || []).length,
         documentsByStatus: docsByStatus,
-        recentUploads: docs.slice(0, 5),
-        activeUsers: authUsers.users.slice(0, 5),
+        recentUploads: (docs || []).slice(0, 5),
+        activeUsers: (authUsers?.users || []).slice(0, 5),
       });
 
-      setDocuments(docs);
-      setUsers(authUsers.users);
+      setDocuments(docs || []);
+      setUsers(authUsers?.users || []);
     } catch (error) {
       console.error("Error loading analytics:", error);
     } finally {
