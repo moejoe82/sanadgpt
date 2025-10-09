@@ -100,13 +100,18 @@ export default function AdminDashboard() {
     }
   };
 
-  const tabs = [
-    { id: "overview", label: t("nav.overview"), icon: "📊" },
-    { id: "documents", label: t("nav.documents"), icon: "📄" },
-    { id: "users", label: t("nav.users"), icon: "👥" },
-    { id: "analytics", label: t("admin.analytics"), icon: "📈" },
-    { id: "settings", label: t("nav.settings"), icon: "⚙️" },
-  ];
+  // Helper function to clean mixed language status values
+  const cleanStatusValue = (value: string | undefined) => {
+    if (!value) return t("common.loading");
+    // If the value contains mixed language (Arabic/English), extract the appropriate part
+    if (value.includes(" / ")) {
+      const parts = value.split(" / ");
+      // For now, always return the Arabic part since we're primarily Arabic-focused
+      // In the future, this could be made dynamic based on current language
+      return parts[0]; // Arabic part
+    }
+    return value;
+  };
 
   if (loading) {
     return (
@@ -454,7 +459,7 @@ export default function AdminDashboard() {
                     </label>
                     <input
                       type="text"
-                      value={settings?.openaiVectorStoreId || "Loading..."}
+                      value={settings?.openaiVectorStoreId || t("common.loading")}
                       disabled
                       className="w-full p-2 border rounded bg-gray-100"
                     />
@@ -464,7 +469,7 @@ export default function AdminDashboard() {
                       {t("admin.apiKeyStatus")}
                     </label>
                     <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
-                      {settings?.openaiApiKeyStatus || "Loading..."}
+                      {cleanStatusValue(settings?.openaiApiKeyStatus)}
                     </span>
                   </div>
                 </div>
