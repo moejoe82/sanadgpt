@@ -38,10 +38,17 @@ export async function GET() {
     };
 
     const settings = {
-      openaiVectorStoreId: process.env.OPENAI_VECTOR_STORE_ID || "Not configured",
-      openaiApiKeyStatus: process.env.OPENAI_API_KEY ? "مُكوَّن / Configured" : "غير مُكوَّن / Not configured",
-      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? "مُكوَّن / Configured" : "غير مُكوَّن / Not configured",
-      supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "مُكوَّن / Configured" : "غير مُكوَّن / Not configured",
+      openaiVectorStoreId:
+        process.env.OPENAI_VECTOR_STORE_ID || "Not configured",
+      openaiApiKeyStatus: process.env.OPENAI_API_KEY
+        ? "مُكوَّن / Configured"
+        : "غير مُكوَّن / Not configured",
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? "مُكوَّن / Configured"
+        : "غير مُكوَّن / Not configured",
+      supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        ? "مُكوَّن / Configured"
+        : "غير مُكوَّن / Not configured",
     };
 
     return NextResponse.json({
