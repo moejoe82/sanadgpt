@@ -50,7 +50,7 @@ export default function DocumentUpload() {
       setFile(f);
       if (!title) setTitle(f.name.replace(/\.[^.]+$/, ""));
     },
-    [isValidFile, title]
+    [isValidFile, title, t]
   );
 
   const onDrop = useCallback(

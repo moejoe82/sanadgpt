@@ -74,6 +74,21 @@ export interface Translations {
   "time.thisMonth": string;
   "time.lastMonth": string;
 
+  // Common Actions
+  "common.loading": string;
+  "common.error": string;
+  "common.success": string;
+  "common.cancel": string;
+  "common.confirm": string;
+  "common.retry": string;
+  "common.save": string;
+  "common.edit": string;
+  "common.delete": string;
+  "common.close": string;
+  "common.back": string;
+  "common.next": string;
+  "common.previous": string;
+
   // Status & Messages
   "status.processing": string;
   "status.ready": string;
@@ -164,6 +179,21 @@ export const translations: Record<Language, Translations> = {
     "time.thisMonth": "هذا الشهر",
     "time.lastMonth": "الشهر الماضي",
 
+    // Common Actions
+    "common.loading": "جاري التحميل",
+    "common.error": "خطأ",
+    "common.success": "نجح",
+    "common.cancel": "إلغاء",
+    "common.confirm": "تأكيد",
+    "common.retry": "إعادة المحاولة",
+    "common.save": "حفظ",
+    "common.edit": "تعديل",
+    "common.delete": "حذف",
+    "common.close": "إغلاق",
+    "common.back": "رجوع",
+    "common.next": "التالي",
+    "common.previous": "السابق",
+
     // Status & Messages
     "status.processing": "جاري المعالجة",
     "status.ready": "جاهز",
@@ -251,6 +281,21 @@ export const translations: Record<Language, Translations> = {
     "time.lastWeek": "Last Week",
     "time.thisMonth": "This Month",
     "time.lastMonth": "Last Month",
+
+    // Common Actions
+    "common.loading": "Loading",
+    "common.error": "Error",
+    "common.success": "Success",
+    "common.cancel": "Cancel",
+    "common.confirm": "Confirm",
+    "common.retry": "Retry",
+    "common.save": "Save",
+    "common.edit": "Edit",
+    "common.delete": "Delete",
+    "common.close": "Close",
+    "common.back": "Back",
+    "common.next": "Next",
+    "common.previous": "Previous",
 
     // Status & Messages
     "status.processing": "Processing",
