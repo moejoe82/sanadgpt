@@ -31,9 +31,14 @@ export default function RegisterPage() {
 
   return (
     <div dir="rtl" className="text-right">
-      <h1 className="text-xl font-semibold mb-4">
-        إنشاء حساب / Create Account
-      </h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-semibold">
+          إنشاء حساب / Create Account
+        </h1>
+        <div className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">
+          v1.0.0
+        </div>
+      </div>
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium mb-1">

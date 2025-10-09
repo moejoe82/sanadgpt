@@ -96,6 +96,9 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between px-4 py-3 border-b bg-white/90 dark:bg-slate-900/80">
         <div className="flex items-center gap-2">
           <div className="text-lg font-semibold">DiwanGPT</div>
+          <div className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">
+            v1.0.0
+          </div>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-sm text-slate-700 dark:text-slate-300">
