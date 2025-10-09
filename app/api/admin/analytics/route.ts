@@ -16,8 +16,8 @@ export async function GET() {
 
     // Map Supabase users to our User interface, filtering out users without emails
     const mappedUsers = (authUsers?.users || [])
-      .filter((user: any) => user.email) // Filter out users without email
-      .map((user: any) => ({
+      .filter((user: { email?: string }) => user.email) // Filter out users without email
+      .map((user: { id: string; email?: string; created_at: string; last_sign_in_at?: string }) => ({
         id: user.id,
         email: user.email!, // We know email exists due to filter above
         created_at: user.created_at,

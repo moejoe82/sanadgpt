@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+// Removed unused supabase import - now using API routes
 
 interface Document {
   id: string;
@@ -77,12 +77,18 @@ export default function AdminDashboard() {
     if (!confirm("Are you sure you want to delete this document?")) return;
 
     try {
-      const { error } = await supabaseAdmin
-        .from("documents")
-        .delete()
-        .eq("id", id);
+      const response = await fetch("/api/documents/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ documentId: id }),
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete document");
+      }
 
       // Reload data
       loadAnalytics();
