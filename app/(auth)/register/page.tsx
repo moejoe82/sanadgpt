@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import LanguageToggle from "@/components/LanguageToggle";
+import { useTranslation } from "@/lib/LanguageProvider";
 
 export default function RegisterPage() {
+  const t = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -30,19 +33,20 @@ export default function RegisterPage() {
   }
 
   return (
-    <div dir="rtl" className="text-right">
+    <div className="text-right">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold">
-          إنشاء حساب / Create Account
-        </h1>
-        <div className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">
-          v1.0.0
+        <h1 className="text-xl font-semibold">{t('auth.register')}</h1>
+        <div className="flex items-center gap-2">
+          <div className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">
+            v1.0.0
+          </div>
+          <LanguageToggle />
         </div>
       </div>
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium mb-1">
-            البريد الإلكتروني / Email
+            {t('auth.email')}
           </label>
           <input
             type="email"
@@ -55,7 +59,7 @@ export default function RegisterPage() {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">
-            كلمة المرور / Password
+            {t('auth.password')}
           </label>
           <input
             type="password"
@@ -96,13 +100,13 @@ export default function RegisterPage() {
           disabled={loading}
           className="w-full rounded-md bg-slate-900 text-white py-2 hover:bg-slate-800 disabled:opacity-50"
         >
-          {loading ? "..." : "تسجيل / Register"}
+          {loading ? "..." : t('auth.createAccount')}
         </button>
       </form>
       <p className="mt-4 text-sm">
-        لديك حساب؟{" "}
+        {t('auth.hasAccount')}{" "}
         <a href="/login" className="text-slate-900 underline">
-          تسجيل الدخول / Login
+          {t('auth.login')}
         </a>
       </p>
     </div>

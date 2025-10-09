@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "@/lib/LanguageProvider";
 
 type ChatMessage = {
   id: string;
@@ -10,6 +11,7 @@ type ChatMessage = {
 };
 
 export default function ChatInterface() {
+  const t = useTranslation();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -102,22 +104,19 @@ export default function ChatInterface() {
           updateAssistant(assistantId, data.content);
         }
       }
-    } catch {
-      updateAssistant(
-        messages[messages.length - 1]?.id || "",
-        "حدث خطأ في الإجابة. | An error occurred."
-      );
-    } finally {
+           } catch {
+             updateAssistant(
+               messages[messages.length - 1]?.id || "",
+               t('chat.error')
+             );
+           } finally {
       setLoading(false);
       // flush remaining buffer if it contains a final JSON object
     }
   }
 
   return (
-    <div
-      dir="rtl"
-      className="text-right flex flex-col h-full max-h-[80vh] border rounded-lg p-4 gap-3 bg-white/90 dark:bg-slate-900/80"
-    >
+    <div className="text-right flex flex-col h-full max-h-[80vh] border rounded-lg p-4 gap-3 bg-white/90 dark:bg-slate-900/80">
       <div className="flex-1 overflow-y-auto space-y-3 pr-1">
         {messages.map((m) => (
           <div
@@ -156,7 +155,7 @@ export default function ChatInterface() {
         {loading && (
           <div className="flex justify-start">
             <div className="max-w-[80%] rounded-2xl px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-bl-sm animate-pulse">
-              جاري التفكير... / Thinking...
+              {t('chat.thinking')}
             </div>
           </div>
         )}
@@ -173,7 +172,7 @@ export default function ChatInterface() {
               send();
             }
           }}
-          placeholder="اطرح سؤالك هنا / Ask your question..."
+          placeholder={t('chat.placeholder')}
           className="flex-1 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
         />
         <button
@@ -181,7 +180,7 @@ export default function ChatInterface() {
           disabled={loading || !input.trim()}
           className="rounded-md bg-slate-900 text-white px-4 py-2 hover:bg-slate-800 disabled:opacity-50"
         >
-          إرسال / Send
+          {t('chat.send')}
         </button>
       </div>
     </div>
