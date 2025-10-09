@@ -29,6 +29,13 @@ interface Analytics {
   activeUsers: User[];
 }
 
+interface Settings {
+  openaiVectorStoreId: string;
+  openaiApiKeyStatus: string;
+  supabaseUrl: string;
+  supabaseAnonKey: string;
+}
+
 export default function AdminDashboard() {
   // Admin dashboard for managing documents and users
   // Force deployment with latest TypeScript fixes
@@ -37,6 +44,7 @@ export default function AdminDashboard() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -57,6 +65,7 @@ export default function AdminDashboard() {
       setAnalytics(data.analytics);
       setDocuments(data.documents);
       setUsers(data.users);
+      setSettings(data.settings);
     } catch (error) {
       console.error("Error loading analytics:", error);
     } finally {
@@ -444,10 +453,7 @@ export default function AdminDashboard() {
                     </label>
                     <input
                       type="text"
-                      value={
-                        process.env.NEXT_PUBLIC_OPENAI_VECTOR_STORE_ID ||
-                        "Not configured"
-                      }
+                      value={settings?.openaiVectorStoreId || "Loading..."}
                       disabled
                       className="w-full p-2 border rounded bg-gray-100"
                     />
@@ -457,9 +463,7 @@ export default function AdminDashboard() {
                       API Key Status
                     </label>
                     <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
-                      {process.env.OPENAI_API_KEY
-                        ? "مُكوَّن / Configured"
-                        : "غير مُكوَّن / Not configured"}
+                      {settings?.openaiApiKeyStatus || "Loading..."}
                     </span>
                   </div>
                 </div>
