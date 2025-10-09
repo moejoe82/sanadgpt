@@ -49,6 +49,15 @@ export default function AdminDashboard() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Tab configuration
+  const tabs = [
+    { id: "overview", label: t("nav.overview"), icon: "📊" },
+    { id: "documents", label: t("nav.documents"), icon: "📄" },
+    { id: "users", label: t("nav.users"), icon: "👥" },
+    { id: "analytics", label: t("admin.analytics"), icon: "📈" },
+    { id: "settings", label: t("nav.settings"), icon: "⚙️" },
+  ];
+
   useEffect(() => {
     loadAnalytics();
   }, []);
