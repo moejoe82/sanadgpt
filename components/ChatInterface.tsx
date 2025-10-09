@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslation } from "@/lib/LanguageProvider";
+import { useTranslation, useLanguage } from "@/lib/LanguageProvider";
 
 type ChatMessage = {
   id: string;
@@ -12,6 +12,7 @@ type ChatMessage = {
 
 export default function ChatInterface() {
   const t = useTranslation();
+  const { isRTL } = useLanguage();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -112,7 +113,11 @@ export default function ChatInterface() {
   }
 
   return (
-    <div className="text-right flex flex-col h-full max-h-[80vh] border rounded-lg p-4 gap-3 bg-white/90 dark:bg-slate-900/80">
+    <div
+      className={`${
+        isRTL ? "text-right" : "text-left"
+      } flex flex-col h-full max-h-[80vh] border rounded-lg p-4 gap-3 bg-white/90 dark:bg-slate-900/80`}
+    >
       <div className="flex-1 overflow-y-auto space-y-3 pr-1">
         {messages.map((m) => (
           <div
@@ -134,8 +139,18 @@ export default function ChatInterface() {
               </div>
               {m.citations && m.citations.length > 0 && (
                 <div className="mt-2 text-xs text-slate-600 dark:text-slate-300 space-y-1">
-                  <div className="font-medium">المراجع / Citations</div>
-                  <ul className="list-disc mr-5 space-y-0.5">
+                  <div
+                    className={`font-medium ${
+                      isRTL ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {t("chat.citations")}
+                  </div>
+                  <ul
+                    className={`list-disc space-y-0.5 ${
+                      isRTL ? "mr-5" : "ml-5"
+                    }`}
+                  >
                     {m.citations.map((c, i) => (
                       <li key={i} className="truncate">
                         {c.title || c.url || "Reference"}

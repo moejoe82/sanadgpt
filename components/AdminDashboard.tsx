@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslation } from "@/lib/LanguageProvider";
-// Removed unused supabase import - now using API routes
+import BulkDocumentUpload from "./BulkDocumentUpload";
 
 interface Document {
   id: string;
@@ -53,6 +53,7 @@ export default function AdminDashboard() {
   const tabs = [
     { id: "overview", label: t("nav.overview"), icon: "📊" },
     { id: "documents", label: t("nav.documents"), icon: "📄" },
+    { id: "bulk-upload", label: t("doc.bulkUpload"), icon: "📤" },
     { id: "users", label: t("nav.users"), icon: "👥" },
     { id: "analytics", label: t("admin.analytics"), icon: "📈" },
     { id: "settings", label: t("nav.settings"), icon: "⚙️" },
@@ -340,6 +341,18 @@ export default function AdminDashboard() {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {activeTab === "bulk-upload" && (
+          <div className="p-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2">{t("doc.bulkUpload")}</h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                {t("doc.bulkUploadTemplate")}
+              </p>
+            </div>
+            <BulkDocumentUpload />
           </div>
         )}
 

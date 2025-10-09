@@ -41,11 +41,30 @@ export interface Translations {
   "doc.deleteConfirm": string;
   "doc.deleteSuccess": string;
   "doc.deleteError": string;
+  "doc.remove": string;
+  "doc.bulkUpload": string;
+  "doc.bulkUploadTemplate": string;
+  "doc.selectMultipleFiles": string;
+  "doc.selectedFiles": string;
+  "doc.bulkUploadTooLarge": string;
+  "doc.selectTemplate": string;
+  "doc.selectValidFiles": string;
+  "doc.bulkUploadSuccess": string;
+  "doc.uploadMore": string;
+  "doc.uploadResults": string;
+  "doc.total": string;
+  "doc.successful": string;
+  "doc.failed": string;
+  "doc.dragDropOrClick": string;
+  "doc.filesSelected": string;
+  "doc.clearAll": string;
+  "doc.allFilesSameMetadata": string;
 
   // Chat Interface
   "chat.placeholder": string;
   "chat.send": string;
   "chat.thinking": string;
+  "chat.citations": string;
   "chat.error": string;
 
   // Admin Dashboard
@@ -181,11 +200,30 @@ export const translations: Record<Language, Translations> = {
     "doc.deleteConfirm": "هل أنت متأكد من حذف هذا المستند؟",
     "doc.deleteSuccess": "تم حذف المستند بنجاح",
     "doc.deleteError": "فشل حذف المستند",
+    "doc.remove": "إزالة",
+    "doc.bulkUpload": "رفع مجمع",
+    "doc.bulkUploadTemplate": "قالب الرفع المجمع",
+    "doc.selectMultipleFiles": "اختر ملفات متعددة",
+    "doc.selectedFiles": "الملفات المختارة",
+    "doc.bulkUploadTooLarge": "حجم الملفات كبير جداً (أكثر من 500 ميجابايت)",
+    "doc.selectTemplate": "يرجى اختيار الإمارة والسلطة أولاً",
+    "doc.selectValidFiles": "يرجى اختيار ملفات صالحة للرفع",
+    "doc.bulkUploadSuccess": "تم رفع الملفات بنجاح",
+    "doc.uploadMore": "رفع المزيد",
+    "doc.uploadResults": "نتائج الرفع",
+    "doc.total": "المجموع",
+    "doc.successful": "نجح",
+    "doc.failed": "فشل",
+    "doc.dragDropOrClick": "اسحب وأسقط الملفات هنا أو انقر للاختيار",
+    "doc.filesSelected": "ملف محدد",
+    "doc.clearAll": "مسح الكل",
+    "doc.allFilesSameMetadata": "جميع الملفات ستستخدم نفس البيانات الوصفية",
 
     // Chat Interface
     "chat.placeholder": "اطرح سؤالك هنا",
     "chat.send": "إرسال",
     "chat.thinking": "جاري التفكير",
+    "chat.citations": "المراجع",
     "chat.error": "حدث خطأ في الإجابة",
 
     // Admin Dashboard
@@ -319,11 +357,30 @@ export const translations: Record<Language, Translations> = {
     "doc.deleteConfirm": "Are you sure you want to delete this document?",
     "doc.deleteSuccess": "Document deleted successfully",
     "doc.deleteError": "Failed to delete document",
+    "doc.remove": "Remove",
+    "doc.bulkUpload": "Bulk Upload",
+    "doc.bulkUploadTemplate": "Bulk Upload Template",
+    "doc.selectMultipleFiles": "Select Multiple Files",
+    "doc.selectedFiles": "Selected Files",
+    "doc.bulkUploadTooLarge": "Files too large (over 500MB total)",
+    "doc.selectTemplate": "Please select emirate and authority first",
+    "doc.selectValidFiles": "Please select valid files to upload",
+    "doc.bulkUploadSuccess": "Files uploaded successfully",
+    "doc.uploadMore": "Upload More",
+    "doc.uploadResults": "Upload Results",
+    "doc.total": "Total",
+    "doc.successful": "Successful",
+    "doc.failed": "Failed",
+    "doc.dragDropOrClick": "Drag and drop files here or click to select",
+    "doc.filesSelected": "files selected",
+    "doc.clearAll": "Clear All",
+    "doc.allFilesSameMetadata": "All files will use the same metadata",
 
     // Chat Interface
     "chat.placeholder": "Ask your question...",
     "chat.send": "Send",
     "chat.thinking": "Thinking...",
+    "chat.citations": "Citations",
     "chat.error": "An error occurred",
 
     // Admin Dashboard
