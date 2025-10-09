@@ -187,13 +187,13 @@ export default function DocumentUpload() {
             onChange={(e) => setEmirateScope(e.target.value)}
           >
             <option value="">—</option>
-            <option value="abu_dhabi">أبوظبي / Abu Dhabi</option>
-            <option value="dubai">دبي / Dubai</option>
-            <option value="sharjah">الشارقة / Sharjah</option>
-            <option value="ajman">عجمان / Ajman</option>
-            <option value="umm_al_quwain">أم القيوين / Umm Al Quwain</option>
-            <option value="ras_al_khaimah">رأس الخيمة / Ras Al Khaimah</option>
-            <option value="fujairah">الفجيرة / Fujairah</option>
+            <option value="abu_dhabi">{t("emirates.abuDhabi")}</option>
+            <option value="dubai">{t("emirates.dubai")}</option>
+            <option value="sharjah">{t("emirates.sharjah")}</option>
+            <option value="ajman">{t("emirates.ajman")}</option>
+            <option value="umm_al_quwain">{t("emirates.ummAlQuwain")}</option>
+            <option value="ras_al_khaimah">{t("emirates.rasAlKhaimah")}</option>
+            <option value="fujairah">{t("emirates.fujairah")}</option>
           </select>
         </div>
         <div>

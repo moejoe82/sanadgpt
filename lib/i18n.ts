@@ -90,6 +90,15 @@ export interface Translations {
   "admin.cleanupData": string;
   "admin.restartSystem": string;
 
+  // Emirates
+  "emirates.abuDhabi": string;
+  "emirates.dubai": string;
+  "emirates.sharjah": string;
+  "emirates.ajman": string;
+  "emirates.ummAlQuwain": string;
+  "emirates.rasAlKhaimah": string;
+  "emirates.fujairah": string;
+
   // Time & Date
   "time.date": string;
   "time.time": string;
@@ -221,6 +230,15 @@ export const translations: Record<Language, Translations> = {
     "admin.cleanupData": "تنظيف البيانات",
     "admin.restartSystem": "إعادة تشغيل النظام",
 
+    // Emirates
+    "emirates.abuDhabi": "أبوظبي",
+    "emirates.dubai": "دبي",
+    "emirates.sharjah": "الشارقة",
+    "emirates.ajman": "عجمان",
+    "emirates.ummAlQuwain": "أم القيوين",
+    "emirates.rasAlKhaimah": "رأس الخيمة",
+    "emirates.fujairah": "الفجيرة",
+
     // Time & Date
     "time.date": "التاريخ",
     "time.time": "الوقت",
@@ -349,6 +367,15 @@ export const translations: Record<Language, Translations> = {
     "admin.exportData": "Export Data",
     "admin.cleanupData": "Cleanup Data",
     "admin.restartSystem": "Restart System",
+
+    // Emirates
+    "emirates.abuDhabi": "Abu Dhabi",
+    "emirates.dubai": "Dubai",
+    "emirates.sharjah": "Sharjah",
+    "emirates.ajman": "Ajman",
+    "emirates.ummAlQuwain": "Umm Al Quwain",
+    "emirates.rasAlKhaimah": "Ras Al Khaimah",
+    "emirates.fujairah": "Fujairah",
 
     // Time & Date
     "time.date": "Date",

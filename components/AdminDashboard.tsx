@@ -212,7 +212,9 @@ export default function AdminDashboard() {
                       <div>
                         <div className="font-medium">{doc.title}</div>
                         <div className="text-sm text-gray-500">
-                          {new Date(doc.uploaded_at).toLocaleDateString("en-US")}
+                          {new Date(doc.uploaded_at).toLocaleDateString(
+                            "en-US"
+                          )}
                         </div>
                       </div>
                       <span
@@ -245,7 +247,9 @@ export default function AdminDashboard() {
                         <div className="font-medium">{user.email}</div>
                         <div className="text-sm text-gray-500">
                           {user.last_sign_in_at
-                            ? new Date(user.last_sign_in_at).toLocaleDateString("en-US")
+                            ? new Date(user.last_sign_in_at).toLocaleDateString(
+                                "en-US"
+                              )
                             : t("admin.neverSignedIn")}
                         </div>
                       </div>
@@ -365,7 +369,9 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                         {user.last_sign_in_at
-                          ? new Date(user.last_sign_in_at).toLocaleDateString("en-US")
+                          ? new Date(user.last_sign_in_at).toLocaleDateString(
+                              "en-US"
+                            )
                           : t("admin.neverSignedIn")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -459,7 +465,9 @@ export default function AdminDashboard() {
                     </label>
                     <input
                       type="text"
-                      value={settings?.openaiVectorStoreId || t("common.loading")}
+                      value={
+                        settings?.openaiVectorStoreId || t("common.loading")
+                      }
                       disabled
                       className="w-full p-2 border rounded bg-gray-100"
                     />
