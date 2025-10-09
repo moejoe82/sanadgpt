@@ -31,7 +31,6 @@ export default function ChatInterface() {
     );
   }, []);
 
-
   async function send() {
     if (!input.trim() || loading) return;
     const question = input.trim();
@@ -104,12 +103,9 @@ export default function ChatInterface() {
           updateAssistant(assistantId, data.content);
         }
       }
-           } catch {
-             updateAssistant(
-               messages[messages.length - 1]?.id || "",
-               t('chat.error')
-             );
-           } finally {
+    } catch {
+      updateAssistant(messages[messages.length - 1]?.id || "", t("chat.error"));
+    } finally {
       setLoading(false);
       // flush remaining buffer if it contains a final JSON object
     }
@@ -155,7 +151,7 @@ export default function ChatInterface() {
         {loading && (
           <div className="flex justify-start">
             <div className="max-w-[80%] rounded-2xl px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-bl-sm animate-pulse">
-              {t('chat.thinking')}
+              {t("chat.thinking")}
             </div>
           </div>
         )}
@@ -172,7 +168,7 @@ export default function ChatInterface() {
               send();
             }
           }}
-          placeholder={t('chat.placeholder')}
+          placeholder={t("chat.placeholder")}
           className="flex-1 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
         />
         <button
@@ -180,7 +176,7 @@ export default function ChatInterface() {
           disabled={loading || !input.trim()}
           className="rounded-md bg-slate-900 text-white px-4 py-2 hover:bg-slate-800 disabled:opacity-50"
         >
-          {t('chat.send')}
+          {t("chat.send")}
         </button>
       </div>
     </div>

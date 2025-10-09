@@ -40,7 +40,7 @@ export default function LoginPage() {
   return (
     <div className="text-right">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold">{t('auth.login')}</h1>
+        <h1 className="text-xl font-semibold">{t("auth.login")}</h1>
         <div className="flex items-center gap-2">
           <div className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">
             v1.0.0
@@ -51,7 +51,7 @@ export default function LoginPage() {
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium mb-1">
-            {t('auth.email')}
+            {t("auth.email")}
           </label>
           <input
             type="email"
@@ -64,7 +64,7 @@ export default function LoginPage() {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">
-            {t('auth.password')}
+            {t("auth.password")}
           </label>
           <input
             type="password"
@@ -85,13 +85,13 @@ export default function LoginPage() {
           disabled={loading}
           className="w-full rounded-md bg-slate-900 text-white py-2 hover:bg-slate-800 disabled:opacity-50"
         >
-          {loading ? "..." : t('auth.signIn')}
+          {loading ? "..." : t("auth.signIn")}
         </button>
       </form>
       <p className="mt-4 text-sm">
-        {t('auth.noAccount')}{" "}
+        {t("auth.noAccount")}{" "}
         <a href="/register" className="text-slate-900 underline">
-          {t('auth.createAccount')}
+          {t("auth.createAccount")}
         </a>
       </p>
     </div>
