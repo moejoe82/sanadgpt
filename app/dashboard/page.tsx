@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import ChatInterface from "@/components/ChatInterface";
 import DocumentUpload from "@/components/DocumentUpload";
 import DocumentsList from "@/components/DocumentsList";
+import AdminDashboard from "@/components/AdminDashboard";
 
 type TabKey = "chat" | "upload" | "documents" | "admin";
 
@@ -136,14 +137,7 @@ export default function DashboardPage() {
             </div>
           )}
           {activeTab === "documents" && <DocumentsList />}
-          {activeTab === "admin" && (
-            <div className="text-right">
-              <h2 className="text-lg font-semibold mb-2">الإدارة / Admin</h2>
-              <p className="text-sm text-slate-700 dark:text-slate-300">
-                لا توجد عناصر إدارية بعد. / No admin items yet.
-              </p>
-            </div>
-          )}
+          {activeTab === "admin" && <AdminDashboard />}
         </main>
       </div>
     </div>
