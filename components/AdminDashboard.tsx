@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslation } from "@/lib/LanguageProvider";
 // Removed unused supabase import - now using API routes
 
 interface Document {
@@ -40,6 +41,7 @@ export default function AdminDashboard() {
   // Admin dashboard for managing documents and users
   // Force deployment with latest TypeScript fixes
   // Redeploy to pick up environment variables
+  const t = useTranslation();
   const [activeTab, setActiveTab] = useState("overview");
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -109,20 +111,19 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg">جاري التحميل... / Loading...</div>
+        <div className="text-lg">{t("common.loading")}</div>
       </div>
     );
   }
 
   return (
-    <div dir="rtl" className="max-w-7xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          لوحة الإدارة / Admin Dashboard
+          {t("nav.admin")}
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          إدارة نظام DiwanGPT والتحكم في المستندات والمستخدمين / Manage DiwanGPT
-          system, documents, and users
+          {t("admin.description")}
         </p>
       </div>
 

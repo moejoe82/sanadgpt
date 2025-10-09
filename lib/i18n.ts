@@ -62,21 +62,17 @@ export interface Translations {
   "admin.supabaseSettings": string;
   "admin.supabaseUrl": string;
   "admin.supabaseAnonKey": string;
+  "admin.description": string;
 
-  // Common Actions
-  "common.loading": string;
-  "common.error": string;
-  "common.success": string;
-  "common.cancel": string;
-  "common.confirm": string;
-  "common.retry": string;
-  "common.save": string;
-  "common.edit": string;
-  "common.delete": string;
-  "common.close": string;
-  "common.back": string;
-  "common.next": string;
-  "common.previous": string;
+  // Time & Date
+  "time.date": string;
+  "time.time": string;
+  "time.today": string;
+  "time.yesterday": string;
+  "time.thisWeek": string;
+  "time.lastWeek": string;
+  "time.thisMonth": string;
+  "time.lastMonth": string;
 
   // Status & Messages
   "status.processing": string;
@@ -91,13 +87,6 @@ export interface Translations {
   "form.submit": string;
   "form.reset": string;
   "form.validation": string;
-
-  // Time & Dates
-  "time.today": string;
-  "time.yesterday": string;
-  "time.thisWeek": string;
-  "time.thisMonth": string;
-  "time.lastMonth": string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -131,7 +120,7 @@ export const translations: Record<Language, Translations> = {
     "doc.emirateScopeOptional": "نطاق الإمارة (اختياري)",
     "doc.authorityName": "اسم الجهة",
     "doc.authorityNameOptional": "اسم الجهة (اختياري)",
-    "doc.selectFile": "اختر ملف",
+    "doc.selectFile": "اسحب وأسقط الملف هنا أو انقر للاختيار",
     "doc.uploading": "جاري الرفع",
     "doc.uploadSuccess": "تم رفع المستند بنجاح",
     "doc.uploadError": "فشل الرفع",
@@ -163,21 +152,17 @@ export const translations: Record<Language, Translations> = {
     "admin.supabaseSettings": "إعدادات Supabase",
     "admin.supabaseUrl": "رابط Supabase",
     "admin.supabaseAnonKey": "مفتاح Supabase العام",
+    "admin.description": "إدارة نظام DiwanGPT والتحكم في المستندات والمستخدمين",
 
-    // Common Actions
-    "common.loading": "جاري التحميل",
-    "common.error": "خطأ",
-    "common.success": "نجح",
-    "common.cancel": "إلغاء",
-    "common.confirm": "تأكيد",
-    "common.retry": "إعادة المحاولة",
-    "common.save": "حفظ",
-    "common.edit": "تعديل",
-    "common.delete": "حذف",
-    "common.close": "إغلاق",
-    "common.back": "رجوع",
-    "common.next": "التالي",
-    "common.previous": "السابق",
+    // Time & Date
+    "time.date": "التاريخ",
+    "time.time": "الوقت",
+    "time.today": "اليوم",
+    "time.yesterday": "أمس",
+    "time.thisWeek": "هذا الأسبوع",
+    "time.lastWeek": "الأسبوع الماضي",
+    "time.thisMonth": "هذا الشهر",
+    "time.lastMonth": "الشهر الماضي",
 
     // Status & Messages
     "status.processing": "جاري المعالجة",
@@ -192,13 +177,6 @@ export const translations: Record<Language, Translations> = {
     "form.submit": "إرسال",
     "form.reset": "إعادة تعيين",
     "form.validation": "التحقق من صحة البيانات",
-
-    // Time & Dates
-    "time.today": "اليوم",
-    "time.yesterday": "أمس",
-    "time.thisWeek": "هذا الأسبوع",
-    "time.thisMonth": "هذا الشهر",
-    "time.lastMonth": "الشهر الماضي",
   },
   en: {
     // Navigation & Tabs
@@ -230,7 +208,7 @@ export const translations: Record<Language, Translations> = {
     "doc.emirateScopeOptional": "Emirate Scope (Optional)",
     "doc.authorityName": "Authority Name",
     "doc.authorityNameOptional": "Authority Name (Optional)",
-    "doc.selectFile": "Select File",
+    "doc.selectFile": "Drag and drop file here or click to select",
     "doc.uploading": "Uploading",
     "doc.uploadSuccess": "Document uploaded successfully",
     "doc.uploadError": "Upload failed",
@@ -262,21 +240,17 @@ export const translations: Record<Language, Translations> = {
     "admin.supabaseSettings": "Supabase Settings",
     "admin.supabaseUrl": "Supabase URL",
     "admin.supabaseAnonKey": "Supabase Anon Key",
+    "admin.description": "Manage DiwanGPT system, documents, and users",
 
-    // Common Actions
-    "common.loading": "Loading...",
-    "common.error": "Error",
-    "common.success": "Success",
-    "common.cancel": "Cancel",
-    "common.confirm": "Confirm",
-    "common.retry": "Retry",
-    "common.save": "Save",
-    "common.edit": "Edit",
-    "common.delete": "Delete",
-    "common.close": "Close",
-    "common.back": "Back",
-    "common.next": "Next",
-    "common.previous": "Previous",
+    // Time & Date
+    "time.date": "Date",
+    "time.time": "Time",
+    "time.today": "Today",
+    "time.yesterday": "Yesterday",
+    "time.thisWeek": "This Week",
+    "time.lastWeek": "Last Week",
+    "time.thisMonth": "This Month",
+    "time.lastMonth": "Last Month",
 
     // Status & Messages
     "status.processing": "Processing",
@@ -291,13 +265,6 @@ export const translations: Record<Language, Translations> = {
     "form.submit": "Submit",
     "form.reset": "Reset",
     "form.validation": "Validation",
-
-    // Time & Dates
-    "time.today": "Today",
-    "time.yesterday": "Yesterday",
-    "time.thisWeek": "This Week",
-    "time.thisMonth": "This Month",
-    "time.lastMonth": "Last Month",
   },
 };
 

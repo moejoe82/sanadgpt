@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/lib/LanguageProvider";
 
 type UploadState = "idle" | "hashing" | "uploading" | "success" | "error";
 
@@ -22,6 +23,7 @@ async function sha256HexBrowser(file: File): Promise<string> {
 }
 
 export default function DocumentUpload() {
+  const t = useTranslation();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
@@ -42,9 +44,7 @@ export default function DocumentUpload() {
       if (!files || files.length === 0) return;
       const f = files[0];
       if (!isValidFile(f)) {
-        setMessage(
-          "نوع الملف أو حجمه غير مدعوم. يسمح بـ PDF/DOCX/TXT حتى 50MB. | Unsupported type/size. Allowed: PDF/DOCX/TXT up to 50MB."
-        );
+        setMessage(t("doc.unsupportedType"));
         return;
       }
       setFile(f);
@@ -76,13 +76,11 @@ export default function DocumentUpload() {
     try {
       setMessage(null);
       if (!file) {
-        setMessage("الرجاء اختيار ملف. | Please choose a file.");
+        setMessage(t("doc.selectFile"));
         return;
       }
       if (!isValidFile(file)) {
-        setMessage(
-          "نوع الملف أو حجمه غير مدعوم. يسمح بـ PDF/DOCX/TXT حتى 50MB. | Unsupported type/size. Allowed: PDF/DOCX/TXT up to 50MB."
-        );
+        setMessage(t("doc.unsupportedType"));
         return;
       }
 
@@ -122,7 +120,7 @@ export default function DocumentUpload() {
       });
 
       setState("success");
-      setMessage("تم رفع المستند بنجاح. | Document uploaded successfully.");
+      setMessage(t("doc.uploadSuccess"));
       setProgress(100);
       setFile(null);
     } catch (err: unknown) {
@@ -133,22 +131,20 @@ export default function DocumentUpload() {
         // Expecting duplicate error shape to surface clearly in UI
         // Example: { error: "DUPLICATE", sha256: "...", message: "Duplicate file" }
         if (xhr.status === 409 && resp?.error) {
-          setMessage(
-            `ملف مكرر. | Duplicate file. (${resp?.message || resp?.error})`
-          );
+          setMessage(t("doc.duplicateFile"));
         } else if (resp?.error) {
-          setMessage(`خطأ: ${resp.error} | Error: ${resp.error}`);
+          setMessage(`${t("common.error")}: ${resp.error}`);
         } else {
-          setMessage("حدث خطأ أثناء الرفع. | Upload failed.");
+          setMessage(t("doc.uploadError"));
         }
       } catch {
-        setMessage("حدث خطأ أثناء الرفع. | Upload failed.");
+        setMessage(t("doc.uploadError"));
       }
     }
   }
 
   return (
-    <div dir="rtl" className="text-right space-y-4">
+    <div className="text-right space-y-4">
       <div
         onDrop={onDrop}
         onDragOver={(e) => {
@@ -159,7 +155,7 @@ export default function DocumentUpload() {
         onClick={onBrowse}
       >
         <p className="text-slate-700">
-          اسحب وأسقط الملف هنا أو انقر للاختيار | Drag and drop or click
+          {t("doc.selectFile")}
         </p>
         <p className="text-xs text-slate-500">PDF / DOCX / TXT • ≤ 50MB</p>
         <input
@@ -174,18 +170,18 @@ export default function DocumentUpload() {
       <div className="grid gap-3">
         <div>
           <label className="block text-sm font-medium mb-1">
-            العنوان / Title
+            {t("doc.titleOptional")}
           </label>
           <input
             className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="عنوان المستند / Document Title"
+            placeholder={t("doc.title")}
           />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">
-            نطاق الإمارة / Emirate Scope
+            {t("doc.emirateScopeOptional")}
           </label>
           <select
             className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
@@ -204,13 +200,13 @@ export default function DocumentUpload() {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">
-            اسم الجهة / Authority Name
+            {t("doc.authorityNameOptional")}
           </label>
           <input
             className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
             value={authorityName}
             onChange={(e) => setAuthorityName(e.target.value)}
-            placeholder="مثال: دائرة المالية / e.g., Department of Finance"
+            placeholder={t("doc.authorityName")}
           />
         </div>
       </div>
@@ -222,8 +218,8 @@ export default function DocumentUpload() {
           className="rounded-md bg-slate-900 text-white px-4 py-2 hover:bg-slate-800 disabled:opacity-50"
         >
           {state === "uploading"
-            ? "جاري الرفع... / Uploading..."
-            : "رفع / Upload"}
+            ? t("doc.uploading")
+            : t("nav.upload")}
         </button>
         {state === "uploading" && (
           <div className="w-full h-2 bg-slate-200 rounded">

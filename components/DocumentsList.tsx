@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useTranslation } from "@/lib/LanguageProvider";
 
 type DocumentRow = {
   id: string;
@@ -13,6 +14,7 @@ type DocumentRow = {
 };
 
 export default function DocumentsList() {
+  const t = useTranslation();
   const [docs, setDocs] = useState<DocumentRow[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -40,15 +42,13 @@ export default function DocumentsList() {
   }, []);
 
   async function onDelete(id: string, title: string) {
-    const ok = confirm(`حذف المستند؟ / Delete document?\n${title}`);
+    const ok = confirm(`${t("doc.deleteConfirm")}\n${title}`);
     if (!ok) return;
     setDeletingId(id);
     const { error } = await supabase.from("documents").delete().eq("id", id);
     setDeletingId(null);
     if (error) {
-      alert(
-        `تعذّر الحذف: ${error.message} / Failed to delete: ${error.message}`
-      );
+      alert(`${t("doc.deleteError")}: ${error.message}`);
       return;
     }
     setDocs((prev) => (prev ? prev.filter((d) => d.id !== id) : prev));
@@ -73,12 +73,12 @@ export default function DocumentsList() {
   if (!docs || docs.length === 0)
     return (
       <div className="text-center text-slate-600 dark:text-slate-300 py-10">
-        لم يتم رفع أي مستندات / No documents
+        {t("nav.documents")}: {t("common.loading")}
       </div>
     );
 
   return (
-    <div dir="rtl" className="text-right">
+    <div className="text-right">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {docs.map((d) => {
           const filename = d.file_path.split("/").pop() || d.file_path;
@@ -102,17 +102,17 @@ export default function DocumentsList() {
                   disabled={deletingId === d.id}
                   className="text-red-600 hover:text-red-700 text-sm disabled:opacity-50"
                 >
-                  حذف / Delete
+                  {t("doc.delete")}
                 </button>
               </div>
               <div className="mt-3 text-sm text-slate-700 dark:text-slate-200 space-y-1">
                 {d.emirate_scope && (
-                  <div>النطاق / Emirate: {d.emirate_scope}</div>
+                  <div>{t("doc.emirateScope")}: {d.emirate_scope}</div>
                 )}
                 {d.authority_name && (
-                  <div>الجهة / Authority: {d.authority_name}</div>
+                  <div>{t("doc.authorityName")}: {d.authority_name}</div>
                 )}
-                <div>التاريخ / Date: {date}</div>
+                <div>{t("time.date")}: {date}</div>
               </div>
             </div>
           );
