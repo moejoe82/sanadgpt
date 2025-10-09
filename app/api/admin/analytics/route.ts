@@ -37,9 +37,16 @@ export async function GET() {
       activeUsers: mappedUsers.slice(0, 5),
     };
 
-    return NextResponse.json({ analytics, documents: docs || [], users: mappedUsers });
+    return NextResponse.json({
+      analytics,
+      documents: docs || [],
+      users: mappedUsers,
+    });
   } catch (error) {
     console.error("Error loading analytics:", error);
-    return NextResponse.json({ error: "Failed to load analytics" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to load analytics" },
+      { status: 500 }
+    );
   }
 }
