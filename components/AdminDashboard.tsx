@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { supabase } from "@/lib/supabase";
 
 interface Document {
   id: string;
@@ -20,14 +20,6 @@ interface User {
   created_at: string;
   last_sign_in_at?: string;
 }
-
-// Supabase Auth User type for type mapping
-type SupabaseUser = {
-  id: string;
-  email?: string;
-  created_at: string;
-  last_sign_in_at?: string;
-};
 
 interface Analytics {
   totalDocuments: number;
@@ -55,40 +47,16 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
 
-      // Load documents
-      const { data: docs } = await supabaseAdmin
-        .from("documents")
-        .select("*")
-        .order("uploaded_at", { ascending: false });
+      // Use API route instead of direct admin access
+      const response = await fetch("/api/admin/analytics");
+      if (!response.ok) {
+        throw new Error("Failed to load analytics");
+      }
 
-      // Load users (simplified - in real app you'd have a users table)
-      const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
-
-      // Map Supabase users to our User interface, filtering out users without emails
-      const mappedUsers: User[] = (authUsers?.users || [])
-        .filter((user: SupabaseUser) => user.email) // Filter out users without email
-        .map((user: SupabaseUser) => ({
-          id: user.id,
-          email: user.email!, // We know email exists due to filter above
-          created_at: user.created_at,
-          last_sign_in_at: user.last_sign_in_at,
-        }));
-
-      const docsByStatus = (docs || []).reduce((acc, doc) => {
-        acc[doc.status] = (acc[doc.status] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-
-      setAnalytics({
-        totalDocuments: (docs || []).length,
-        totalUsers: mappedUsers.length,
-        documentsByStatus: docsByStatus,
-        recentUploads: (docs || []).slice(0, 5),
-        activeUsers: mappedUsers.slice(0, 5),
-      });
-
-      setDocuments(docs || []);
-      setUsers(mappedUsers);
+      const data = await response.json();
+      setAnalytics(data.analytics);
+      setDocuments(data.documents);
+      setUsers(data.users);
     } catch (error) {
       console.error("Error loading analytics:", error);
     } finally {
