@@ -154,9 +154,7 @@ export default function DocumentUpload() {
         className={dragClasses}
         onClick={onBrowse}
       >
-        <p className="text-slate-700">
-          {t("doc.selectFile")}
-        </p>
+        <p className="text-slate-700">{t("doc.selectFile")}</p>
         <p className="text-xs text-slate-500">PDF / DOCX / TXT • ≤ 50MB</p>
         <input
           ref={inputRef}
@@ -217,9 +215,7 @@ export default function DocumentUpload() {
           disabled={!file || state === "uploading"}
           className="rounded-md bg-slate-900 text-white px-4 py-2 hover:bg-slate-800 disabled:opacity-50"
         >
-          {state === "uploading"
-            ? t("doc.uploading")
-            : t("nav.upload")}
+          {state === "uploading" ? t("doc.uploading") : t("nav.upload")}
         </button>
         {state === "uploading" && (
           <div className="w-full h-2 bg-slate-200 rounded">
