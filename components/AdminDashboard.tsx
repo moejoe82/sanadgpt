@@ -21,6 +21,14 @@ interface User {
   last_sign_in_at?: string;
 }
 
+// Supabase Auth User type for type mapping
+type SupabaseUser = {
+  id: string;
+  email?: string;
+  created_at: string;
+  last_sign_in_at?: string;
+};
+
 interface Analytics {
   totalDocuments: number;
   totalUsers: number;
@@ -54,6 +62,16 @@ export default function AdminDashboard() {
       // Load users (simplified - in real app you'd have a users table)
       const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
 
+      // Map Supabase users to our User interface, filtering out users without emails
+      const mappedUsers: User[] = (authUsers?.users || [])
+        .filter((user: SupabaseUser) => user.email) // Filter out users without email
+        .map((user: SupabaseUser) => ({
+          id: user.id,
+          email: user.email!, // We know email exists due to filter above
+          created_at: user.created_at,
+          last_sign_in_at: user.last_sign_in_at,
+        }));
+
       const docsByStatus = (docs || []).reduce((acc, doc) => {
         acc[doc.status] = (acc[doc.status] || 0) + 1;
         return acc;
@@ -61,14 +79,14 @@ export default function AdminDashboard() {
 
       setAnalytics({
         totalDocuments: (docs || []).length,
-        totalUsers: (authUsers?.users || []).length,
+        totalUsers: mappedUsers.length,
         documentsByStatus: docsByStatus,
         recentUploads: (docs || []).slice(0, 5),
-        activeUsers: (authUsers?.users || []).slice(0, 5),
+        activeUsers: mappedUsers.slice(0, 5),
       });
 
       setDocuments(docs || []);
-      setUsers(authUsers?.users || []);
+      setUsers(mappedUsers);
     } catch (error) {
       console.error("Error loading analytics:", error);
     } finally {
