@@ -101,11 +101,11 @@ export default function AdminDashboard() {
   };
 
   const tabs = [
-    { id: "overview", label: "نظرة عامة / Overview", icon: "📊" },
-    { id: "documents", label: "إدارة المستندات / Documents", icon: "📄" },
-    { id: "users", label: "إدارة المستخدمين / Users", icon: "👥" },
-    { id: "analytics", label: "التحليلات / Analytics", icon: "📈" },
-    { id: "settings", label: "الإعدادات / Settings", icon: "⚙️" },
+    { id: "overview", label: t("nav.overview"), icon: "📊" },
+    { id: "documents", label: t("nav.documents"), icon: "📄" },
+    { id: "users", label: t("nav.users"), icon: "👥" },
+    { id: "analytics", label: t("admin.analytics"), icon: "📈" },
+    { id: "settings", label: t("nav.settings"), icon: "⚙️" },
   ];
 
   if (loading) {
@@ -151,7 +151,7 @@ export default function AdminDashboard() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
         {activeTab === "overview" && (
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-6">نظرة عامة / Overview</h2>
+            <h2 className="text-2xl font-bold mb-6">{t("nav.overview")}</h2>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -160,7 +160,7 @@ export default function AdminDashboard() {
                   {analytics?.totalDocuments || 0}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  إجمالي المستندات / Total Documents
+                  {t("admin.totalDocuments")}
                 </div>
               </div>
 
@@ -169,7 +169,7 @@ export default function AdminDashboard() {
                   {analytics?.documentsByStatus.ready || 0}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  مستندات جاهزة / Ready Documents
+                  {t("admin.readyDocuments")}
                 </div>
               </div>
 
@@ -178,7 +178,7 @@ export default function AdminDashboard() {
                   {analytics?.documentsByStatus.processing || 0}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  قيد المعالجة / Processing
+                  {t("status.processing")}
                 </div>
               </div>
 
@@ -187,7 +187,7 @@ export default function AdminDashboard() {
                   {analytics?.totalUsers || 0}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  إجمالي المستخدمين / Total Users
+                  {t("admin.totalUsers")}
                 </div>
               </div>
             </div>
@@ -196,7 +196,7 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-lg font-semibold mb-4">
-                  آخر المستندات المرفوعة / Recent Uploads
+                  {t("admin.recentUploads")}
                 </h3>
                 <div className="space-y-3">
                   {analytics?.recentUploads.map((doc) => (
@@ -207,9 +207,7 @@ export default function AdminDashboard() {
                       <div>
                         <div className="font-medium">{doc.title}</div>
                         <div className="text-sm text-gray-500">
-                          {new Date(doc.uploaded_at).toLocaleDateString(
-                            "ar-SA"
-                          )}
+                          {new Date(doc.uploaded_at).toLocaleDateString("en-US")}
                         </div>
                       </div>
                       <span
@@ -230,7 +228,7 @@ export default function AdminDashboard() {
 
               <div>
                 <h3 className="text-lg font-semibold mb-4">
-                  المستخدمون النشطون / Active Users
+                  {t("admin.activeUsers")}
                 </h3>
                 <div className="space-y-3">
                   {analytics?.activeUsers.map((user) => (
@@ -242,10 +240,8 @@ export default function AdminDashboard() {
                         <div className="font-medium">{user.email}</div>
                         <div className="text-sm text-gray-500">
                           {user.last_sign_in_at
-                            ? new Date(user.last_sign_in_at).toLocaleDateString(
-                                "ar-SA"
-                              )
-                            : "لم يسجل دخول / Never signed in"}
+                            ? new Date(user.last_sign_in_at).toLocaleDateString("en-US")
+                            : t("admin.neverSignedIn")}
                         </div>
                       </div>
                     </div>
@@ -260,10 +256,10 @@ export default function AdminDashboard() {
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">
-                إدارة المستندات / Document Management
+                {t("admin.documentManagement")}
               </h2>
               <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                رفع مستند جديد / Upload New Document
+                {t("admin.uploadNewDocument")}
               </button>
             </div>
 
@@ -272,19 +268,19 @@ export default function AdminDashboard() {
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      العنوان / Title
+                      {t("doc.title")}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      الحالة / Status
+                      {t("admin.status")}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      الإمارة / Emirate
+                      {t("doc.emirateScope")}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      تاريخ الرفع / Upload Date
+                      {t("admin.uploadDate")}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      الإجراءات / Actions
+                      {t("admin.actions")}
                     </th>
                   </tr>
                 </thead>
@@ -308,17 +304,17 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                        {doc.emirate_scope || "غير محدد / Not specified"}
+                        {doc.emirate_scope || t("admin.notSpecified")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                        {new Date(doc.uploaded_at).toLocaleDateString("ar-SA")}
+                        {new Date(doc.uploaded_at).toLocaleDateString("en-US")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button
                           onClick={() => deleteDocument(doc.id)}
                           className="text-red-600 hover:text-red-900"
                         >
-                          حذف / Delete
+                          {t("doc.delete")}
                         </button>
                       </td>
                     </tr>
@@ -332,7 +328,7 @@ export default function AdminDashboard() {
         {activeTab === "users" && (
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-6">
-              إدارة المستخدمين / User Management
+              {t("admin.userManagement")}
             </h2>
 
             <div className="overflow-x-auto">
@@ -340,16 +336,16 @@ export default function AdminDashboard() {
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      البريد الإلكتروني / Email
+                      {t("auth.email")}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      تاريخ التسجيل / Registration Date
+                      {t("admin.registrationDate")}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      آخر تسجيل دخول / Last Sign In
+                      {t("admin.lastSignIn")}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      الحالة / Status
+                      {t("admin.status")}
                     </th>
                   </tr>
                 </thead>
@@ -360,18 +356,16 @@ export default function AdminDashboard() {
                         {user.email}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                        {new Date(user.created_at).toLocaleDateString("ar-SA")}
+                        {new Date(user.created_at).toLocaleDateString("en-US")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                         {user.last_sign_in_at
-                          ? new Date(user.last_sign_in_at).toLocaleDateString(
-                              "ar-SA"
-                            )
-                          : "لم يسجل دخول / Never"}
+                          ? new Date(user.last_sign_in_at).toLocaleDateString("en-US")
+                          : t("admin.neverSignedIn")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 py-1 text-xs rounded bg-green-100 text-green-800">
-                          نشط / Active
+                          {t("admin.active")}
                         </span>
                       </td>
                     </tr>
@@ -384,12 +378,12 @@ export default function AdminDashboard() {
 
         {activeTab === "analytics" && (
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-6">التحليلات / Analytics</h2>
+            <h2 className="text-2xl font-bold mb-6">{t("admin.analytics")}</h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold mb-4">
-                  توزيع المستندات / Document Distribution
+                  {t("admin.documentDistribution")}
                 </h3>
                 <div className="space-y-3">
                   {Object.entries(analytics?.documentsByStatus || {}).map(
@@ -408,23 +402,23 @@ export default function AdminDashboard() {
 
               <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold mb-4">
-                  إحصائيات النظام / System Statistics
+                  {t("admin.systemStatistics")}
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span>إجمالي المستندات / Total Documents:</span>
+                    <span>{t("admin.totalDocuments")}:</span>
                     <span className="font-bold">
                       {analytics?.totalDocuments || 0}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>إجمالي المستخدمين / Total Users:</span>
+                    <span>{t("admin.totalUsers")}:</span>
                     <span className="font-bold">
                       {analytics?.totalUsers || 0}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>معدل النجاح / Success Rate:</span>
+                    <span>{t("admin.successRate")}:</span>
                     <span className="font-bold">
                       {analytics?.totalDocuments
                         ? Math.round(
@@ -445,18 +439,18 @@ export default function AdminDashboard() {
         {activeTab === "settings" && (
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-6">
-              إعدادات النظام / System Settings
+              {t("admin.systemSettings")}
             </h2>
 
             <div className="space-y-6">
               <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold mb-4">
-                  إعدادات OpenAI / OpenAI Settings
+                  {t("admin.openaiSettings")}
                 </h3>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Vector Store ID
+                      {t("admin.vectorStoreId")}
                     </label>
                     <input
                       type="text"
@@ -467,7 +461,7 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      API Key Status
+                      {t("admin.apiKeyStatus")}
                     </label>
                     <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
                       {settings?.openaiApiKeyStatus || "Loading..."}
@@ -478,23 +472,23 @@ export default function AdminDashboard() {
 
               <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold mb-4">
-                  إعدادات قاعدة البيانات / Database Settings
+                  {t("admin.databaseSettings")}
                 </h3>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Supabase Status
+                      {t("admin.supabaseStatus")}
                     </label>
                     <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
-                      متصل / Connected
+                      {t("admin.connected")}
                     </span>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      إجمالي السجلات / Total Records
+                      {t("admin.totalRecords")}
                     </label>
                     <span className="font-bold">
-                      {analytics?.totalDocuments || 0} مستندات / documents
+                      {analytics?.totalDocuments || 0} {t("admin.documents")}
                     </span>
                   </div>
                 </div>
@@ -502,17 +496,17 @@ export default function AdminDashboard() {
 
               <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold mb-4">
-                  إجراءات النظام / System Actions
+                  {t("admin.systemActions")}
                 </h3>
                 <div className="space-y-3">
                   <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    تصدير البيانات / Export Data
+                    {t("admin.exportData")}
                   </button>
                   <button className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 ml-3">
-                    تنظيف البيانات / Cleanup Data
+                    {t("admin.cleanupData")}
                   </button>
                   <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 ml-3">
-                    إعادة تشغيل النظام / Restart System
+                    {t("admin.restartSystem")}
                   </button>
                 </div>
               </div>

@@ -63,6 +63,32 @@ export interface Translations {
   "admin.supabaseUrl": string;
   "admin.supabaseAnonKey": string;
   "admin.description": string;
+  "admin.analytics": string;
+  "admin.readyDocuments": string;
+  "admin.neverSignedIn": string;
+  "admin.documentManagement": string;
+  "admin.uploadNewDocument": string;
+  "admin.status": string;
+  "admin.uploadDate": string;
+  "admin.actions": string;
+  "admin.notSpecified": string;
+  "admin.userManagement": string;
+  "admin.registrationDate": string;
+  "admin.lastSignIn": string;
+  "admin.active": string;
+  "admin.documentDistribution": string;
+  "admin.systemStatistics": string;
+  "admin.successRate": string;
+  "admin.systemSettings": string;
+  "admin.databaseSettings": string;
+  "admin.systemActions": string;
+  "admin.supabaseStatus": string;
+  "admin.connected": string;
+  "admin.totalRecords": string;
+  "admin.documents": string;
+  "admin.exportData": string;
+  "admin.cleanupData": string;
+  "admin.restartSystem": string;
 
   // Time & Date
   "time.date": string;
@@ -168,6 +194,32 @@ export const translations: Record<Language, Translations> = {
     "admin.supabaseUrl": "رابط Supabase",
     "admin.supabaseAnonKey": "مفتاح Supabase العام",
     "admin.description": "إدارة نظام DiwanGPT والتحكم في المستندات والمستخدمين",
+    "admin.analytics": "التحليلات",
+    "admin.readyDocuments": "مستندات جاهزة",
+    "admin.neverSignedIn": "لم يسجل دخول",
+    "admin.documentManagement": "إدارة المستندات",
+    "admin.uploadNewDocument": "رفع مستند جديد",
+    "admin.status": "الحالة",
+    "admin.uploadDate": "تاريخ الرفع",
+    "admin.actions": "الإجراءات",
+    "admin.notSpecified": "غير محدد",
+    "admin.userManagement": "إدارة المستخدمين",
+    "admin.registrationDate": "تاريخ التسجيل",
+    "admin.lastSignIn": "آخر تسجيل دخول",
+    "admin.active": "نشط",
+    "admin.documentDistribution": "توزيع المستندات",
+    "admin.systemStatistics": "إحصائيات النظام",
+    "admin.successRate": "معدل النجاح",
+    "admin.systemSettings": "إعدادات النظام",
+    "admin.databaseSettings": "إعدادات قاعدة البيانات",
+    "admin.systemActions": "إجراءات النظام",
+    "admin.supabaseStatus": "حالة Supabase",
+    "admin.connected": "متصل",
+    "admin.totalRecords": "إجمالي السجلات",
+    "admin.documents": "مستندات",
+    "admin.exportData": "تصدير البيانات",
+    "admin.cleanupData": "تنظيف البيانات",
+    "admin.restartSystem": "إعادة تشغيل النظام",
 
     // Time & Date
     "time.date": "التاريخ",
@@ -271,6 +323,32 @@ export const translations: Record<Language, Translations> = {
     "admin.supabaseUrl": "Supabase URL",
     "admin.supabaseAnonKey": "Supabase Anon Key",
     "admin.description": "Manage DiwanGPT system, documents, and users",
+    "admin.analytics": "Analytics",
+    "admin.readyDocuments": "Ready Documents",
+    "admin.neverSignedIn": "Never signed in",
+    "admin.documentManagement": "Document Management",
+    "admin.uploadNewDocument": "Upload New Document",
+    "admin.status": "Status",
+    "admin.uploadDate": "Upload Date",
+    "admin.actions": "Actions",
+    "admin.notSpecified": "Not specified",
+    "admin.userManagement": "User Management",
+    "admin.registrationDate": "Registration Date",
+    "admin.lastSignIn": "Last Sign In",
+    "admin.active": "Active",
+    "admin.documentDistribution": "Document Distribution",
+    "admin.systemStatistics": "System Statistics",
+    "admin.successRate": "Success Rate",
+    "admin.systemSettings": "System Settings",
+    "admin.databaseSettings": "Database Settings",
+    "admin.systemActions": "System Actions",
+    "admin.supabaseStatus": "Supabase Status",
+    "admin.connected": "Connected",
+    "admin.totalRecords": "Total Records",
+    "admin.documents": "documents",
+    "admin.exportData": "Export Data",
+    "admin.cleanupData": "Cleanup Data",
+    "admin.restartSystem": "Restart System",
 
     // Time & Date
     "time.date": "Date",
