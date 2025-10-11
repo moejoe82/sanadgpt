@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
 // Removed unused supabase import - now using API routes
+// Updated for Vercel redeploy
 
 interface Document {
   id: string;
