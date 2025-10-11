@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DiwanGPT – نظام إدارة وثائق التدقيق",
+  title: "SanadGPT – نظام إدارة وثائق التدقيق",
 };
 
 const tajawal = Tajawal({ subsets: ["arabic"], weight: ["400", "700"] });

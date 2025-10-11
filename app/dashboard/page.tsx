@@ -41,8 +41,8 @@ export default function DashboardPage() {
 
         if (error) {
           console.warn("Could not fetch user role:", error.message);
-          // Temporary workaround: check if email is admin@diwangpt.com
-          if (user.email === "admin@diwangpt.com") {
+          // Temporary workaround: check if email is admin@sanadgpt.com
+          if (user.email === "admin@sanadgpt.com") {
             console.log("Using email-based admin detection for:", user.email);
             setIsAdmin(true);
           }
@@ -51,8 +51,8 @@ export default function DashboardPage() {
         }
       } catch (err) {
         console.warn("Error fetching user role:", err);
-        // Temporary workaround: check if email is admin@diwangpt.com
-        if (user.email === "admin@diwangpt.com") {
+        // Temporary workaround: check if email is admin@sanadgpt.com
+        if (user.email === "admin@sanadgpt.com") {
           console.log("Using email-based admin detection for:", user.email);
           setIsAdmin(true);
         }
@@ -95,7 +95,7 @@ export default function DashboardPage() {
       {/* Top Bar */}
       <div className="flex items-center justify-between px-4 py-3 border-b bg-white/90 dark:bg-slate-900/80">
         <div className="flex items-center gap-2">
-          <div className="text-lg font-semibold">DiwanGPT</div>
+          <div className="text-lg font-semibold">SanadGPT</div>
           <div className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">
             v1.0.0
           </div>

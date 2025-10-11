@@ -112,7 +112,7 @@ const email = process.argv[2];
 if (!email) {
   console.error("❌ Please provide an email address");
   console.log("Usage: node scripts/setupAdmin.js <email>");
-  console.log("Example: node scripts/setupAdmin.js admin@diwangpt.com");
+  console.log("Example: node scripts/setupAdmin.js admin@sanadgpt.com");
   process.exit(1);
 }
 

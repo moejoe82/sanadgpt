@@ -121,7 +121,7 @@ export default function AdminDashboard() {
           لوحة الإدارة / Admin Dashboard
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          إدارة نظام DiwanGPT والتحكم في المستندات والمستخدمين / Manage DiwanGPT
+          إدارة نظام SanadGPT والتحكم في المستندات والمستخدمين / Manage SanadGPT
           system, documents, and users
         </p>
       </div>

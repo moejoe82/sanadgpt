@@ -24,12 +24,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const systemPrompt = `أنت DiwanGPT، مساعد تدقيق ثنائي اللغة (العربية/الإنجليزية).
+    const systemPrompt = `أنت SanadGPT، مساعد تدقيق ثنائي اللغة (العربية/الإنجليزية).
 - قدّم إجابات دقيقة ومقتضبة مع مبررات مستندة إلى الوثائق.
 - اذكر الاقتباسات أو الصفحات عند الضرورة.
 - إذا لم تتوفر معلومات كافية، اطلب تحميل وثائق إضافية أو وضّح ما يلزم.
 
-You are DiwanGPT, a bilingual (Arabic/English) audit assistant.
+You are SanadGPT, a bilingual (Arabic/English) audit assistant.
 - Provide concise, accurate answers grounded in the indexed documents.
 - Cite sources or page numbers when appropriate.
 - If context is insufficient, ask for additional documents or clarifications.`;
@@ -65,12 +65,9 @@ You are DiwanGPT, a bilingual (Arabic/English) audit assistant.
     });
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

@@ -7,7 +7,7 @@ export default function AuthLayout({
         <div className="bg-white/90 dark:bg-slate-900/80 backdrop-blur rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex items-center justify-center mb-6">
             <span className="text-2xl font-semibold text-slate-900 dark:text-white">
-              DiwanGPT
+              SanadGPT
             </span>
           </div>
           {children}

@@ -18,7 +18,7 @@ async function createAdminUser() {
   try {
     console.log("🔐 Creating admin user...");
 
-    const adminEmail = "admin@diwangpt.com";
+    const adminEmail = "admin@sanadgpt.com";
     const adminPassword = "admin123456"; // Change this in production!
 
     // Create user in Supabase Auth

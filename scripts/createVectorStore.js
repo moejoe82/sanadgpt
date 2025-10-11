@@ -19,7 +19,7 @@ async function main() {
         "OpenAI-Beta": "assistants=v2",
       },
       body: JSON.stringify({
-        name: "ENS Audit Documents - DiwanGPT",
+        name: "ENS Audit Documents - SanadGPT",
       }),
     });
 
