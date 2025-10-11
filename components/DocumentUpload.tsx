@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useI18n, useLanguage } from "@/components/LanguageProvider";
 
 type UploadState = "idle" | "hashing" | "uploading" | "success" | "error";
 
@@ -31,6 +32,9 @@ export default function DocumentUpload() {
   const [state, setState] = useState<UploadState>("idle");
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
+  const t = useI18n();
+  const { direction } = useLanguage();
+  const alignment = direction === "rtl" ? "text-right" : "text-left";
 
   const isValidFile = useCallback((f: File) => {
     if (!ALLOWED_MIME.has(f.type)) return false;
@@ -44,14 +48,17 @@ export default function DocumentUpload() {
       const f = files[0];
       if (!isValidFile(f)) {
         setMessage(
-          "نوع الملف أو حجمه غير مدعوم. يسمح بـ PDF/DOCX/TXT حتى 50MB. | Unsupported type/size. Allowed: PDF/DOCX/TXT up to 50MB."
+          t(
+            "نوع الملف أو حجمه غير مدعوم. يسمح بـ PDF/DOCX/TXT حتى 50MB.",
+            "Unsupported type or size. Allowed: PDF/DOCX/TXT up to 50MB."
+          )
         );
         return;
       }
       setFile(f);
       if (!title) setTitle(f.name.replace(/\.[^.]+$/, ""));
     },
-    [isValidFile, title]
+    [isValidFile, t, title]
   );
 
   const onDrop = useCallback(
@@ -77,12 +84,15 @@ export default function DocumentUpload() {
     try {
       setMessage(null);
       if (!file) {
-        setMessage("الرجاء اختيار ملف. | Please choose a file.");
+        setMessage(t("الرجاء اختيار ملف.", "Please choose a file."));
         return;
       }
       if (!isValidFile(file)) {
         setMessage(
-          "نوع الملف أو حجمه غير مدعوم. يسمح بـ PDF/DOCX/TXT حتى 50MB. | Unsupported type/size. Allowed: PDF/DOCX/TXT up to 50MB."
+          t(
+            "نوع الملف أو حجمه غير مدعوم. يسمح بـ PDF/DOCX/TXT حتى 50MB.",
+            "Unsupported type or size. Allowed: PDF/DOCX/TXT up to 50MB."
+          )
         );
         return;
       }
@@ -92,7 +102,7 @@ export default function DocumentUpload() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        setMessage("يجب تسجيل الدخول أولاً. | You must be logged in first.");
+        setMessage(t("يجب تسجيل الدخول أولاً.", "You must be logged in first."));
         setState("error");
         return;
       }
@@ -142,7 +152,7 @@ export default function DocumentUpload() {
       });
 
       setState("success");
-      setMessage("تم رفع المستند بنجاح. | Document uploaded successfully.");
+      setMessage(t("تم رفع المستند بنجاح.", "Document uploaded successfully."));
       setProgress(100);
       setFile(null);
     } catch (err: unknown) {
@@ -153,22 +163,25 @@ export default function DocumentUpload() {
         // Expecting duplicate error shape to surface clearly in UI
         // Example: { error: "DUPLICATE", sha256: "...", message: "Duplicate file" }
         if (xhr.status === 409 && resp?.error) {
+          const detail = resp?.message || resp?.error;
           setMessage(
-            `ملف مكرر. | Duplicate file. (${resp?.message || resp?.error})`
+            `${t("ملف مكرر.", "Duplicate file.")}${detail ? ` (${detail})` : ""}`
           );
         } else if (resp?.error) {
-          setMessage(`خطأ: ${resp.error} | Error: ${resp.error}`);
+          setMessage(
+            `${t("خطأ:", "Error:")} ${resp.error}`
+          );
         } else {
-          setMessage("حدث خطأ أثناء الرفع. | Upload failed.");
+          setMessage(t("حدث خطأ أثناء الرفع.", "Upload failed."));
         }
       } catch {
-        setMessage("حدث خطأ أثناء الرفع. | Upload failed.");
+        setMessage(t("حدث خطأ أثناء الرفع.", "Upload failed."));
       }
     }
   }
 
   return (
-    <div dir="rtl" className="text-right space-y-4">
+    <div dir={direction} className={`space-y-4 ${alignment}`}>
       <div
         onDrop={onDrop}
         onDragOver={(e) => {
@@ -179,7 +192,7 @@ export default function DocumentUpload() {
         onClick={onBrowse}
       >
         <p className="text-slate-700">
-          اسحب وأسقط الملف هنا أو انقر للاختيار | Drag and drop or click
+          {t("اسحب وأسقط الملف هنا أو انقر للاختيار", "Drag and drop or click")}
         </p>
         <p className="text-xs text-slate-500">PDF / DOCX / TXT • ≤ 50MB</p>
         <input
@@ -194,18 +207,18 @@ export default function DocumentUpload() {
       <div className="grid gap-3">
         <div>
           <label className="block text-sm font-medium mb-1">
-            العنوان / Title
+            {t("العنوان", "Title")}
           </label>
           <input
             className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="عنوان المستند / Document Title"
+            placeholder={t("عنوان المستند", "Document title")}
           />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">
-            نطاق الإمارة / Emirate Scope
+            {t("نطاق الإمارة", "Emirate scope")}
           </label>
           <select
             className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
@@ -213,24 +226,27 @@ export default function DocumentUpload() {
             onChange={(e) => setEmirateScope(e.target.value)}
           >
             <option value="">—</option>
-            <option value="abu_dhabi">أبوظبي / Abu Dhabi</option>
-            <option value="dubai">دبي / Dubai</option>
-            <option value="sharjah">الشارقة / Sharjah</option>
-            <option value="ajman">عجمان / Ajman</option>
-            <option value="umm_al_quwain">أم القيوين / Umm Al Quwain</option>
-            <option value="ras_al_khaimah">رأس الخيمة / Ras Al Khaimah</option>
-            <option value="fujairah">الفجيرة / Fujairah</option>
+            <option value="abu_dhabi">{t("أبوظبي", "Abu Dhabi")}</option>
+            <option value="dubai">{t("دبي", "Dubai")}</option>
+            <option value="sharjah">{t("الشارقة", "Sharjah")}</option>
+            <option value="ajman">{t("عجمان", "Ajman")}</option>
+            <option value="umm_al_quwain">{t("أم القيوين", "Umm Al Quwain")}</option>
+            <option value="ras_al_khaimah">{t("رأس الخيمة", "Ras Al Khaimah")}</option>
+            <option value="fujairah">{t("الفجيرة", "Fujairah")}</option>
           </select>
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">
-            اسم الجهة / Authority Name
+            {t("اسم الجهة", "Authority name")}
           </label>
           <input
             className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
             value={authorityName}
             onChange={(e) => setAuthorityName(e.target.value)}
-            placeholder="مثال: دائرة المالية / e.g., Department of Finance"
+            placeholder={t(
+              "مثال: دائرة المالية",
+              "e.g., Department of Finance"
+            )}
           />
         </div>
       </div>
@@ -242,8 +258,8 @@ export default function DocumentUpload() {
           className="rounded-md bg-slate-900 text-white px-4 py-2 hover:bg-slate-800 disabled:opacity-50"
         >
           {state === "uploading"
-            ? "جاري الرفع... / Uploading..."
-            : "رفع / Upload"}
+            ? t("جاري الرفع...", "Uploading...")
+            : t("رفع", "Upload")}
         </button>
         {state === "uploading" && (
           <div className="w-full h-2 bg-slate-200 rounded">

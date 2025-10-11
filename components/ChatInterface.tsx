@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useI18n, useLanguage } from "@/components/LanguageProvider";
 
 type ChatMessage = {
   id: string;
@@ -14,6 +15,10 @@ export default function ChatInterface() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const t = useI18n();
+  const { direction } = useLanguage();
+  const alignment = direction === "rtl" ? "text-right" : "text-left";
+  const citationsMargin = direction === "rtl" ? "mr-5" : "ml-5";
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -103,10 +108,7 @@ export default function ChatInterface() {
         }
       }
     } catch {
-      updateAssistant(
-        messages[messages.length - 1]?.id || "",
-        "حدث خطأ في الإجابة. | An error occurred."
-      );
+      updateAssistant(assistantId, t("حدث خطأ في الإجابة.", "An error occurred."));
     } finally {
       setLoading(false);
       // flush remaining buffer if it contains a final JSON object
@@ -115,8 +117,8 @@ export default function ChatInterface() {
 
   return (
     <div
-      dir="rtl"
-      className="text-right flex flex-col h-full max-h-[80vh] border rounded-lg p-4 gap-3 bg-white/90 dark:bg-slate-900/80"
+      dir={direction}
+      className={`flex flex-col h-full max-h-[80vh] border rounded-lg p-4 gap-3 bg-white/90 dark:bg-slate-900/80 ${alignment}`}
     >
       <div className="flex-1 overflow-y-auto space-y-3 pr-1">
         {messages.map((m) => (
@@ -139,11 +141,11 @@ export default function ChatInterface() {
               </div>
               {m.citations && m.citations.length > 0 && (
                 <div className="mt-2 text-xs text-slate-600 dark:text-slate-300 space-y-1">
-                  <div className="font-medium">المراجع / Citations</div>
-                  <ul className="list-disc mr-5 space-y-0.5">
+                  <div className="font-medium">{t("المراجع", "Citations")}</div>
+                  <ul className={`list-disc ${citationsMargin} space-y-0.5`}>
                     {m.citations.map((c, i) => (
                       <li key={i} className="truncate">
-                        {c.title || c.url || "Reference"}
+                        {c.title || c.url || t("مرجع", "Reference")}
                         {typeof c.page === "number" ? ` (p. ${c.page})` : ""}
                       </li>
                     ))}
@@ -156,7 +158,7 @@ export default function ChatInterface() {
         {loading && (
           <div className="flex justify-start">
             <div className="max-w-[80%] rounded-2xl px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-bl-sm animate-pulse">
-              جاري التفكير... / Thinking...
+              {t("جاري التفكير...", "Thinking...")}
             </div>
           </div>
         )}
@@ -173,7 +175,7 @@ export default function ChatInterface() {
               send();
             }
           }}
-          placeholder="اطرح سؤالك هنا / Ask your question..."
+          placeholder={t("اطرح سؤالك هنا", "Ask your question...")}
           className="flex-1 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
         />
         <button
@@ -181,7 +183,7 @@ export default function ChatInterface() {
           disabled={loading || !input.trim()}
           className="rounded-md bg-slate-900 text-white px-4 py-2 hover:bg-slate-800 disabled:opacity-50"
         >
-          إرسال / Send
+          {t("إرسال", "Send")}
         </button>
       </div>
     </div>

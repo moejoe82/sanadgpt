@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n, useLanguage } from "@/components/LanguageProvider";
+
 export default function GlobalError({
   error,
   reset,
@@ -7,10 +9,15 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useI18n();
+  const { direction } = useLanguage();
+
   return (
-    <div dir="rtl" className="min-h-screen flex items-center justify-center">
+    <div dir={direction} className="min-h-screen flex items-center justify-center">
       <div className="flex flex-col items-center gap-4 text-center text-slate-800 dark:text-slate-100">
-        <div className="text-lg font-semibold">حدث خطأ / Error occurred</div>
+        <div className="text-lg font-semibold">
+          {t("حدث خطأ", "Error occurred")}
+        </div>
         <div className="text-sm max-w-md break-words opacity-80">
           {error?.message || "Unknown error"}
         </div>
@@ -18,7 +25,7 @@ export default function GlobalError({
           onClick={reset}
           className="rounded-md bg-slate-900 text-white px-4 py-2 hover:bg-slate-800"
         >
-          إعادة المحاولة / Retry
+          {t("إعادة المحاولة", "Retry")}
         </button>
       </div>
     </div>
