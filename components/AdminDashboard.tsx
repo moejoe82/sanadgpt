@@ -46,6 +46,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
+  const [checkingStatusIds, setCheckingStatusIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadAnalytics();
@@ -95,6 +96,51 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Error deleting document:", error);
       alert("Failed to delete document");
+    }
+  };
+
+  const checkDocumentStatus = async (id: string) => {
+    setCheckingStatusIds(prev => new Set(prev).add(id));
+    try {
+      const resp = await fetch("/api/documents/update-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documentIds: [id] }),
+      });
+      
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}));
+        throw new Error(data?.error || "Status check failed");
+      }
+      
+      const data = await resp.json();
+      const newStatus = data?.statuses?.[id];
+      
+      if (newStatus) {
+        // Update the document status in the local state
+        setDocuments(prev => prev.map(doc => 
+          doc.id === id ? { ...doc, status: newStatus } : doc
+        ));
+        
+        if (newStatus === "ready") {
+          alert("المستند جاهز الآن! / Document is now ready!");
+        } else if (newStatus === "failed") {
+          alert("فشل في معالجة المستند. / Document processing failed.");
+        } else {
+          alert("المستند لا يزال قيد المعالجة. / Document is still processing.");
+        }
+      } else {
+        alert("لا يوجد تحديث للحالة متاح. / No status update available.");
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Unknown error";
+      alert(`فشل في فحص الحالة: ${msg} / Status check failed: ${msg}`);
+    } finally {
+      setCheckingStatusIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
 
@@ -294,17 +340,29 @@ export default function AdminDashboard() {
                         {doc.title}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 text-xs rounded ${
-                            doc.status === "ready"
-                              ? "bg-green-100 text-green-800"
-                              : doc.status === "processing"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {doc.status}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`px-2 py-1 text-xs rounded ${
+                              doc.status === "ready"
+                                ? "bg-green-100 text-green-800"
+                                : doc.status === "processing"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {doc.status}
+                          </span>
+                          {doc.status === "processing" && (
+                            <button
+                              onClick={() => checkDocumentStatus(doc.id)}
+                              disabled={checkingStatusIds.has(doc.id)}
+                              className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="فحص حالة المعالجة / Check processing status"
+                            >
+                              {checkingStatusIds.has(doc.id) ? "جاري الفحص... / Checking..." : "فحص / Check"}
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                         {doc.emirate_scope || "غير محدد / Not specified"}
