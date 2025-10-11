@@ -40,7 +40,7 @@ async function checkVectorStoreFileStatus(fileId: string, vectorStoreId: string)
     }
 
     const data = await response.json();
-    const vectorStoreFile = data.data.find((f: any) => f.file_id === fileId);
+    const vectorStoreFile = data.data.find((f: { file_id?: string; status?: string; id?: string; created_at?: number }) => f.file_id === fileId);
     
     return {
       found: !!vectorStoreFile,
