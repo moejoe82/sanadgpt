@@ -1,6 +1,8 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { openai } from "@/lib/openai";
 import { toFile } from "openai/uploads";
@@ -32,6 +34,27 @@ function getFileExtension(filename: string, mimeType: string): string {
 
 export async function POST(req: NextRequest) {
   try {
+    // Auth: get user from Supabase session cookies
+    const cookieStore = await cookies();
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !anonKey) {
+      return NextResponse.json(
+        { error: "Server misconfiguration" },
+        { status: 500 }
+      );
+    }
+    const supabase = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Cookie: cookieStore.toString() } },
+    });
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await req.formData();
     const file = formData.get("document") as File | null;
     const title = (formData.get("title") as string) || "Untitled";
@@ -45,8 +68,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Use the test user we created
-    const user_id = "8647beeb-845c-4024-b6b1-a475ddcc5f91";
+    const user_id = user.id;
 
     const arrayBuffer = await file.arrayBuffer();
     const nodeBuffer = Buffer.from(arrayBuffer);
@@ -138,6 +160,23 @@ export async function POST(req: NextRequest) {
       .single();
     if (insertErr) {
       return NextResponse.json({ error: insertErr.message }, { status: 500 });
+    }
+
+    // Update status to ready after successful upload
+    try {
+      await fetch(
+        `${
+          process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+        }/api/documents/update-status`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ documentIds: [inserted.id] }),
+        }
+      );
+    } catch (statusError) {
+      console.error("Failed to update document status:", statusError);
+      // Don't fail the upload if status update fails
     }
 
     return NextResponse.json({ id: inserted.id, title }, { status: 200 });
