@@ -7,6 +7,7 @@ import ChatInterface from "@/components/ChatInterface";
 import DocumentUpload from "@/components/DocumentUpload";
 import DocumentsList from "@/components/DocumentsList";
 import AdminDashboard from "@/components/AdminDashboard";
+import { useI18n, useLanguage } from "@/components/LanguageProvider";
 
 type TabKey = "chat" | "upload" | "documents" | "admin";
 
@@ -16,6 +17,9 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("chat");
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const t = useI18n();
+  const { direction } = useLanguage();
+  const textAlign = direction === "rtl" ? "text-right" : "text-left";
 
   useEffect(() => {
     let mounted = true;
@@ -67,13 +71,13 @@ export default function DashboardPage() {
   // Compute tabs BEFORE any conditional returns to keep hooks order stable
   const tabs = useMemo(() => {
     const base: { key: TabKey; label: string }[] = [
-      { key: "chat", label: "المحادثة / Chat" },
-      { key: "upload", label: "رفع / Upload" },
-      { key: "documents", label: "المستندات / Documents" },
+      { key: "chat", label: t("المحادثة", "Chat") },
+      { key: "upload", label: t("رفع", "Upload") },
+      { key: "documents", label: t("المستندات", "Documents") },
     ];
-    if (isAdmin) base.push({ key: "admin", label: "الإدارة / Admin" });
+    if (isAdmin) base.push({ key: "admin", label: t("الإدارة", "Admin") });
     return base;
-  }, [isAdmin]);
+  }, [isAdmin, t]);
 
   // Instead of early returns, render conditional UI blocks to preserve hooks order
 
@@ -83,12 +87,14 @@ export default function DashboardPage() {
   }
 
   return (
-    <div dir="rtl" className="min-h-screen flex flex-col">
+    <div dir={direction} className="min-h-screen flex flex-col">
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-black/40 z-10">
           <div className="text-center">
             <div className="h-8 w-8 border-4 border-slate-300 border-t-slate-900 rounded-full animate-spin mx-auto mb-4" />
-            <div className="text-slate-600">جاري التحميل... / Loading...</div>
+            <div className="text-slate-600">
+              {t("جاري التحميل...", "Loading...")}
+            </div>
           </div>
         </div>
       )}
@@ -101,33 +107,39 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="text-sm text-slate-700 dark:text-slate-300">
+          <div
+            className={`text-sm text-slate-700 dark:text-slate-300 ${textAlign}`}
+          >
             {email || (loading ? "..." : "")}
           </div>
           <button
             onClick={logout}
             className="rounded-md bg-slate-900 text-white px-3 py-1.5 hover:bg-slate-800"
           >
-            خروج / Logout
+            {t("خروج", "Logout")}
           </button>
         </div>
       </div>
 
       {/* Body with RTL sidebar */}
       <div className="flex flex-1 overflow-hidden">
-        <aside className="w-64 border-l bg-white/90 dark:bg-slate-900/80 p-4 space-y-2">
-          {tabs.map((t) => (
+        <aside
+          className={`w-64 ${
+            direction === "rtl" ? "border-l" : "border-r"
+          } bg-white/90 dark:bg-slate-900/80 p-4 space-y-2`}
+        >
+          {tabs.map((tab) => (
             <button
-              key={t.key}
-              onClick={() => setActiveTab(t.key)}
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
               className={
-                "w-full text-right rounded-md px-3 py-2 transition " +
-                (activeTab === t.key
+                `w-full ${textAlign} rounded-md px-3 py-2 transition ` +
+                (activeTab === tab.key
                   ? "bg-slate-900 text-white"
                   : "hover:bg-slate-100 dark:hover:bg-slate-800")
               }
             >
-              {t.label}
+              {tab.label}
             </button>
           ))}
         </aside>
