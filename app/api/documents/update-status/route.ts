@@ -24,7 +24,10 @@ async function checkFileStatus(fileId: string) {
   }
 }
 
-async function checkVectorStoreFileStatus(fileId: string, vectorStoreId: string) {
+async function checkVectorStoreFileStatus(
+  fileId: string,
+  vectorStoreId: string
+) {
   try {
     const response = await fetch(
       `https://api.openai.com/v1/vector_stores/${vectorStoreId}/files?limit=100`,
@@ -40,8 +43,15 @@ async function checkVectorStoreFileStatus(fileId: string, vectorStoreId: string)
     }
 
     const data = await response.json();
-    const vectorStoreFile = data.data.find((f: { file_id?: string; status?: string; id?: string; created_at?: number }) => f.file_id === fileId);
-    
+    const vectorStoreFile = data.data.find(
+      (f: {
+        file_id?: string;
+        status?: string;
+        id?: string;
+        created_at?: number;
+      }) => f.file_id === fileId
+    );
+
     return {
       found: !!vectorStoreFile,
       status: vectorStoreFile?.status || "not_found",
@@ -84,7 +94,7 @@ export async function POST(req: NextRequest) {
     // Check each document
     for (const doc of docs || []) {
       const id = doc.id;
-      
+
       // Already ready – keep as ready
       if (doc.status === "ready") {
         statuses[id] = "ready";
@@ -102,45 +112,62 @@ export async function POST(req: NextRequest) {
       try {
         // Check OpenAI file status
         const fileStatus = await checkFileStatus(openaiFileId);
-        console.log(`[UpdateStatus] Doc ${id}: OpenAI file status = ${fileStatus.status}`);
+        console.log(
+          `[UpdateStatus] Doc ${id}: OpenAI file status = ${fileStatus.status}`
+        );
 
         // Check vector store status
         let vectorStatus = { found: false, status: "not_found" };
         if (vectorStoreId) {
-          vectorStatus = await checkVectorStoreFileStatus(openaiFileId, vectorStoreId);
-          console.log(`[UpdateStatus] Doc ${id}: Vector store status = ${vectorStatus.status}`);
+          vectorStatus = await checkVectorStoreFileStatus(
+            openaiFileId,
+            vectorStoreId
+          );
+          console.log(
+            `[UpdateStatus] Doc ${id}: Vector store status = ${vectorStatus.status}`
+          );
         }
 
         // Determine final status
-        const isFileReady = fileStatus.status === "processed" || fileStatus.status === "succeeded";
+        const isFileReady =
+          fileStatus.status === "processed" ||
+          fileStatus.status === "succeeded";
         const isVectorReady = vectorStatus.status === "completed";
 
         if (isFileReady && isVectorReady) {
           statuses[id] = "ready";
-        } else if (fileStatus.status === "error" || vectorStatus.status === "failed") {
+        } else if (
+          fileStatus.status === "error" ||
+          vectorStatus.status === "failed"
+        ) {
           statuses[id] = "failed";
         } else {
           statuses[id] = "processing";
         }
-
       } catch (e: unknown) {
-        errors[id] = e instanceof Error ? e.message : "OpenAI status check failed";
+        errors[id] =
+          e instanceof Error ? e.message : "OpenAI status check failed";
       }
     }
 
     // Update documents with new statuses
-    const updatePromises = Object.entries(statuses).map(async ([id, status]) => {
-      if (status === "ready" || status === "failed") {
-        const { error: updateErr } = await supabaseAdmin
-          .from("documents")
-          .update({ status })
-          .eq("id", id);
-        
-        if (updateErr) {
-          console.error(`[UpdateStatus] Failed to update doc ${id}:`, updateErr);
+    const updatePromises = Object.entries(statuses).map(
+      async ([id, status]) => {
+        if (status === "ready" || status === "failed") {
+          const { error: updateErr } = await supabaseAdmin
+            .from("documents")
+            .update({ status })
+            .eq("id", id);
+
+          if (updateErr) {
+            console.error(
+              `[UpdateStatus] Failed to update doc ${id}:`,
+              updateErr
+            );
+          }
         }
       }
-    });
+    );
 
     await Promise.all(updatePromises);
 
