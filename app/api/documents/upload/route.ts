@@ -34,7 +34,7 @@ function getFileExtension(filename: string, mimeType: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    // Auth: get user from Supabase session cookies
+    // Auth: get user from Supabase session cookies or Authorization header
     const cookieStore = await cookies();
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -44,8 +44,18 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    const authHeader = req.headers.get("Authorization");
+    let globalHeaders: Record<string, string> = {};
+
+    if (authHeader?.startsWith("Bearer ")) {
+      globalHeaders = { Authorization: authHeader };
+    } else {
+      globalHeaders = { Cookie: cookieStore.toString() };
+    }
+
     const supabase = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Cookie: cookieStore.toString() } },
+      global: { headers: globalHeaders },
     });
 
     const {

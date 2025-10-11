@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 type UploadState = "idle" | "hashing" | "uploading" | "success" | "error";
 
@@ -86,8 +87,24 @@ export default function DocumentUpload() {
         return;
       }
 
+      // Pre-check: user must be logged in
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        setMessage("يجب تسجيل الدخول أولاً. | You must be logged in first.");
+        setState("error");
+        return;
+      }
+
       setState("hashing");
       await sha256HexBrowser(file);
+
+      // Get access token for Authorization header
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
 
       // Build form-data
       const form = new FormData();
@@ -103,6 +120,9 @@ export default function DocumentUpload() {
         const xhr = new XMLHttpRequest();
         xhr.open("POST", "/api/documents/upload", true);
         xhr.withCredentials = true;
+        if (accessToken) {
+          xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
+        }
         xhr.upload.onprogress = (evt) => {
           if (!evt.lengthComputable) return;
           const pct = Math.round((evt.loaded / evt.total) * 100);
