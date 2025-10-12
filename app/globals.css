@@ -1,26 +1,152 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  color-scheme: light dark;
+  --color-surface: #ffffff;
+  --color-surface-muted: rgba(248, 250, 252, 0.82);
+  --color-surface-elevated: rgba(255, 255, 255, 0.9);
+  --color-surface-contrast: rgba(15, 23, 42, 0.04);
+  --color-border: rgba(15, 23, 42, 0.12);
+  --color-border-strong: rgba(15, 23, 42, 0.18);
+  --color-text: #0f172a;
+  --color-text-muted: rgba(15, 23, 42, 0.66);
+  --color-text-subtle: rgba(15, 23, 42, 0.52);
+  --color-primary: #1e3a8a;
+  --color-primary-strong: #1d4ed8;
+  --color-primary-muted: rgba(37, 99, 235, 0.12);
+  --color-danger: #b91c1c;
+  --color-success: #0f766e;
+  --color-warning: #b45309;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-geist-sans, "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  --font-mono: var(--font-geist-mono, "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+
+  --font-size-xs: clamp(0.75rem, 0.7rem + 0.2vw, 0.85rem);
+  --font-size-sm: clamp(0.875rem, 0.82rem + 0.25vw, 0.95rem);
+  --font-size-md: clamp(1rem, 0.95rem + 0.3vw, 1.1rem);
+  --font-size-lg: clamp(1.2rem, 1.1rem + 0.4vw, 1.35rem);
+  --font-size-xl: clamp(1.45rem, 1.3rem + 0.55vw, 1.7rem);
+  --font-size-2xl: clamp(1.8rem, 1.55rem + 0.75vw, 2.2rem);
+
+  --line-height-tight: 1.2;
+  --line-height-base: 1.5;
+  --line-height-loose: 1.8;
+
+  --space-3xs: clamp(0.25rem, 0.15rem + 0.25vw, 0.4rem);
+  --space-2xs: clamp(0.4rem, 0.28rem + 0.3vw, 0.55rem);
+  --space-xs: clamp(0.55rem, 0.35rem + 0.4vw, 0.75rem);
+  --space-sm: clamp(0.75rem, 0.5rem + 0.45vw, 1rem);
+  --space-md: clamp(1rem, 0.7rem + 0.6vw, 1.35rem);
+  --space-lg: clamp(1.35rem, 0.9rem + 0.8vw, 1.9rem);
+  --space-xl: clamp(1.8rem, 1.1rem + 1.1vw, 2.5rem);
+  --space-2xl: clamp(2.25rem, 1.4rem + 1.4vw, 3.1rem);
+  --space-3xl: clamp(2.75rem, 1.7rem + 1.7vw, 3.75rem);
+
+  --radius-xs: 0.4rem;
+  --radius-sm: 0.55rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.1rem;
+  --radius-xl: 1.6rem;
+  --radius-full: 999rem;
+
+  --shadow-xs: 0 0.25rem 0.75rem rgba(15, 23, 42, 0.08);
+  --shadow-sm: 0 0.35rem 1.2rem rgba(15, 23, 42, 0.12);
+  --shadow-md: 0 0.55rem 1.8rem rgba(15, 23, 42, 0.16);
+
+  --transition-fast: 160ms ease;
+  --transition-medium: 240ms ease;
+  --transition-slow: 360ms ease;
+
+  --safe-area-inset-top: env(safe-area-inset-top);
+  --safe-area-inset-right: env(safe-area-inset-right);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom);
+  --safe-area-inset-left: env(safe-area-inset-left);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --color-surface: #020617;
+    --color-surface-muted: rgba(2, 6, 23, 0.86);
+    --color-surface-elevated: rgba(15, 23, 42, 0.9);
+    --color-surface-contrast: rgba(148, 163, 184, 0.18);
+    --color-border: rgba(148, 163, 184, 0.22);
+    --color-border-strong: rgba(148, 163, 184, 0.3);
+    --color-text: #e2e8f0;
+    --color-text-muted: rgba(226, 232, 240, 0.78);
+    --color-text-subtle: rgba(226, 232, 240, 0.6);
+    --color-primary: #60a5fa;
+    --color-primary-strong: #3b82f6;
+    --color-primary-muted: rgba(96, 165, 250, 0.16);
+    --color-danger: #f87171;
+    --color-success: #34d399;
+    --color-warning: #fbbf24;
   }
 }
 
+* {
+  box-sizing: border-box;
+  min-inline-size: 0;
+}
+
+html {
+  font-size: 100%;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-base);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-inline-size: 100%;
+}
+
+::selection {
+  background-color: var(--color-primary-muted);
+  color: var(--color-text);
+}
+
+:focus-visible {
+  outline: max(0.15rem, 2px) solid var(--color-primary-strong);
+  outline-offset: 0.15rem;
+}
+
+[data-theme="dark"] body {
+  background-color: var(--color-surface);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
