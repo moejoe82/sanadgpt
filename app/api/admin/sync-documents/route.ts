@@ -182,7 +182,7 @@ export async function POST() {
         );
 
         // Get existing file hashes
-        const existingHashes = documentsToInsert.map(doc => doc.file_hash);
+        const existingHashes = documentsToInsert.map((doc) => doc.file_hash);
         const { data: existingDocs, error: checkError } = await supabaseAdmin
           .from("documents")
           .select("file_hash")
@@ -200,8 +200,12 @@ export async function POST() {
         }
 
         // Filter out documents that already exist
-        const existingHashesSet = new Set(existingDocs?.map(doc => doc.file_hash) || []);
-        const newDocuments = documentsToInsert.filter(doc => !existingHashesSet.has(doc.file_hash));
+        const existingHashesSet = new Set(
+          existingDocs?.map((doc) => doc.file_hash) || []
+        );
+        const newDocuments = documentsToInsert.filter(
+          (doc) => !existingHashesSet.has(doc.file_hash)
+        );
 
         console.log(
           `📊 Found ${existingHashesSet.size} existing documents, ${newDocuments.length} new documents to insert`
@@ -214,8 +218,11 @@ export async function POST() {
             documents: [],
             summary: {
               total: documentsToInsert.length,
-              ready: documentsToInsert.filter(doc => doc.status === "ready").length,
-              processing: documentsToInsert.filter(doc => doc.status === "processing").length,
+              ready: documentsToInsert.filter((doc) => doc.status === "ready")
+                .length,
+              processing: documentsToInsert.filter(
+                (doc) => doc.status === "processing"
+              ).length,
             },
             debug: {
               vectorStoreInfo,
@@ -258,7 +265,9 @@ export async function POST() {
 
         // Calculate summary statistics for all documents (existing + new)
         const totalDocuments = documentsToInsert.length;
-        const readyCount = documentsToInsert.filter((doc) => doc.status === "ready").length;
+        const readyCount = documentsToInsert.filter(
+          (doc) => doc.status === "ready"
+        ).length;
         const processingCount = documentsToInsert.filter(
           (doc) => doc.status === "processing"
         ).length;
