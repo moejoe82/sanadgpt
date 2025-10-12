@@ -31,7 +31,7 @@ export default function StatusMonitoring({ refreshInterval = 5000 }: StatusMonit
       }
       
       const data = await response.json();
-      const documentsWithStatus = data.documents.map((doc: any) => ({
+      const documentsWithStatus = data.documents.map((doc: { id: string; title: string; uploaded_at: string; status?: string }) => ({
         id: doc.id,
         title: doc.title,
         status: doc.status || "processing",

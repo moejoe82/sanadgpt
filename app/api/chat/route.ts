@@ -58,7 +58,7 @@ You are SanadGPT, a bilingual (Arabic/English) audit assistant.
 
     // Extract the content and citations from the response
     const messageOutput = response.output?.find(
-      (item: any) => item.type === "message"
+      (item: { type: string }) => item.type === "message"
     );
     
     const content = messageOutput?.content?.[0]?.text || 
@@ -67,8 +67,8 @@ You are SanadGPT, a bilingual (Arabic/English) audit assistant.
 
     // Extract citations from annotations
     const citations = messageOutput?.content?.[0]?.annotations
-      ?.filter((annotation: any) => annotation.type === "file_citation")
-      ?.map((citation: any) => ({
+      ?.filter((annotation: { type: string }) => annotation.type === "file_citation")
+      ?.map((citation: { file_id: string; filename: string; index: number }) => ({
         file_id: citation.file_id,
         filename: citation.filename,
         index: citation.index,

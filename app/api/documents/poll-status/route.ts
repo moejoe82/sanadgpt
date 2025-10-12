@@ -47,7 +47,7 @@ async function testFileSearch(documentId: string): Promise<boolean> {
 
     // Check if file search call completed successfully
     const fileSearchCall = testResponse.output?.find(
-      (item: any) => item.type === "file_search_call"
+      (item: { type: string }) => item.type === "file_search_call"
     );
 
     const isSearchable = fileSearchCall?.status === "completed";
