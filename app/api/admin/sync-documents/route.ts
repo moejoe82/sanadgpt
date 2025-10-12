@@ -68,10 +68,11 @@ export async function POST() {
     });
 
   } catch (error) {
-    console.error('❌ Sync failed:', error.message);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error('❌ Sync failed:', errorMessage);
     return NextResponse.json({ 
       success: false, 
-      error: error.message 
+      error: errorMessage 
     }, { status: 500 });
   }
 }
