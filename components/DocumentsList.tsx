@@ -1,8 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
+
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
+import {
+  Button,
+  SurfaceCard,
+  type ToastPayload,
+} from "@/components/ui/primitives";
+import { supabase } from "@/lib/supabase";
+
+import styles from "./documents-list.module.css";
 
 type DocumentRow = {
   id: string;
@@ -11,123 +19,164 @@ type DocumentRow = {
   emirate_scope: string | null;
   authority_name: string | null;
   uploaded_at: string;
+  status?: string;
 };
 
-export default function DocumentsList() {
+interface DocumentsListProps {
+  onToast?: (toast: ToastPayload) => void;
+}
+
+export default function DocumentsList({ onToast }: DocumentsListProps) {
   const [docs, setDocs] = useState<DocumentRow[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const t = useI18n();
   const { direction } = useLanguage();
-  const alignment = direction === "rtl" ? "text-right" : "text-left";
 
   useEffect(() => {
     let active = true;
     (async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("documents")
-        .select("id,title,file_path,emirate_scope,authority_name,uploaded_at")
-        .order("uploaded_at", { ascending: false });
-      if (!active) return;
-      if (error) {
-        console.error(error);
+      try {
+        setLoading(true);
+        setError(null);
+        const { data, error: queryError } = await supabase
+          .from("documents")
+          .select("id,title,file_path,emirate_scope,authority_name,uploaded_at,status")
+          .order("uploaded_at", { ascending: false });
+        if (!active) return;
+        if (queryError) {
+          throw queryError;
+        }
+        setDocs(data ?? []);
+      } catch (err) {
+        console.error(err);
         setDocs([]);
-      } else {
-        setDocs(data || []);
+        setError(t("تعذر تحميل المستندات.", "Unable to load documents."));
+      } finally {
+        if (active) setLoading(false);
       }
-      setLoading(false);
     })();
     return () => {
       active = false;
     };
-  }, []);
+  }, [t]);
 
   async function onDelete(id: string, title: string) {
-    const ok = confirm(`${t("حذف المستند؟", "Delete document?")}\n${title}`);
-    if (!ok) return;
+    const confirmed = confirm(
+      `${t("حذف المستند؟", "Delete document?")}\n${title}`
+    );
+    if (!confirmed) return;
     setDeletingId(id);
-    const { error } = await supabase.from("documents").delete().eq("id", id);
+    const { error: deleteError } = await supabase
+      .from("documents")
+      .delete()
+      .eq("id", id);
     setDeletingId(null);
-    if (error) {
-      alert(
-        `${t("تعذّر الحذف:", "Failed to delete:")} ${error.message}`
-      );
+    if (deleteError) {
+      const message = `${t("تعذّر الحذف:", "Failed to delete:")} ${deleteError.message}`;
+      onToast?.({ title: t("لم يتم حذف المستند", "Document not deleted"), description: message, tone: "error" });
+      alert(message);
       return;
     }
     setDocs((prev) => (prev ? prev.filter((d) => d.id !== id) : prev));
+    onToast?.({
+      title: t("تم حذف المستند", "Document deleted"),
+      description: title,
+      tone: "success",
+    });
   }
 
   const skeleton = useMemo(
     () => (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-28 rounded-lg bg-slate-100 dark:bg-slate-800 animate-pulse"
-          />
+      <div className={styles.skeletonGrid} aria-hidden="true">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div key={index} className={styles.skeletonCard} />
         ))}
       </div>
     ),
     []
   );
 
-  if (loading) return skeleton;
-
-  if (!docs || docs.length === 0)
+  if (loading) {
     return (
-      <div className="text-center text-slate-600 dark:text-slate-300 py-10">
-        {t("لم يتم رفع أي مستندات", "No documents uploaded yet")}
-      </div>
+      <SurfaceCard className={styles.documentsCard} aria-busy="true" role="status">
+        <div className={styles.header}>
+          <h2>{t("المستندات", "Documents")}</h2>
+        </div>
+        {skeleton}
+      </SurfaceCard>
     );
+  }
+
+  if (error) {
+    return (
+      <SurfaceCard className={styles.documentsCard} role="status">
+        <div className={styles.errorState}>{error}</div>
+      </SurfaceCard>
+    );
+  }
+
+  if (!docs || docs.length === 0) {
+    return (
+      <SurfaceCard className={styles.documentsCard} role="status">
+        <div className={styles.emptyState}>
+          {t("لم يتم رفع أي مستندات بعد.", "No documents uploaded yet.")}
+        </div>
+      </SurfaceCard>
+    );
+  }
 
   return (
-    <div dir={direction} className={alignment}>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {docs.map((d) => {
-          const filename = d.file_path.split("/").pop() || d.file_path;
-          const date = new Date(d.uploaded_at).toLocaleString("en-US");
+    <SurfaceCard className={styles.documentsCard} role="region" aria-label={t("قائمة المستندات", "Documents list")}>
+      <div className={styles.header} dir={direction}>
+        <h2>{t("المستندات", "Documents")}</h2>
+        <span>{t("إجمالي", "Total")}: {docs.length}</span>
+      </div>
+      <div className={styles.collection} dir={direction}>
+        {docs.map((doc) => {
+          const filename = doc.file_path.split("/").pop() || doc.file_path;
+          const date = new Date(doc.uploaded_at).toLocaleString();
           return (
-            <div
-              key={d.id}
-              className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 bg-white/90 dark:bg-slate-900/80"
-            >
-              <div className="flex items-start justify-between gap-3">
+            <article key={doc.id} className={styles.documentItem} aria-label={doc.title || filename}>
+              <div className={styles.documentHeader}>
                 <div>
-                  <div className="font-semibold text-slate-900 dark:text-white truncate">
-                    {d.title || filename}
+                  <div className={styles.documentTitle} title={doc.title || filename}>
+                    {doc.title || filename}
                   </div>
-                  <div className="text-xs text-slate-600 dark:text-slate-300 truncate">
-                    {filename}
+                  <div className={styles.documentMeta}>
+                    <span>{filename}</span>
                   </div>
                 </div>
-                <button
-                  onClick={() => onDelete(d.id, d.title || filename)}
-                  disabled={deletingId === d.id}
-                  className="text-red-600 hover:text-red-700 text-sm disabled:opacity-50"
+                <Button
+                  variant="danger"
+                  onClick={() => onDelete(doc.id, doc.title || filename)}
+                  disabled={deletingId === doc.id}
                 >
-                  {t("حذف", "Delete")}
-                </button>
+                  {deletingId === doc.id
+                    ? t("جاري الحذف...", "Deleting...")
+                    : t("حذف", "Delete")}
+                </Button>
               </div>
-              <div className="mt-3 text-sm text-slate-700 dark:text-slate-200 space-y-1">
-                {d.emirate_scope && (
-                  <div>
-                    {t("النطاق", "Emirate")}: {d.emirate_scope}
-                  </div>
-                )}
-                {d.authority_name && (
-                  <div>
-                    {t("الجهة", "Authority")}: {d.authority_name}
-                  </div>
-                )}
-                <div>
-                  {t("التاريخ", "Date")}: {date}
-                </div>
+              <div className={styles.documentMeta}>
+                {doc.emirate_scope ? (
+                  <span>
+                    <strong>{t("النطاق", "Emirate")}:</strong> {doc.emirate_scope}
+                  </span>
+                ) : null}
+                {doc.authority_name ? (
+                  <span>
+                    <strong>{t("الجهة", "Authority")}:</strong> {doc.authority_name}
+                  </span>
+                ) : null}
+                <span>
+                  <strong>{t("التاريخ", "Date")}:</strong> {date}
+                </span>
               </div>
-            </div>
+            </article>
           );
         })}
       </div>
-    </div>
+    </SurfaceCard>
   );
 }

@@ -1,0 +1,202 @@
+.dashboard {
+  display: grid;
+  gap: var(--space-xl);
+}
+
+.header {
+  display: grid;
+  gap: var(--space-2xs);
+}
+
+.tabNavigation {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.tabButton {
+  padding-inline: clamp(0.9rem, 0.7rem + 0.4vw, 1.4rem);
+  padding-block: clamp(0.55rem, 0.4rem + 0.2vw, 0.75rem);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-contrast);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  transition: background-color var(--transition-medium),
+    border-color var(--transition-medium),
+    color var(--transition-medium);
+}
+
+.tabButton[aria-pressed="true"] {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #f8fafc;
+  box-shadow: var(--shadow-xs);
+}
+
+.tabButton:focus-visible,
+.tabButton:hover {
+  border-color: var(--color-primary-strong);
+  color: var(--color-text);
+}
+
+.sectionStack {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.statGrid {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+}
+
+.statCard {
+  border-radius: var(--radius-lg);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  background: color-mix(in srgb, var(--color-primary-muted) 65%, var(--color-surface-elevated));
+  display: grid;
+  gap: var(--space-3xs);
+  color: var(--color-text);
+}
+
+.statValue {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+}
+
+.statLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.twoColumn {
+  display: grid;
+  gap: var(--space-md);
+}
+
+@media (min-width: 62em) {
+  .twoColumn {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.listCard {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.listItem {
+  display: grid;
+  gap: var(--space-2xs);
+  padding: clamp(0.9rem, 3vw, 1.3rem);
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent);
+  background: color-mix(in srgb, var(--color-surface-elevated) 92%, transparent);
+}
+
+.listItemHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  align-items: baseline;
+}
+
+.listItemTitle {
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.listItemMeta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-subtle);
+  display: grid;
+  gap: var(--space-3xs);
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  min-inline-size: min(48rem, 100%);
+}
+
+.table th,
+.table td {
+  text-align: start;
+  padding-inline: clamp(0.75rem, 2vw, 1.2rem);
+  padding-block: clamp(0.6rem, 2vh, 0.9rem);
+  border-block-end: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.table thead th {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: color-mix(in srgb, var(--color-surface-contrast) 80%, transparent);
+}
+
+.actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: clamp(0.55rem, 0.4rem + 0.2vw, 0.75rem);
+  padding-block: clamp(0.2rem, 0.15rem + 0.1vw, 0.35rem);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.badge[data-tone="ready"] {
+  background: color-mix(in srgb, var(--color-success) 35%, transparent);
+  color: var(--color-success);
+}
+
+.badge[data-tone="processing"] {
+  background: color-mix(in srgb, var(--color-warning) 35%, transparent);
+  color: var(--color-warning);
+}
+
+.badge[data-tone="failed"] {
+  background: color-mix(in srgb, var(--color-danger) 35%, transparent);
+  color: var(--color-danger);
+}
+
+.emptyState {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: var(--space-lg);
+}
+
+.sectionHeading {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin: 0;
+}
+
+.subtle {
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-sm);
+}
+
+.actionsBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+  justify-content: space-between;
+}

@@ -56,6 +56,16 @@ SanadGPT is designed to revolutionize how audit professionals and organizations 
 - **Turbopack** - Fast bundler for development
 - **ts-node 10.9.2** - TypeScript execution
 
+## 🎨 Design System Foundations
+
+The mobile-first redesign introduces a fluid design system that keeps the dashboard accessible and direction-aware:
+
+- **Tokenized Styling** – Core spacing, typography, radius, color, and elevation scales live in [`app/globals.css`](app/globals.css) as CSS custom properties. They rely on logical properties and `clamp()` to avoid fixed pixel units while respecting safe-area insets on iOS devices.
+- **Layout Primitives** – The authenticated shell is orchestrated by [`app/dashboard/dashboard-layout.module.css`](app/dashboard/dashboard-layout.module.css), providing responsive grid regions for the header, navigation rail, and content panes across RTL and LTR locales.
+- **Reusable UI Components** – Shared primitives (button, inputs, badge, surface card, toast stack, navigation controls, and focus trap hook) are defined under [`components/ui/`](components/ui/) to ensure consistent styling, keyboard support, and motion preferences throughout the dashboard.
+- **Contextual Feedback** – Non-blocking toasts and inline validation are surfaced via the primitives, giving chat, upload, and admin flows accessible status updates without interrupting tasks.
+- **State Templates** – Loading, empty, and error views for chat, uploads, and document management now use cohesive card layouts so users always understand the system state regardless of viewport size.
+
 ## 🚀 Key Features
 
 ### 1. Document Management
