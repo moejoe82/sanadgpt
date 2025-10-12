@@ -278,7 +278,7 @@ export default function DashboardPage() {
           </div>
           
           {/* Language Toggle - Moved to top */}
-          <div className="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+          <div className="mt-4 mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
             <button
               onClick={() => {
                 toggleLanguage();
@@ -319,7 +319,7 @@ export default function DashboardPage() {
           style={desktopSidebarStyle}
         >
           {/* Language Toggle - Desktop sidebar */}
-          <div className="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+          <div className="mt-4 mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
             <button
               onClick={toggleLanguage}
               className={`w-full ${textAlign} text-sm font-bold text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300 transition-colors`}
@@ -350,7 +350,7 @@ export default function DashboardPage() {
         </aside>
 
         <main className={`flex-1 min-w-0 overflow-y-auto px-4 pb-[max(env(safe-area-inset-bottom),1rem)] pt-4 md:px-8 md:pt-6 ${direction === "rtl" ? "md:mr-72" : "md:ml-72"}`}>
-          <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 min-h-[calc(100vh-10rem)]">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
             {!email ? null : activeTab === "chat" ? <ChatInterface /> : null}
             {activeTab === "upload" && (
               <div className="w-full">
