@@ -22,7 +22,7 @@ export default function DashboardPage() {
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
   const t = useI18n();
-  const { direction } = useLanguage();
+  const { direction, language, toggleLanguage } = useLanguage();
   const textAlign = direction === "rtl" ? "text-right" : "text-left";
 
   useEffect(() => {
@@ -294,6 +294,19 @@ export default function DashboardPage() {
               </button>
             ))}
           </nav>
+          
+          {/* Language Toggle */}
+          <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <button
+              onClick={() => {
+                toggleLanguage();
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full ${textAlign} text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 transition-colors`}
+            >
+              {language === "ar" ? "English" : "العربية"}
+            </button>
+          </div>
         </aside>
 
         <aside
@@ -318,6 +331,16 @@ export default function DashboardPage() {
               </button>
             ))}
           </nav>
+          
+          {/* Language Toggle */}
+          <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <button
+              onClick={toggleLanguage}
+              className={`w-full ${textAlign} text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 transition-colors`}
+            >
+              {language === "ar" ? "English" : "العربية"}
+            </button>
+          </div>
         </aside>
 
         <main className="flex-1 min-w-0 overflow-y-auto px-4 pb-[max(env(safe-area-inset-bottom),1rem)] pt-4 md:px-8 md:pt-6">
