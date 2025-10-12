@@ -19,9 +19,9 @@ SanadGPT is designed to revolutionize how audit professionals and organizations 
 │   Frontend      │    │   Backend       │    │   External      │
 │   (Next.js)     │◄──►│   (API Routes)  │◄──►│   Services      │
 │                 │    │                 │    │                 │
-│ • React 19      │    │ • Node.js       │    │ • OpenAI API    │
-│ • TypeScript    │    │ • TypeScript    │    │ • Vector Store  │
-│ • Tailwind CSS  │    │ • Supabase      │    │ • Embeddings    │
+│ • React 19      │    │ • Node.js       │    │ • OpenAI        │
+│ • TypeScript    │    │ • TypeScript    │    │   Responses API │
+│ • Tailwind CSS  │    │ • Supabase      │    │ • Vector Store  │
 │ • RTL Support   │    │ • File Storage  │    │ • GPT-4o        │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
@@ -40,7 +40,7 @@ SanadGPT is designed to revolutionize how audit professionals and organizations 
 
 - **Next.js API Routes** - Serverless API endpoints
 - **Node.js Runtime** - Server-side execution
-- **OpenAI SDK 6.2.0** - AI model integration
+- **OpenAI SDK 6.2.0** - AI model integration with Responses API
 - **Supabase 2.74.0** - Backend-as-a-Service
 
 ### Document Processing
@@ -461,7 +461,7 @@ graph TD
    - Receive user question and conversation history
    - Validate OpenAI API key and vector store ID
 
-2. **OpenAI Response Generation**
+2. **OpenAI Response Generation** (Using Responses API)
 
    ```javascript
    const response = await openai.responses.create({
@@ -478,6 +478,9 @@ graph TD
        { role: "user", content: question },
      ],
    });
+   
+   // Extract content using output_text (Responses API specific)
+   const content = response.output_text || "I couldn't process your request.";
    ```
 
 3. **File Search Integration**
@@ -511,19 +514,29 @@ graph TD
 
 ## 🤖 OpenAI Integration
 
+### API Architecture Choice
+
+SanadGPT uses **OpenAI Responses API** instead of the traditional Assistants API for several key advantages:
+
+- **Simpler Implementation**: Responses API provides a more straightforward interface
+- **Better Performance**: Newer architecture with optimized response handling
+- **Direct File Search**: Seamless integration with vector stores for document retrieval
+- **Easier Maintenance**: Reduced complexity compared to Assistants API workflow
+
 ### Vector Store Setup
 
 SanadGPT uses OpenAI's Vector Store for document indexing and retrieval:
 
 1. **Automatic Processing**: Documents are automatically chunked and embedded
-2. **File Search**: Integrated with OpenAI's file search capabilities
+2. **File Search**: Integrated with OpenAI's file search capabilities via Responses API
 3. **Semantic Search**: Advanced similarity search across document content
 4. **Citation Support**: Automatic source attribution in responses
 
 ### API Usage
 
 - **Model**: GPT-4o for high-quality responses
-- **File Search**: Integrated tool for document retrieval
+- **API Type**: OpenAI Responses API (not Assistants API) - newer, simpler implementation
+- **File Search**: Integrated tool for document retrieval via vector store
 - **Streaming**: Real-time response generation
 - **Bilingual**: Supports both Arabic and English queries
 
