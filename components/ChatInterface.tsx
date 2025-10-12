@@ -105,6 +105,16 @@ export default function ChatInterface() {
         const data = await resp.json();
         if (data.content) {
           updateAssistant(assistantId, data.content);
+          // Update citations if available
+          if (data.citations && data.citations.length > 0) {
+            setMessages((prev) =>
+              prev.map((m) => 
+                m.id === assistantId 
+                  ? { ...m, citations: data.citations }
+                  : m
+              )
+            );
+          }
         }
       }
     } catch {
@@ -145,7 +155,8 @@ export default function ChatInterface() {
                   <ul className={`list-disc ${citationsMargin} space-y-0.5`}>
                     {m.citations.map((c, i) => (
                       <li key={i} className="truncate">
-                        {c.title || c.url || t("مرجع", "Reference")}
+                        {c.filename || c.title || c.url || t("مرجع", "Reference")}
+                        {typeof c.index === "number" ? ` (index: ${c.index})` : ""}
                         {typeof c.page === "number" ? ` (p. ${c.page})` : ""}
                       </li>
                     ))}

@@ -172,21 +172,43 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: insertErr.message }, { status: 500 });
     }
 
-    // Update status to ready after successful upload
+    // Start intelligent polling to detect when document is actually searchable
     try {
       await fetch(
         `${
           process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-        }/api/documents/update-status`,
+        }/api/documents/poll-status`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ documentIds: [inserted.id] }),
+          body: JSON.stringify({ 
+            documentId: inserted.id,
+            config: {
+              maxAttempts: 20,
+              baseDelay: 2000,
+              maxDelay: 30000
+            }
+          }),
         }
       );
-    } catch (statusError) {
-      console.error("Failed to update document status:", statusError);
-      // Don't fail the upload if status update fails
+      console.log(`[Upload] Started polling for document ${inserted.id}`);
+    } catch (pollingError) {
+      console.error("Failed to start document polling:", pollingError);
+      // Don't fail the upload if polling fails - fallback to old method
+      try {
+        await fetch(
+          `${
+            process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+          }/api/documents/update-status`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ documentIds: [inserted.id] }),
+          }
+        );
+      } catch (statusError) {
+        console.error("Failed to update document status:", statusError);
+      }
     }
 
     return NextResponse.json({ id: inserted.id, title }, { status: 200 });

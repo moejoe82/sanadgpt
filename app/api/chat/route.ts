@@ -48,17 +48,36 @@ You are SanadGPT, a bilingual (Arabic/English) audit assistant.
         {
           type: "file_search",
           vector_store_ids: [vectorStoreId],
+          max_num_results: 5, // Limit results for better performance and relevance
         },
       ],
       input,
+      // Include search results for better debugging and transparency
+      include: ["file_search_call.results"],
     });
 
-    // Extract the content from the response - use output_text for Responses API
-    const content =
+    // Extract the content and citations from the response
+    const messageOutput = response.output?.find(
+      (item: any) => item.type === "message"
+    );
+    
+    const content = messageOutput?.content?.[0]?.text || 
       (response as { output_text?: string }).output_text ||
       "I couldn't process your request. Please try again.";
 
-    return new Response(JSON.stringify({ content }), {
+    // Extract citations from annotations
+    const citations = messageOutput?.content?.[0]?.annotations
+      ?.filter((annotation: any) => annotation.type === "file_citation")
+      ?.map((citation: any) => ({
+        file_id: citation.file_id,
+        filename: citation.filename,
+        index: citation.index,
+      })) || [];
+
+    return new Response(JSON.stringify({ 
+      content,
+      citations: citations.length > 0 ? citations : undefined,
+    }), {
       headers: {
         "Content-Type": "application/json",
       },

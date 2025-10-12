@@ -381,63 +381,69 @@ graph TD
    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'processing')
    ```
 
-7. **Status Update Trigger**
-   - Calls `/api/documents/update-status` endpoint
-   - Begins monitoring OpenAI processing status
+7. **Intelligent Polling Trigger**
+   - Calls `/api/documents/poll-status` endpoint
+   - Begins intelligent polling with file search testing
 
-#### **Phase 3: OpenAI Processing & Status Monitoring**
+#### **Phase 3: Intelligent Status Detection & File Search Testing**
 
 ```mermaid
 graph TD
-    A[Status Check] --> B[OpenAI File Status]
-    B --> C[Vector Store Status]
-    C --> D{Both Ready?}
-    D -->|Yes| E[Status: ready]
-    D -->|No| F[Status: processing]
-    D -->|Error| G[Status: failed]
+    A[Start Polling] --> B[Test File Search]
+    B --> C{Searchable?}
+    C -->|Yes| D[Status: ready]
+    C -->|No| E[Wait & Retry]
+    E --> F{Max Attempts?}
+    F -->|No| B
+    F -->|Yes| G[Status: failed]
+    
+    H[Exponential Backoff] --> I[2s, 3s, 4.5s, 6.75s, 10s, 15s, 22.5s, 30s]
+    I --> J[Max 20 attempts]
 ```
 
 **Processing States:**
 
 1. **`processing`** (Initial State)
-
-   - File uploaded to OpenAI
-   - OpenAI processing text extraction and embeddings
-   - Vector store processing chunks
+   - File uploaded to OpenAI and vector store
+   - Intelligent polling tests actual file search capability
+   - Document not yet searchable
 
 2. **`ready`** (Final State)
-
-   - OpenAI file status: `processed` or `succeeded`
-   - Vector store status: `completed`
-   - Document available for queries
+   - File search test passes successfully
+   - Document is actually searchable and ready for queries
+   - Users can ask questions and get accurate answers
 
 3. **`failed`** (Error State)
-   - OpenAI file status: `error`
-   - Vector store status: `failed`
+   - File search test fails after maximum attempts
    - Document not available for queries
+   - Manual intervention may be required
 
-**Status Check Logic** (`/api/documents/update-status`):
+**Intelligent Polling Logic** (`/api/documents/poll-status`):
 
 ```javascript
-// Check OpenAI file status
-const fileStatus = await openai.files.retrieve(fileId);
+// Test actual file search capability
+const testResponse = await openai.responses.create({
+  model: "gpt-4o",
+  input: "test", // Minimal query
+  tools: [{
+    type: "file_search",
+    vector_store_ids: [vectorStoreId],
+    max_num_results: 1
+  }]
+});
 
-// Check vector store status
-const vectorStatus = await fetch(
-  `https://api.openai.com/v1/vector_stores/${vectorStoreId}/files`
+// Check if file search call completed successfully
+const fileSearchCall = testResponse.output?.find(
+  item => item.type === "file_search_call"
 );
 
-// Determine final status
-const isFileReady =
-  fileStatus.status === "processed" || fileStatus.status === "succeeded";
-const isVectorReady = vectorStatus.status === "completed";
+const isSearchable = fileSearchCall?.status === "completed";
 
-if (isFileReady && isVectorReady) {
-  status = "ready";
-} else if (fileStatus.status === "error" || vectorStatus.status === "failed") {
-  status = "failed";
+if (isSearchable) {
+  status = "ready"; // Document is actually searchable
 } else {
-  status = "processing";
+  // Continue polling with exponential backoff
+  // 2s, 3s, 4.5s, 6.75s, 10s, 15s, 22.5s, 30s intervals
 }
 ```
 
@@ -500,9 +506,16 @@ graph TD
 | ----------------- | --------------- | -------------------------------------- |
 | Client Upload     | 1-5 seconds     | Depends on file size                   |
 | Server Processing | 2-10 seconds    | File upload + database operations      |
-| OpenAI Processing | 30-120 seconds  | Text extraction + embedding generation |
-| Vector Store      | 10-60 seconds   | Chunk processing + indexing            |
-| **Total Time**    | **1-3 minutes** | **Ready for queries**                  |
+| OpenAI Processing | 5-30 seconds    | Text extraction + embedding generation |
+| File Search Test  | 2-30 seconds    | Intelligent polling with exponential backoff |
+| **Total Time**    | **10-75 seconds** | **Ready for queries**                  |
+
+**Typical Processing Times:**
+- **Small files (1-5MB)**: 10-20 seconds
+- **Medium files (5-20MB)**: 20-40 seconds  
+- **Large files (20-50MB)**: 40-75 seconds
+
+**Key Improvement**: Documents are only marked "ready" when they are **actually searchable**, not just uploaded.
 
 ### **Error Handling**
 

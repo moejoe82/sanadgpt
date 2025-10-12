@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
+import StatusMonitoring from "@/components/StatusMonitoring";
 // Removed unused supabase import - now using API routes
 // Updated for Vercel redeploy
 
@@ -163,6 +164,11 @@ export default function AdminDashboard() {
         id: "documents",
         label: t("إدارة المستندات", "Document Management"),
         icon: "📄",
+      },
+      {
+        id: "status",
+        label: t("مراقبة الحالة", "Status Monitoring"),
+        icon: "🔄",
       },
       {
         id: "users",
@@ -422,6 +428,8 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {activeTab === "status" && <StatusMonitoring refreshInterval={5000} />}
 
         {activeTab === "users" && (
           <div className="p-6">
