@@ -170,8 +170,9 @@ export default function DashboardPage() {
 
   const desktopSidebarStyle: CSSProperties = useMemo(
     () => ({
-      top: headerHeight,
-      height: `calc(100vh - ${headerHeight}px)`,
+      top: 0, // Remove header height offset
+      height: '100vh', // Full viewport height
+      paddingTop: `${headerHeight}px`, // Use padding instead
     }),
     [headerHeight]
   );
@@ -243,7 +244,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="flex flex-1 min-h-0 overflow-hidden" style={{ contain: "layout" }}>
+      <div className="flex flex-1 min-h-0 relative">
         {isSidebarOpen && (
           <button
             type="button"
@@ -314,7 +315,7 @@ export default function DashboardPage() {
         <aside
           className={`${
             direction === "rtl" ? "md:border-l" : "md:border-r"
-          } sticky hidden w-72 shrink-0 flex-col border-slate-200 bg-white/95 px-6 py-8 dark:bg-slate-900/85 md:flex`}
+          } fixed ${direction === "rtl" ? "right-0" : "left-0"} hidden w-72 shrink-0 flex-col border-slate-200 bg-white/95 dark:bg-slate-900/85 md:flex overflow-hidden px-6 py-8`}
           style={desktopSidebarStyle}
         >
           {/* Language Toggle - Desktop sidebar */}
@@ -348,8 +349,8 @@ export default function DashboardPage() {
           </nav>
         </aside>
 
-        <main className="flex-1 min-w-0 overflow-y-auto px-4 pb-[max(env(safe-area-inset-bottom),1rem)] pt-4 md:px-8 md:pt-6">
-          <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+        <main className={`flex-1 min-w-0 overflow-y-auto px-4 pb-[max(env(safe-area-inset-bottom),1rem)] pt-4 md:px-8 md:pt-6 ${direction === "rtl" ? "md:mr-72" : "md:ml-72"}`}>
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 min-h-[calc(100vh-10rem)]">
             {!email ? null : activeTab === "chat" ? <ChatInterface /> : null}
             {activeTab === "upload" && (
               <div className="w-full">

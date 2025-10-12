@@ -20,7 +20,10 @@ export default function ChatInterface() {
   const alignment = direction === "rtl" ? "text-right" : "text-left";
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Only scroll if there are messages
+    if (messages.length > 0) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages, loading]);
 
   const appendMessage = useCallback((msg: ChatMessage) => {
