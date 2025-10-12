@@ -46,7 +46,7 @@ async function testFileSearch(documentId: string): Promise<boolean> {
     });
 
     // Check if the response contains content (indicating successful file search)
-    const hasContent = testResponse.output_text && testResponse.output_text.length > 0;
+    const hasContent = Boolean(testResponse.output_text && testResponse.output_text.length > 0);
     
     console.log(
       `[PollStatus] Document ${documentId} (${doc.title}) searchable: ${hasContent}`
