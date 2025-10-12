@@ -51,6 +51,7 @@ export default function AdminDashboard() {
   const [checkingStatusIds, setCheckingStatusIds] = useState<Set<string>>(
     new Set()
   );
+  const [syncingDocuments, setSyncingDocuments] = useState(false);
   const t = useI18n();
   const { direction } = useLanguage();
   const alignment = direction === "rtl" ? "text-right" : "text-left";
@@ -104,6 +105,38 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Error deleting document:", error);
       alert("Failed to delete document");
+    }
+  };
+
+  const syncDocumentsFromOpenAI = async () => {
+    setSyncingDocuments(true);
+    try {
+      const response = await fetch("/api/admin/sync-documents", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to sync documents");
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(`${t("تم مزامنة المستندات بنجاح!", "Documents synced successfully!")}\n${t("العدد الإجمالي:", "Total:")} ${data.summary.total}\n${t("جاهز:", "Ready:")} ${data.summary.ready}\n${t("قيد المعالجة:", "Processing:")} ${data.summary.processing}`);
+        // Reload data to show synced documents
+        loadAnalytics();
+      } else {
+        throw new Error(data.error || "Sync failed");
+      }
+    } catch (error) {
+      console.error("Error syncing documents:", error);
+      alert(`${t("فشل في مزامنة المستندات:", "Failed to sync documents:")} ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setSyncingDocuments(false);
     }
   };
 
@@ -339,9 +372,18 @@ export default function AdminDashboard() {
               <h2 className="text-2xl font-bold">
                 {t("إدارة المستندات", "Document management")}
               </h2>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                {t("رفع مستند جديد", "Upload new document")}
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={syncDocumentsFromOpenAI}
+                  disabled={syncingDocuments}
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
+                >
+                  {syncingDocuments ? t("جاري المزامنة...", "Syncing...") : t("مزامنة من OpenAI", "Sync from OpenAI")}
+                </button>
+                <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                  {t("رفع مستند جديد", "Upload new document")}
+                </button>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
