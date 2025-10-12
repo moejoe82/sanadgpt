@@ -100,7 +100,7 @@ async function checkProcessingStatus() {
       console.log(`\n📋 Document: ${doc.title}`);
       console.log(`   ID: ${doc.id}`);
       console.log(`   OpenAI File ID: ${doc.openai_file_id}`);
-      console.log(`   Uploaded: ${new Date(doc.uploaded_at).toLocaleString()}`);
+      console.log(`   Uploaded: ${new Date(doc.uploaded_at).toLocaleString("en-US")}`);
       console.log(`   Status in DB: ${doc.status}`);
 
       if (!doc.openai_file_id) {

@@ -48,7 +48,9 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
-  const [checkingStatusIds, setCheckingStatusIds] = useState<Set<string>>(new Set());
+  const [checkingStatusIds, setCheckingStatusIds] = useState<Set<string>>(
+    new Set()
+  );
   const t = useI18n();
   const { direction } = useLanguage();
   const alignment = direction === "rtl" ? "text-right" : "text-left";
@@ -106,34 +108,38 @@ export default function AdminDashboard() {
   };
 
   const checkDocumentStatus = async (id: string) => {
-    setCheckingStatusIds(prev => new Set(prev).add(id));
+    setCheckingStatusIds((prev) => new Set(prev).add(id));
     try {
       const resp = await fetch("/api/documents/update-status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ documentIds: [id] }),
       });
-      
+
       if (!resp.ok) {
         const data = await resp.json().catch(() => ({}));
         throw new Error(data?.error || "Status check failed");
       }
-      
+
       const data = await resp.json();
       const newStatus = data?.statuses?.[id];
-      
+
       if (newStatus) {
         // Update the document status in the local state
-        setDocuments(prev => prev.map(doc => 
-          doc.id === id ? { ...doc, status: newStatus } : doc
-        ));
-        
+        setDocuments((prev) =>
+          prev.map((doc) =>
+            doc.id === id ? { ...doc, status: newStatus } : doc
+          )
+        );
+
         if (newStatus === "ready") {
           alert(t("المستند جاهز الآن!", "Document is now ready!"));
         } else if (newStatus === "failed") {
           alert(t("فشل في معالجة المستند.", "Document processing failed."));
         } else {
-          alert(t("المستند لا يزال قيد المعالجة.", "Document is still processing."));
+          alert(
+            t("المستند لا يزال قيد المعالجة.", "Document is still processing.")
+          );
         }
       } else {
         alert(t("لا يوجد تحديث للحالة متاح.", "No status update available."));
@@ -142,7 +148,7 @@ export default function AdminDashboard() {
       const msg = e instanceof Error ? e.message : "Unknown error";
       alert(`${t("فشل في فحص الحالة:", "Status check failed:")} ${msg}`);
     } finally {
-      setCheckingStatusIds(prev => {
+      setCheckingStatusIds((prev) => {
         const next = new Set(prev);
         next.delete(id);
         return next;
@@ -279,7 +285,7 @@ export default function AdminDashboard() {
                         <div className="font-medium">{doc.title}</div>
                         <div className="text-sm text-gray-500">
                           {new Date(doc.uploaded_at).toLocaleDateString(
-                            "ar-SA"
+                            "en-US"
                           )}
                         </div>
                       </div>
@@ -314,7 +320,7 @@ export default function AdminDashboard() {
                         <div className="text-sm text-gray-500">
                           {user.last_sign_in_at
                             ? new Date(user.last_sign_in_at).toLocaleDateString(
-                                "ar-SA"
+                                "en-US"
                               )
                             : t("لم يسجل دخول", "Never signed in")}
                         </div>
@@ -383,7 +389,10 @@ export default function AdminDashboard() {
                               onClick={() => checkDocumentStatus(doc.id)}
                               disabled={checkingStatusIds.has(doc.id)}
                               className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                              title={t("فحص حالة المعالجة", "Check processing status")}
+                              title={t(
+                                "فحص حالة المعالجة",
+                                "Check processing status"
+                              )}
                             >
                               {checkingStatusIds.has(doc.id)
                                 ? t("جاري الفحص...", "Checking...")
@@ -396,7 +405,7 @@ export default function AdminDashboard() {
                         {doc.emirate_scope || t("غير محدد", "Not specified")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                        {new Date(doc.uploaded_at).toLocaleDateString("ar-SA")}
+                        {new Date(doc.uploaded_at).toLocaleDateString("en-US")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button
@@ -445,12 +454,12 @@ export default function AdminDashboard() {
                         {user.email}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                        {new Date(user.created_at).toLocaleDateString("ar-SA")}
+                        {new Date(user.created_at).toLocaleDateString("en-US")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                         {user.last_sign_in_at
                           ? new Date(user.last_sign_in_at).toLocaleDateString(
-                              "ar-SA"
+                              "en-US"
                             )
                           : t("لم يسجل دخول", "Never")}
                       </td>
@@ -581,7 +590,8 @@ export default function AdminDashboard() {
                       {t("إجمالي السجلات", "Total records")}
                     </label>
                     <span className="font-bold">
-                      {analytics?.totalDocuments || 0} {t("مستندات", "documents")}
+                      {analytics?.totalDocuments || 0}{" "}
+                      {t("مستندات", "documents")}
                     </span>
                   </div>
                 </div>

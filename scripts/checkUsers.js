@@ -28,8 +28,8 @@ async function checkUsers() {
     authUsers.users.forEach((user, index) => {
       console.log(`   ${index + 1}. ID: ${user.id}`);
       console.log(`      Email: ${user.email}`);
-      console.log(`      Created: ${new Date(user.created_at).toLocaleString()}`);
-      console.log(`      Last Sign In: ${user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString() : 'Never'}`);
+      console.log(`      Created: ${new Date(user.created_at).toLocaleString("en-US")}`);
+      console.log(`      Last Sign In: ${user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString("en-US") : 'Never'}`);
       console.log("");
     });
 
@@ -45,7 +45,7 @@ async function checkUsers() {
       userRoles.forEach((role, index) => {
         console.log(`   ${index + 1}. User ID: ${role.user_id}`);
         console.log(`      Role: ${role.role}`);
-        console.log(`      Created: ${new Date(role.created_at).toLocaleString()}`);
+        console.log(`      Created: ${new Date(role.created_at).toLocaleString("en-US")}`);
         console.log("");
       });
     }

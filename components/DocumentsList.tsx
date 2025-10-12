@@ -86,7 +86,7 @@ export default function DocumentsList() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {docs.map((d) => {
           const filename = d.file_path.split("/").pop() || d.file_path;
-          const date = new Date(d.uploaded_at).toLocaleString();
+          const date = new Date(d.uploaded_at).toLocaleString("en-US");
           return (
             <div
               key={d.id}
