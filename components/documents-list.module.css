@@ -1,0 +1,96 @@
+.documentsCard {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.collection {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+}
+
+.documentItem {
+  display: grid;
+  gap: var(--space-sm);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent);
+  background: color-mix(in srgb, var(--color-surface-elevated) 95%, transparent);
+  box-shadow: var(--shadow-xs);
+}
+
+.documentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.documentTitle {
+  font-weight: 600;
+  font-size: var(--font-size-md);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.documentMeta {
+  display: grid;
+  gap: var(--space-3xs);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-subtle);
+}
+
+.documentMeta strong {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.emptyState,
+.errorState {
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-contrast);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.errorState {
+  color: var(--color-danger);
+}
+
+.skeletonGrid {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+}
+
+.skeletonCard {
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-surface-contrast) 70%, transparent) 0%,
+    color-mix(in srgb, var(--color-surface-elevated) 70%, transparent) 50%,
+    color-mix(in srgb, var(--color-surface-contrast) 70%, transparent) 100%
+  );
+  block-size: clamp(8rem, 6rem + 4vh, 10rem);
+  animation: shimmer 1.4s ease-in-out infinite;
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
