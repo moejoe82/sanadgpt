@@ -275,11 +275,26 @@ export default function DashboardPage() {
               </span>
             </button>
           </div>
+          
+          {/* Language Toggle - Moved to top */}
+          <div className="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+            <button
+              onClick={() => {
+                toggleLanguage();
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full ${textAlign} text-sm font-bold text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300 transition-colors`}
+            >
+              {language === "ar" ? "English" : "العربية"}
+            </button>
+          </div>
+          
           <nav className="space-y-2">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
                   setActiveTab(tab.key);
                   setIsSidebarOpen(false);
                 }}
@@ -294,32 +309,32 @@ export default function DashboardPage() {
               </button>
             ))}
           </nav>
-          
-          {/* Language Toggle */}
-          <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <button
-              onClick={() => {
-                toggleLanguage();
-                setIsSidebarOpen(false);
-              }}
-              className={`w-full ${textAlign} text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 transition-colors`}
-            >
-              {language === "ar" ? "English" : "العربية"}
-            </button>
-          </div>
         </aside>
 
         <aside
           className={`${
             direction === "rtl" ? "md:border-l" : "md:border-r"
-          } sticky hidden w-72 shrink-0 flex-col overflow-y-auto border-slate-200 bg-white/95 px-6 py-8 dark:bg-slate-900/85 md:flex`}
+          } sticky hidden w-72 shrink-0 flex-col border-slate-200 bg-white/95 px-6 py-8 dark:bg-slate-900/85 md:flex`}
           style={desktopSidebarStyle}
         >
+          {/* Language Toggle - Desktop sidebar */}
+          <div className="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+            <button
+              onClick={toggleLanguage}
+              className={`w-full ${textAlign} text-sm font-bold text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300 transition-colors`}
+            >
+              {language === "ar" ? "English" : "العربية"}
+            </button>
+          </div>
+          
           <nav className="space-y-2">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveTab(tab.key);
+                }}
                 className={
                   `w-full ${textAlign} rounded-lg px-4 py-3 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 ` +
                   (activeTab === tab.key
@@ -331,16 +346,6 @@ export default function DashboardPage() {
               </button>
             ))}
           </nav>
-          
-          {/* Language Toggle */}
-          <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <button
-              onClick={toggleLanguage}
-              className={`w-full ${textAlign} text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 transition-colors`}
-            >
-              {language === "ar" ? "English" : "العربية"}
-            </button>
-          </div>
         </aside>
 
         <main className="flex-1 min-w-0 overflow-y-auto px-4 pb-[max(env(safe-area-inset-bottom),1rem)] pt-4 md:px-8 md:pt-6">
