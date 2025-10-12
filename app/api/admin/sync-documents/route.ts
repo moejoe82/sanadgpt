@@ -7,8 +7,54 @@ const VECTOR_STORE_ID = "vs_68eb60e012988191be5a60558a1f1de6";
 
 export async function POST() {
   try {
-    console.log('🔄 Testing OpenAI API access...');
+    console.log('🔄 Starting document sync from OpenAI Vector Store...');
     console.log(`📁 Vector Store ID: ${VECTOR_STORE_ID}`);
+
+    // First, get an existing user ID or create a system user
+    let systemUserId = null;
+    
+    try {
+      // Try to get the first user from auth.users
+      const { data: users, error: usersError } = await supabaseAdmin.auth.admin.listUsers();
+      
+      if (usersError) {
+        console.log('❌ Error fetching users:', usersError.message);
+        return NextResponse.json({ 
+          success: false, 
+          error: `Failed to fetch users: ${usersError.message}` 
+        }, { status: 500 });
+      }
+      
+      if (users && users.users && users.users.length > 0) {
+        systemUserId = users.users[0].id;
+        console.log(`✅ Using existing user ID: ${systemUserId}`);
+      } else {
+        // Create a system user if no users exist
+        console.log('🔧 No users found, creating system user...');
+        const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+          email: 'system@sanadgpt.com',
+          password: 'system_password_' + Math.random().toString(36).substring(7),
+          email_confirm: true,
+        });
+        
+        if (createError) {
+          console.log('❌ Error creating system user:', createError.message);
+          return NextResponse.json({ 
+            success: false, 
+            error: `Failed to create system user: ${createError.message}` 
+          }, { status: 500 });
+        }
+        
+        systemUserId = newUser.user.id;
+        console.log(`✅ Created system user: ${systemUserId}`);
+      }
+    } catch (userError) {
+      console.log('❌ Error with user management:', userError.message);
+      return NextResponse.json({ 
+        success: false, 
+        error: `User management error: ${userError.message}` 
+      }, { status: 500 });
+    }
 
     // Use direct API calls to OpenAI since beta.vectorStores is not available
     let vectorStoreInfo = null;
@@ -81,7 +127,7 @@ export async function POST() {
               emirate_scope: null,
               authority_name: null,
               uploaded_at: new Date(fileInfo.created_at * 1000).toISOString(),
-              user_id: '00000000-0000-0000-0000-000000000000',
+              user_id: systemUserId, // Use the valid user ID
             });
             
             console.log(`✅ Processed: ${fileInfo.filename} (${file.status})`);
@@ -111,7 +157,8 @@ export async function POST() {
             debug: {
               vectorStoreInfo,
               filesCount: filesList.length,
-              documentsToInsert: documentsToInsert.length
+              documentsToInsert: documentsToInsert.length,
+              systemUserId
             }
           }, { status: 500 });
         }
@@ -125,7 +172,8 @@ export async function POST() {
           debug: {
             vectorStoreInfo,
             filesCount: filesList.length,
-            insertedCount: data.length
+            insertedCount: data.length,
+            systemUserId
           }
         });
       }
@@ -139,7 +187,8 @@ export async function POST() {
       debug: {
         vectorStoreInfo,
         filesCount: filesList.length,
-        vectorStoreId: VECTOR_STORE_ID
+        vectorStoreId: VECTOR_STORE_ID,
+        systemUserId
       }
     });
 
