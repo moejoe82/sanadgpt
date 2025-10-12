@@ -1,12 +1,31 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
+import {
+  Button,
+  FieldLabel,
+  HelpText,
+  Input,
+  Select,
+  SurfaceCard,
+  type ToastPayload,
+} from "@/components/ui/primitives";
+import { supabase } from "@/lib/supabase";
+
+import styles from "./document-upload.module.css";
 
 type UploadState = "idle" | "hashing" | "uploading" | "success" | "error";
 
-const MAX_FILE_BYTES = 50 * 1024 * 1024; // 50MB
+type StatusTone = "info" | "success" | "error";
+
+const MAX_FILE_BYTES = 50 * 1024 * 1024;
 const ALLOWED_MIME = new Set([
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -18,12 +37,15 @@ async function sha256HexBrowser(file: File): Promise<string> {
   const hashBuffer = await crypto.subtle.digest("SHA-256", arrayBuffer);
   const bytes = new Uint8Array(hashBuffer);
   let hex = "";
-  for (let i = 0; i < bytes.length; i++)
-    hex += bytes[i].toString(16).padStart(2, "0");
+  for (let i = 0; i < bytes.length; i++) hex += bytes[i].toString(16).padStart(2, "0");
   return hex;
 }
 
-export default function DocumentUpload() {
+interface DocumentUploadProps {
+  onToast?: (toast: ToastPayload) => void;
+}
+
+export default function DocumentUpload({ onToast }: DocumentUploadProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
@@ -31,10 +53,10 @@ export default function DocumentUpload() {
   const [authorityName, setAuthorityName] = useState("");
   const [state, setState] = useState<UploadState>("idle");
   const [progress, setProgress] = useState(0);
-  const [message, setMessage] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusTone, setStatusTone] = useState<StatusTone>("info");
   const t = useI18n();
   const { direction } = useLanguage();
-  const alignment = direction === "rtl" ? "text-right" : "text-left";
 
   const isValidFile = useCallback((f: File) => {
     if (!ALLOWED_MIME.has(f.type)) return false;
@@ -42,30 +64,55 @@ export default function DocumentUpload() {
     return true;
   }, []);
 
+  const resetStatus = useCallback(() => {
+    setStatusMessage(null);
+    setStatusTone("info");
+  }, []);
+
+  const announceStatus = useCallback(
+    (message: string, tone: StatusTone) => {
+      setStatusMessage(message);
+      setStatusTone(tone);
+      if (!onToast) return;
+      if (tone === "info") return;
+      onToast({
+        title:
+          tone === "success"
+            ? t("تم رفع المستند", "Document uploaded")
+            : t("تعذر رفع المستند", "Upload failed"),
+        description: message,
+        tone: tone === "success" ? "success" : "error",
+      });
+    },
+    [onToast, t]
+  );
+
   const onFiles = useCallback(
     (files: FileList | null) => {
       if (!files || files.length === 0) return;
-      const f = files[0];
-      if (!isValidFile(f)) {
-        setMessage(
+      const selected = files[0];
+      if (!isValidFile(selected)) {
+        announceStatus(
           t(
             "نوع الملف أو حجمه غير مدعوم. يسمح بـ PDF/DOCX/TXT حتى 50MB.",
             "Unsupported type or size. Allowed: PDF/DOCX/TXT up to 50MB."
-          )
+          ),
+          "error"
         );
         return;
       }
-      setFile(f);
-      if (!title) setTitle(f.name.replace(/\.[^.]+$/, ""));
+      setFile(selected);
+      if (!title) setTitle(selected.name.replace(/\.[^.]+$/, ""));
+      resetStatus();
     },
-    [isValidFile, t, title]
+    [announceStatus, isValidFile, resetStatus, t, title]
   );
 
   const onDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      onFiles(e.dataTransfer.files);
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      onFiles(event.dataTransfer.files);
     },
     [onFiles]
   );
@@ -74,35 +121,35 @@ export default function DocumentUpload() {
     inputRef.current?.click();
   }, []);
 
-  const dragClasses = useMemo(
-    () =>
-      "flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-slate-50",
-    []
-  );
+  const selectedFileLabel = useMemo(() => {
+    if (!file) return t("لم يتم اختيار ملف", "No file selected");
+    const sizeInMb = file.size / (1024 * 1024);
+    return `${file.name} • ${sizeInMb.toFixed(1)} MB`;
+  }, [file, t]);
 
   async function onUpload() {
     try {
-      setMessage(null);
+      resetStatus();
       if (!file) {
-        setMessage(t("الرجاء اختيار ملف.", "Please choose a file."));
+        announceStatus(t("الرجاء اختيار ملف.", "Please choose a file."), "error");
         return;
       }
       if (!isValidFile(file)) {
-        setMessage(
+        announceStatus(
           t(
             "نوع الملف أو حجمه غير مدعوم. يسمح بـ PDF/DOCX/TXT حتى 50MB.",
             "Unsupported type or size. Allowed: PDF/DOCX/TXT up to 50MB."
-          )
+          ),
+          "error"
         );
         return;
       }
 
-      // Pre-check: user must be logged in
       const {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        setMessage(t("يجب تسجيل الدخول أولاً.", "You must be logged in first."));
+        announceStatus(t("يجب تسجيل الدخول أولاً.", "You must be logged in first."), "error");
         setState("error");
         return;
       }
@@ -110,13 +157,11 @@ export default function DocumentUpload() {
       setState("hashing");
       await sha256HexBrowser(file);
 
-      // Get access token for Authorization header
       const {
         data: { session },
       } = await supabase.auth.getSession();
       const accessToken = session?.access_token;
 
-      // Build form-data
       const form = new FormData();
       form.set("document", file);
       form.set("title", title || file.name);
@@ -133,9 +178,9 @@ export default function DocumentUpload() {
         if (accessToken) {
           xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
         }
-        xhr.upload.onprogress = (evt) => {
-          if (!evt.lengthComputable) return;
-          const pct = Math.round((evt.loaded / evt.total) * 100);
+        xhr.upload.onprogress = (event) => {
+          if (!event.lengthComputable) return;
+          const pct = Math.round((event.loaded / event.total) * 100);
           setProgress(pct);
         };
         xhr.onreadystatechange = () => {
@@ -152,80 +197,85 @@ export default function DocumentUpload() {
       });
 
       setState("success");
-      setMessage(t("تم رفع المستند بنجاح.", "Document uploaded successfully."));
       setProgress(100);
+      announceStatus(t("تم رفع المستند بنجاح.", "Document uploaded successfully."), "success");
       setFile(null);
     } catch (err: unknown) {
       setState("error");
+      let message = t("حدث خطأ أثناء الرفع.", "Upload failed.");
       try {
         const xhr = err as XMLHttpRequest;
         const resp = xhr.responseText ? JSON.parse(xhr.responseText) : {};
-        // Expecting duplicate error shape to surface clearly in UI
-        // Example: { error: "DUPLICATE", sha256: "...", message: "Duplicate file" }
         if (xhr.status === 409 && resp?.error) {
           const detail = resp?.message || resp?.error;
-          setMessage(
-            `${t("ملف مكرر.", "Duplicate file.")}${detail ? ` (${detail})` : ""}`
-          );
+          message = `${t("ملف مكرر.", "Duplicate file.")}${detail ? ` (${detail})` : ""}`;
         } else if (resp?.error) {
-          setMessage(
-            `${t("خطأ:", "Error:")} ${resp.error}`
-          );
-        } else {
-          setMessage(t("حدث خطأ أثناء الرفع.", "Upload failed."));
+          message = `${t("خطأ:", "Error:")} ${resp.error}`;
         }
       } catch {
-        setMessage(t("حدث خطأ أثناء الرفع.", "Upload failed."));
+        // ignore parsing errors
       }
+      announceStatus(message, "error");
     }
   }
 
   return (
-    <div dir={direction} className={`space-y-4 ${alignment}`}>
+    <SurfaceCard className={styles.uploadCard} role="region" aria-label={t("رفع مستند", "Upload document")}>
       <div
-        onDrop={onDrop}
-        onDragOver={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        className={dragClasses}
+        className={styles.dropZone}
+        dir={direction}
+        role="button"
+        tabIndex={0}
         onClick={onBrowse}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onBrowse();
+          }
+        }}
+        onDrop={onDrop}
+        onDragOver={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        }}
       >
-        <p className="text-slate-700">
-          {t("اسحب وأسقط الملف هنا أو انقر للاختيار", "Drag and drop or click")}
-        </p>
-        <p className="text-xs text-slate-500">PDF / DOCX / TXT • ≤ 50MB</p>
+        <div className={styles.fileSummary}>{selectedFileLabel}</div>
+        <div>
+          {t("اسحب وأسقط الملف أو انقر للاختيار", "Drag a file here or click to browse")}
+        </div>
+        <HelpText>PDF · DOCX · TXT — ≤ 50MB</HelpText>
         <input
           ref={inputRef}
+          className={styles.fileInput}
           type="file"
           accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
-          className="hidden"
-          onChange={(e) => onFiles(e.target.files)}
+          onChange={(event) => onFiles(event.target.files)}
         />
       </div>
 
-      <div className="grid gap-3">
-        <div>
-          <label className="block text-sm font-medium mb-1">
+      <div className={styles.fieldGrid} dir={direction}>
+        <div className={styles.fieldRow}>
+          <FieldLabel htmlFor="upload-title" required>
             {t("العنوان", "Title")}
-          </label>
-          <input
-            className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
+          </FieldLabel>
+          <Input
+            id="upload-title"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(event) => setTitle(event.target.value)}
             placeholder={t("عنوان المستند", "Document title")}
+            required
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">
+        <div className={styles.fieldRow}>
+          <FieldLabel htmlFor="upload-emirate">
             {t("نطاق الإمارة", "Emirate scope")}
-          </label>
-          <select
-            className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
+          </FieldLabel>
+          <Select
+            id="upload-emirate"
             value={emirateScope}
-            onChange={(e) => setEmirateScope(e.target.value)}
+            onChange={(event) => setEmirateScope(event.target.value)}
           >
-            <option value="">—</option>
+            <option value="">{t("اختر", "Select")}</option>
             <option value="abu_dhabi">{t("أبوظبي", "Abu Dhabi")}</option>
             <option value="dubai">{t("دبي", "Dubai")}</option>
             <option value="sharjah">{t("الشارقة", "Sharjah")}</option>
@@ -233,49 +283,44 @@ export default function DocumentUpload() {
             <option value="umm_al_quwain">{t("أم القيوين", "Umm Al Quwain")}</option>
             <option value="ras_al_khaimah">{t("رأس الخيمة", "Ras Al Khaimah")}</option>
             <option value="fujairah">{t("الفجيرة", "Fujairah")}</option>
-          </select>
+          </Select>
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">
+        <div className={styles.fieldRow}>
+          <FieldLabel htmlFor="upload-authority">
             {t("اسم الجهة", "Authority name")}
-          </label>
-          <input
-            className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
+          </FieldLabel>
+          <Input
+            id="upload-authority"
             value={authorityName}
-            onChange={(e) => setAuthorityName(e.target.value)}
-            placeholder={t(
-              "مثال: دائرة المالية",
-              "e.g., Department of Finance"
-            )}
+            onChange={(event) => setAuthorityName(event.target.value)}
+            placeholder={t("مثال: دائرة المالية", "e.g., Department of Finance")}
           />
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onUpload}
-          disabled={!file || state === "uploading"}
-          className="rounded-md bg-slate-900 text-white px-4 py-2 hover:bg-slate-800 disabled:opacity-50"
-        >
+      <div className={styles.actions} data-has-progress={state === "uploading"}>
+        <Button onClick={onUpload} disabled={!file || state === "uploading"}>
           {state === "uploading"
             ? t("جاري الرفع...", "Uploading...")
-            : t("رفع", "Upload")}
-        </button>
-        {state === "uploading" && (
-          <div className="w-full h-2 bg-slate-200 rounded">
-            <div
-              className="h-2 bg-slate-900 rounded"
-              style={{ width: `${progress}%` }}
-            />
+            : t("رفع المستند", "Upload document")}
+        </Button>
+        {state === "uploading" ? (
+          <div className={styles.progressTrack} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
+            <div className={styles.progressValue} style={{ inlineSize: `${progress}%` }} />
           </div>
-        )}
+        ) : null}
       </div>
 
-      {message && (
-        <p className="text-sm text-slate-700" role="status">
-          {message}
-        </p>
-      )}
-    </div>
+      {statusMessage ? (
+        <div
+          className={styles.statusMessage}
+          data-tone={statusTone === "info" ? undefined : statusTone}
+          role="status"
+          aria-live="polite"
+        >
+          {statusMessage}
+        </div>
+      ) : null}
+    </SurfaceCard>
   );
 }
