@@ -1,0 +1,96 @@
+.uploadCard {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.dropZone {
+  border: 1px dashed color-mix(in srgb, var(--color-border) 70%, transparent);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  background: var(--color-surface-contrast);
+  display: grid;
+  gap: var(--space-2xs);
+  justify-items: center;
+  text-align: center;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--transition-medium),
+    border-color var(--transition-medium);
+}
+
+.fileInput {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  clip: rect(0, 0, 0, 0);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.dropZone:hover,
+.dropZone:focus-within {
+  border-color: var(--color-primary-strong);
+  background: color-mix(in srgb, var(--color-primary-muted) 55%, var(--color-surface-contrast));
+}
+
+.fileSummary {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.fieldGrid {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.fieldRow {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.actions {
+  display: grid;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.actions[data-has-progress="true"] {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.progressTrack {
+  inline-size: 100%;
+  block-size: 0.55rem;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-border) 65%, transparent);
+  overflow: hidden;
+}
+
+.progressValue {
+  block-size: 100%;
+  background: color-mix(in srgb, var(--color-primary-strong) 80%, #000 5%);
+  transition: inline-size var(--transition-medium);
+}
+
+.statusMessage {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.statusMessage[data-tone="error"] {
+  color: var(--color-danger);
+}
+
+.statusMessage[data-tone="success"] {
+  color: var(--color-success);
+}
+
+@media (min-width: 45em) {
+  .fieldGrid {
+    grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+    gap: var(--space-md);
+  }
+}

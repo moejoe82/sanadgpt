@@ -1,9 +1,18 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
-// Removed unused supabase import - now using API routes
-// Updated for Vercel redeploy
+import {
+  Badge,
+  Button,
+  Input,
+  SurfaceCard,
+  Textarea,
+  type ToastPayload,
+} from "@/components/ui/primitives";
+
+import styles from "./admin-dashboard.module.css";
 
 interface Document {
   id: string;
@@ -38,34 +47,35 @@ interface Settings {
   supabaseAnonKey: string;
 }
 
-export default function AdminDashboard() {
-  // Admin dashboard for managing documents and users
-  // Force deployment with latest TypeScript fixes
-  // Redeploy to pick up environment variables
+interface AdminDashboardProps {
+  onToast?: (toast: ToastPayload) => void;
+}
+
+export default function AdminDashboard({ onToast }: AdminDashboardProps) {
+  const t = useI18n();
+  const { direction } = useLanguage();
   const [activeTab, setActiveTab] = useState("overview");
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
-  const [checkingStatusIds, setCheckingStatusIds] = useState<Set<string>>(
-    new Set()
-  );
   const [syncingDocuments, setSyncingDocuments] = useState(false);
-  const t = useI18n();
-  const { direction } = useLanguage();
-  const alignment = direction === "rtl" ? "text-right" : "text-left";
-  const reverseSpacing = direction === "rtl" ? "space-x-reverse" : "";
+  const [checkingStatusIds, setCheckingStatusIds] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    loadAnalytics();
-  }, []);
+  const tabs = useMemo(
+    () => [
+      { id: "overview", label: t("نظرة عامة", "Overview") },
+      { id: "documents", label: t("المستندات", "Documents") },
+      { id: "users", label: t("المستخدمون", "Users") },
+      { id: "settings", label: t("الإعدادات", "Settings") },
+    ],
+    [t]
+  );
 
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     try {
       setLoading(true);
-
-      // Use API route instead of direct admin access
       const response = await fetch("/api/admin/analytics");
       if (!response.ok) {
         throw new Error("Failed to load analytics");
@@ -78,13 +88,23 @@ export default function AdminDashboard() {
       setSettings(data.settings);
     } catch (error) {
       console.error("Error loading analytics:", error);
+      onToast?.({
+        title: t("تعذر تحميل لوحة الإدارة", "Unable to load admin data"),
+        description:
+          error instanceof Error ? error.message : t("خطأ غير معروف", "Unknown error"),
+        tone: "error",
+      });
     } finally {
       setLoading(false);
     }
-  };
+  }, [onToast, t]);
 
-  const deleteDocument = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this document?")) return;
+  useEffect(() => {
+    loadAnalytics();
+  }, [loadAnalytics]);
+
+  async function deleteDocument(id: string, title: string) {
+    if (!confirm(`${t("حذف المستند؟", "Delete document?")}\n${title}`)) return;
 
     try {
       const response = await fetch("/api/documents/delete", {
@@ -100,15 +120,23 @@ export default function AdminDashboard() {
         throw new Error(errorData.error || "Failed to delete document");
       }
 
-      // Reload data
-      loadAnalytics();
+      setDocuments((prev) => prev.filter((doc) => doc.id !== id));
+      onToast?.({
+        title: t("تم حذف المستند", "Document deleted"),
+        description: title,
+        tone: "success",
+      });
     } catch (error) {
       console.error("Error deleting document:", error);
-      alert("Failed to delete document");
+      onToast?.({
+        title: t("تعذر حذف المستند", "Could not delete document"),
+        description: error instanceof Error ? error.message : String(error),
+        tone: "error",
+      });
     }
-  };
+  }
 
-  const syncDocumentsFromOpenAI = async () => {
+  async function syncDocumentsFromOpenAI() {
     setSyncingDocuments(true);
     try {
       const response = await fetch("/api/admin/sync-documents", {
@@ -124,28 +152,38 @@ export default function AdminDashboard() {
       }
 
       const data = await response.json();
-      
+
       if (data.success) {
         const summary = data.summary || {};
         const total = summary.total || data.documents?.length || 0;
         const ready = summary.ready || 0;
         const processing = summary.processing || 0;
-        
-        alert(`${t("تم مزامنة المستندات بنجاح!", "Documents synced successfully!")}\n${t("العدد الإجمالي:", "Total:")} ${total}\n${t("جاهز:", "Ready:")} ${ready}\n${t("قيد المعالجة:", "Processing:")} ${processing}`);
-        // Reload data to show synced documents
+
+        onToast?.({
+          title: t("اكتملت المزامنة", "Sync complete"),
+          description: `${t("الإجمالي", "Total")}: ${total} • ${t("جاهز", "Ready")}: ${ready} • ${t(
+            "قيد المعالجة",
+            "Processing"
+          )}: ${processing}`,
+          tone: "success",
+        });
         loadAnalytics();
       } else {
         throw new Error(data.error || "Sync failed");
       }
     } catch (error) {
       console.error("Error syncing documents:", error);
-      alert(`${t("فشل في مزامنة المستندات:", "Failed to sync documents:")} ${error instanceof Error ? error.message : "Unknown error"}`);
+      onToast?.({
+        title: t("فشل في المزامنة", "Sync failed"),
+        description: error instanceof Error ? error.message : String(error),
+        tone: "error",
+      });
     } finally {
       setSyncingDocuments(false);
     }
-  };
+  }
 
-  const checkDocumentStatus = async (id: string) => {
+  async function checkDocumentStatus(id: string) {
     setCheckingStatusIds((prev) => new Set(prev).add(id));
     try {
       const resp = await fetch("/api/documents/update-status", {
@@ -163,28 +201,26 @@ export default function AdminDashboard() {
       const newStatus = data?.statuses?.[id];
 
       if (newStatus) {
-        // Update the document status in the local state
         setDocuments((prev) =>
-          prev.map((doc) =>
-            doc.id === id ? { ...doc, status: newStatus } : doc
-          )
+          prev.map((doc) => (doc.id === id ? { ...doc, status: newStatus } : doc))
         );
-
-        if (newStatus === "ready") {
-          alert(t("المستند جاهز الآن!", "Document is now ready!"));
-        } else if (newStatus === "failed") {
-          alert(t("فشل في معالجة المستند.", "Document processing failed."));
-        } else {
-          alert(
-            t("المستند لا يزال قيد المعالجة.", "Document is still processing.")
-          );
-        }
+        onToast?.({
+          title: t("تم تحديث الحالة", "Status updated"),
+          description: newStatus,
+          tone: "success",
+        });
       } else {
-        alert(t("لا يوجد تحديث للحالة متاح.", "No status update available."));
+        onToast?.({
+          title: t("لا يوجد تحديث", "No update"),
+          description: t("لم تتغير حالة المستند.", "Document status did not change."),
+        });
       }
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Unknown error";
-      alert(`${t("فشل في فحص الحالة:", "Status check failed:")} ${msg}`);
+    } catch (error) {
+      onToast?.({
+        title: t("تعذر فحص الحالة", "Unable to check status"),
+        description: error instanceof Error ? error.message : String(error),
+        tone: "error",
+      });
     } finally {
       setCheckingStatusIds((prev) => {
         const next = new Set(prev);
@@ -192,486 +228,281 @@ export default function AdminDashboard() {
         return next;
       });
     }
-  };
-
-  const tabs = useMemo(
-    () => [
-      { id: "overview", label: t("نظرة عامة", "Overview"), icon: "📊" },
-      {
-        id: "documents",
-        label: t("إدارة المستندات", "Document Management"),
-        icon: "📄",
-      },
-      {
-        id: "users",
-        label: t("إدارة المستخدمين", "User Management"),
-        icon: "👥",
-      },
-      { id: "analytics", label: t("التحليلات", "Analytics"), icon: "📈" },
-      { id: "settings", label: t("الإعدادات", "Settings"), icon: "⚙️" },
-    ],
-    [t]
-  );
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">{t("جاري التحميل...", "Loading...")}</div>
-      </div>
-    );
   }
 
-  return (
-    <div dir={direction} className={`max-w-7xl mx-auto p-6 ${alignment}`}>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          {t("لوحة الإدارة", "Admin Dashboard")}
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          {t(
-            "إدارة نظام SanadGPT والتحكم في المستندات والمستخدمين",
-            "Manage the SanadGPT system, documents, and users"
-          )}
-        </p>
-      </div>
+  const heading = useMemo(() => {
+    switch (activeTab) {
+      case "documents":
+        return t("إدارة المستندات", "Document management");
+      case "users":
+        return t("إدارة المستخدمين", "User management");
+      case "settings":
+        return t("إعدادات النظام", "System settings");
+      default:
+        return t("لوحة الإدارة", "Admin Dashboard");
+    }
+  }, [activeTab, t]);
 
-      {/* Tab Navigation */}
-      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
-        <nav className={`-mb-px flex space-x-8 ${reverseSpacing}`}>
+  return (
+    <div className={styles.dashboard} dir={direction}>
+      <SurfaceCard className={styles.header} role="region" aria-label={t("رأس لوحة الإدارة", "Admin header")}>
+        <div>
+          <h2 className={styles.sectionHeading}>{heading}</h2>
+          <p className={styles.subtle}>
+            {t(
+              "إدارة نظام SanadGPT والتحكم في المستندات والمستخدمين.",
+              "Manage SanadGPT content and configuration."
+            )}
+          </p>
+        </div>
+        <nav className={styles.tabNavigation} aria-label={t("أقسام لوحة الإدارة", "Admin sections")}>
           {tabs.map((tab) => (
             <button
               key={tab.id}
+              type="button"
+              className={styles.tabButton}
+              aria-pressed={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === tab.id
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
             >
-              <span
-                className={direction === "rtl" ? "ml-2" : "mr-2"}
-                aria-hidden
-              >
-                {tab.icon}
-              </span>
               {tab.label}
             </button>
           ))}
         </nav>
-      </div>
+      </SurfaceCard>
 
-      {/* Tab Content */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-        {activeTab === "overview" && (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-6">
-              {t("نظرة عامة", "Overview")}
-            </h2>
+      {loading ? (
+        <SurfaceCard role="status" aria-busy="true">
+          {t("جاري تحميل بيانات الإدارة...", "Loading admin data...")}
+        </SurfaceCard>
+      ) : null}
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg">
-                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                  {analytics?.totalDocuments || 0}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {t("إجمالي المستندات", "Total Documents")}
-                </div>
+      {!loading && activeTab === "overview" && analytics ? (
+        <div className={styles.sectionStack}>
+          <SurfaceCard>
+            <div className={styles.statGrid}>
+              <div className={styles.statCard}>
+                <span className={styles.statValue}>{analytics.totalDocuments}</span>
+                <span className={styles.statLabel}>{t("إجمالي المستندات", "Total documents")}</span>
               </div>
-
-              <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg">
-                <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                  {analytics?.documentsByStatus.ready || 0}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {t("مستندات جاهزة", "Ready Documents")}
-                </div>
+              <div className={styles.statCard}>
+                <span className={styles.statValue}>
+                  {analytics.documentsByStatus.ready || 0}
+                </span>
+                <span className={styles.statLabel}>{t("مستندات جاهزة", "Ready documents")}</span>
               </div>
-
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg">
-                <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-                  {analytics?.documentsByStatus.processing || 0}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {t("قيد المعالجة", "Processing")}
-                </div>
+              <div className={styles.statCard}>
+                <span className={styles.statValue}>
+                  {analytics.documentsByStatus.processing || 0}
+                </span>
+                <span className={styles.statLabel}>{t("قيد المعالجة", "Processing")}</span>
               </div>
-
-              <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg">
-                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                  {analytics?.totalUsers || 0}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {t("إجمالي المستخدمين", "Total Users")}
-                </div>
+              <div className={styles.statCard}>
+                <span className={styles.statValue}>{analytics.totalUsers}</span>
+                <span className={styles.statLabel}>{t("إجمالي المستخدمين", "Total users")}</span>
               </div>
             </div>
+          </SurfaceCard>
 
-            {/* Recent Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">
-                  {t("آخر المستندات المرفوعة", "Recent uploads")}
-                </h3>
-                <div className="space-y-3">
-                  {analytics?.recentUploads.map((doc) => (
-                    <div
-                      key={doc.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded"
-                    >
-                      <div>
-                        <div className="font-medium">{doc.title}</div>
-                        <div className="text-sm text-gray-500">
-                          {new Date(doc.uploaded_at).toLocaleDateString(
-                            "en-US"
-                          )}
-                        </div>
+          <div className={styles.twoColumn}>
+            <SurfaceCard className={styles.listCard}>
+              <div className={styles.actionsBar}>
+                <h3 className={styles.sectionHeading}>{t("آخر المستندات", "Recent documents")}</h3>
+                <Badge>{t("أحدث", "Recent")}</Badge>
+              </div>
+              {analytics.recentUploads.length === 0 ? (
+                <div className={styles.emptyState}>{t("لا يوجد رفع حديث", "No recent uploads")}</div>
+              ) : (
+                analytics.recentUploads.map((doc) => {
+                  const tone = (doc.status ?? "").toLowerCase();
+                  return (
+                    <div key={doc.id} className={styles.listItem}>
+                      <div className={styles.listItemHeader}>
+                        <span className={styles.listItemTitle}>{doc.title}</span>
+                        <span
+                          className={styles.badge}
+                          data-tone={tone === "ready" || tone === "processing" || tone === "failed" ? tone : undefined}
+                        >
+                          {doc.status}
+                        </span>
                       </div>
+                      <div className={styles.listItemMeta}>
+                        <span>{new Date(doc.uploaded_at).toLocaleString()}</span>
+                        {doc.emirate_scope ? (
+                          <span>
+                            {t("النطاق", "Emirate")} • {doc.emirate_scope}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </SurfaceCard>
+            <SurfaceCard className={styles.listCard}>
+              <div className={styles.actionsBar}>
+                <h3 className={styles.sectionHeading}>{t("المستخدمون النشطون", "Active users")}</h3>
+                <Badge>{t("نشط", "Active")}</Badge>
+              </div>
+              {analytics.activeUsers.length === 0 ? (
+                <div className={styles.emptyState}>{t("لا يوجد مستخدمون نشطون", "No active users")}</div>
+              ) : (
+                analytics.activeUsers.map((user) => (
+                  <div key={user.id} className={styles.listItem}>
+                    <div className={styles.listItemHeader}>
+                      <span className={styles.listItemTitle}>{user.email}</span>
+                    </div>
+                    <div className={styles.listItemMeta}>
+                      <span>
+                        {t("آخر تسجيل", "Last sign-in")}: {user.last_sign_in_at
+                          ? new Date(user.last_sign_in_at).toLocaleString()
+                          : t("لم يسجل دخول", "Never")}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </SurfaceCard>
+          </div>
+        </div>
+      ) : null}
+
+      {!loading && activeTab === "documents" ? (
+        <SurfaceCard className={styles.sectionStack}>
+          <div className={styles.actionsBar}>
+            <h3 className={styles.sectionHeading}>{t("إدارة المستندات", "Document management")}</h3>
+            <div className={styles.actionRow}>
+              <Button onClick={syncDocumentsFromOpenAI} disabled={syncingDocuments}>
+                {syncingDocuments
+                  ? t("جاري المزامنة...", "Syncing...")
+                  : t("مزامنة من OpenAI", "Sync from OpenAI")}
+              </Button>
+              <Button onClick={loadAnalytics} variant="secondary">
+                {t("تحديث", "Refresh")}
+              </Button>
+            </div>
+          </div>
+          <div className={styles.tableContainer}>
+            <table className={styles.table} aria-label={t("جدول المستندات", "Documents table")}>
+              <thead>
+                <tr>
+                  <th scope="col">{t("العنوان", "Title")}</th>
+                  <th scope="col">{t("الحالة", "Status")}</th>
+                  <th scope="col">{t("الإمارة", "Emirate")}</th>
+                  <th scope="col">{t("تاريخ الرفع", "Uploaded")}</th>
+                  <th scope="col">{t("الإجراءات", "Actions")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {documents.map((doc) => (
+                  <tr key={doc.id}>
+                    <td>{doc.title}</td>
+                    <td>
                       <span
-                        className={`px-2 py-1 text-xs rounded ${
-                          doc.status === "ready"
-                            ? "bg-green-100 text-green-800"
-                            : doc.status === "processing"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
+                        className={styles.badge}
+                        data-tone={(() => {
+                          const tone = (doc.status ?? "").toLowerCase();
+                          return tone === "ready" || tone === "processing" || tone === "failed"
+                            ? tone
+                            : undefined;
+                        })()}
                       >
                         {doc.status}
                       </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold mb-4">
-                  {t("المستخدمون النشطون", "Active users")}
-                </h3>
-                <div className="space-y-3">
-                  {analytics?.activeUsers.map((user) => (
-                    <div
-                      key={user.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded"
-                    >
-                      <div>
-                        <div className="font-medium">{user.email}</div>
-                        <div className="text-sm text-gray-500">
-                          {user.last_sign_in_at
-                            ? new Date(user.last_sign_in_at).toLocaleDateString(
-                                "en-US"
-                              )
-                            : t("لم يسجل دخول", "Never signed in")}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "documents" && (
-          <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">
-                {t("إدارة المستندات", "Document management")}
-              </h2>
-              <div className="flex gap-2">
-                <button 
-                  onClick={syncDocumentsFromOpenAI}
-                  disabled={syncingDocuments}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
-                >
-                  {syncingDocuments ? t("جاري المزامنة...", "Syncing...") : t("مزامنة من OpenAI", "Sync from OpenAI")}
-                </button>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                  {t("رفع مستند جديد", "Upload new document")}
-                </button>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-700">
-                  <tr>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      {t("العنوان", "Title")}
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      {t("الحالة", "Status")}
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      {t("الإمارة", "Emirate")}
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      {t("تاريخ الرفع", "Upload date")}
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      {t("الإجراءات", "Actions")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {documents.map((doc) => (
-                    <tr key={doc.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                        {doc.title}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`px-2 py-1 text-xs rounded ${
-                              doc.status === "ready"
-                                ? "bg-green-100 text-green-800"
-                                : doc.status === "processing"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {doc.status}
-                          </span>
-                          {doc.status === "processing" && (
-                            <button
-                              onClick={() => checkDocumentStatus(doc.id)}
-                              disabled={checkingStatusIds.has(doc.id)}
-                              className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800 hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                              title={t(
-                                "فحص حالة المعالجة",
-                                "Check processing status"
-                              )}
-                            >
-                              {checkingStatusIds.has(doc.id)
-                                ? t("جاري الفحص...", "Checking...")
-                                : t("فحص", "Check")}
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                        {doc.emirate_scope || t("غير محدد", "Not specified")}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                        {new Date(doc.uploaded_at).toLocaleDateString("en-US")}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button
-                          onClick={() => deleteDocument(doc.id)}
-                          className="text-red-600 hover:text-red-900"
+                    </td>
+                    <td>{doc.emirate_scope || t("غير محدد", "Not specified")}</td>
+                    <td>{new Date(doc.uploaded_at).toLocaleString()}</td>
+                    <td>
+                      <div className={styles.actionRow}>
+                        <Button
+                          variant="secondary"
+                          onClick={() => checkDocumentStatus(doc.id)}
+                          disabled={checkingStatusIds.has(doc.id)}
+                        >
+                          {checkingStatusIds.has(doc.id)
+                            ? t("جاري الفحص...", "Checking...")
+                            : t("فحص", "Check")}
+                        </Button>
+                        <Button
+                          variant="danger"
+                          onClick={() => deleteDocument(doc.id, doc.title)}
                         >
                           {t("حذف", "Delete")}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "users" && (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-6">
-              {t("إدارة المستخدمين", "User management")}
-            </h2>
-
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-700">
-                  <tr>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      {t("البريد الإلكتروني", "Email")}
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      {t("تاريخ التسجيل", "Registration date")}
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      {t("آخر تسجيل دخول", "Last sign in")}
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      {t("الحالة", "Status")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {users.map((user) => (
-                    <tr key={user.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                        {user.email}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                        {new Date(user.created_at).toLocaleDateString("en-US")}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                        {user.last_sign_in_at
-                          ? new Date(user.last_sign_in_at).toLocaleDateString(
-                              "en-US"
-                            )
-                          : t("لم يسجل دخول", "Never")}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 text-xs rounded bg-green-100 text-green-800">
-                          {t("نشط", "Active")}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "analytics" && (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-6">
-              {t("التحليلات", "Analytics")}
-            </h2>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">
-                  {t("توزيع المستندات", "Document distribution")}
-                </h3>
-                <div className="space-y-3">
-                  {Object.entries(analytics?.documentsByStatus || {}).map(
-                    ([status, count]) => (
-                      <div
-                        key={status}
-                        className="flex justify-between items-center"
-                      >
-                        <span className="capitalize">{status}</span>
-                        <span className="font-bold">{count}</span>
+                        </Button>
                       </div>
-                    )
-                  )}
-                </div>
-              </div>
-
-              <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">
-                  {t("إحصائيات النظام", "System statistics")}
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span>{t("إجمالي المستندات", "Total documents")}:</span>
-                    <span className="font-bold">
-                      {analytics?.totalDocuments || 0}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t("إجمالي المستخدمين", "Total users")}:</span>
-                    <span className="font-bold">
-                      {analytics?.totalUsers || 0}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t("معدل النجاح", "Success rate")}:</span>
-                    <span className="font-bold">
-                      {analytics?.totalDocuments
-                        ? Math.round(
-                            ((analytics.documentsByStatus.ready || 0) /
-                              analytics.totalDocuments) *
-                              100
-                          )
-                        : 0}
-                      %
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
+        </SurfaceCard>
+      ) : null}
 
-        {activeTab === "settings" && (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-6">
-              {t("إعدادات النظام", "System settings")}
-            </h2>
-
-            <div className="space-y-6">
-              <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">
-                  {t("إعدادات OpenAI", "OpenAI settings")}
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Vector Store ID
-                    </label>
-                    <input
-                      type="text"
-                      value={settings?.openaiVectorStoreId || "Loading..."}
-                      disabled
-                      className="w-full p-2 border rounded bg-gray-100"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      API Key Status
-                    </label>
-                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
-                      {settings?.openaiApiKeyStatus || "Loading..."}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">
-                  {t("إعدادات قاعدة البيانات", "Database settings")}
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      {t("حالة Supabase", "Supabase status")}
-                    </label>
-                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
-                      {t("متصل", "Connected")}
-                    </span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      {t("إجمالي السجلات", "Total records")}
-                    </label>
-                    <span className="font-bold">
-                      {analytics?.totalDocuments || 0}{" "}
-                      {t("مستندات", "documents")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">
-                  {t("إجراءات النظام", "System actions")}
-                </h3>
-                <div className="space-y-3">
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    {t("تصدير البيانات", "Export data")}
-                  </button>
-                  <button
-                    className={`bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 ${
-                      direction === "rtl" ? "mr-3" : "ml-3"
-                    }`}
-                  >
-                    {t("تنظيف البيانات", "Clean up data")}
-                  </button>
-                  <button
-                    className={`bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 ${
-                      direction === "rtl" ? "mr-3" : "ml-3"
-                    }`}
-                  >
-                    {t("إعادة تشغيل النظام", "Restart system")}
-                  </button>
-                </div>
-              </div>
-            </div>
+      {!loading && activeTab === "users" ? (
+        <SurfaceCard className={styles.sectionStack}>
+          <h3 className={styles.sectionHeading}>{t("إدارة المستخدمين", "User management")}</h3>
+          <div className={styles.tableContainer}>
+            <table className={styles.table} aria-label={t("جدول المستخدمين", "Users table")}>
+              <thead>
+                <tr>
+                  <th scope="col">{t("البريد الإلكتروني", "Email")}</th>
+                  <th scope="col">{t("تاريخ التسجيل", "Registered")}</th>
+                  <th scope="col">{t("آخر تسجيل دخول", "Last sign-in")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.email}</td>
+                    <td>{new Date(user.created_at).toLocaleDateString()}</td>
+                    <td>
+                      {user.last_sign_in_at
+                        ? new Date(user.last_sign_in_at).toLocaleString()
+                        : t("لم يسجل دخول", "Never")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
-      </div>
+        </SurfaceCard>
+      ) : null}
+
+      {!loading && activeTab === "settings" && settings ? (
+        <div className={styles.sectionStack}>
+          <SurfaceCard className={styles.listCard}>
+            <h3 className={styles.sectionHeading}>{t("إعدادات OpenAI", "OpenAI settings")}</h3>
+            <div className={styles.listItem}>
+              <label htmlFor="vector-store" className={styles.listItemTitle}>
+                {t("معرف مخزن المتجهات", "Vector store ID")}
+              </label>
+              <Input id="vector-store" value={settings.openaiVectorStoreId} readOnly />
+            </div>
+            <div className={styles.listItem}>
+              <label htmlFor="api-status" className={styles.listItemTitle}>
+                {t("حالة مفتاح API", "API key status")}
+              </label>
+              <Input id="api-status" value={settings.openaiApiKeyStatus} readOnly />
+            </div>
+          </SurfaceCard>
+
+          <SurfaceCard className={styles.listCard}>
+            <h3 className={styles.sectionHeading}>{t("معلومات Supabase", "Supabase information")}</h3>
+            <div className={styles.listItem}>
+              <label htmlFor="supabase-url" className={styles.listItemTitle}>
+                {t("عنوان URL", "URL")}
+              </label>
+              <Textarea id="supabase-url" value={settings.supabaseUrl} readOnly />
+            </div>
+            <div className={styles.listItem}>
+              <label htmlFor="supabase-key" className={styles.listItemTitle}>
+                {t("المفتاح العام", "Anon key")}
+              </label>
+              <Textarea id="supabase-key" value={settings.supabaseAnonKey} readOnly />
+            </div>
+          </SurfaceCard>
+        </div>
+      ) : null}
     </div>
   );
 }
