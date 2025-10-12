@@ -40,9 +40,7 @@ export default function AuthCallbackPage() {
     }
 
     (async () => {
-      const { error } = await supabase.auth.exchangeCodeForSession({
-        authCode: code,
-      });
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
 
       if (error) {
         redirectWithError(error.message);
