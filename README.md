@@ -2,6 +2,8 @@
 
 **SanadGPT** is an intelligent audit document management system that leverages AI to provide accurate, citation-backed answers from uploaded documents. Built with modern web technologies and powered by OpenAI's advanced language models and vector databases.
 
+<!-- Repository cleanup completed - removed ChatKit integration and Codex branches -->
+
 ## 🎯 Purpose & Vision
 
 SanadGPT is designed to revolutionize how audit professionals and organizations manage, search, and extract insights from their document repositories. The system provides:
