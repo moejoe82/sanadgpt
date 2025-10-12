@@ -2,7 +2,6 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { openai } from "@/lib/openai";
 
 const VECTOR_STORE_ID = "vs_68eb60e012988191be5a60558a1f1de6";
 
@@ -11,58 +10,46 @@ export async function POST() {
     console.log('🔄 Testing OpenAI API access...');
     console.log(`📁 Vector Store ID: ${VECTOR_STORE_ID}`);
 
-    // Test 1: Try to access vector store using different API methods
+    // Use direct API calls to OpenAI since beta.vectorStores is not available
     let vectorStoreInfo = null;
     let filesList = [];
 
     try {
-      // Method 1: Try beta.vectorStores
-      console.log('🔍 Trying beta.vectorStores.retrieve...');
-      vectorStoreInfo = await openai.beta.vectorStores.retrieve(VECTOR_STORE_ID);
-      console.log('✅ beta.vectorStores.retrieve worked!');
-      console.log(`📊 Vector Store: ${vectorStoreInfo.name}`);
+      console.log('🔍 Fetching vector store info via direct API...');
+      const response = await fetch(`https://api.openai.com/v1/vector_stores/${VECTOR_STORE_ID}`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      });
       
-      // Try to list files
-      console.log('🔍 Trying beta.vectorStores.files.list...');
-      const filesResponse = await openai.beta.vectorStores.files.list(VECTOR_STORE_ID);
-      filesList = filesResponse.data;
-      console.log(`✅ Found ${filesList.length} files via beta.vectorStores.files.list`);
-      
-    } catch (betaError) {
-      console.log('❌ beta.vectorStores failed:', betaError.message);
-      
-      try {
-        // Method 2: Try direct API call
-        console.log('🔍 Trying direct fetch to OpenAI API...');
-        const response = await fetch(`https://api.openai.com/v1/vector_stores/${VECTOR_STORE_ID}`, {
+      if (response.ok) {
+        vectorStoreInfo = await response.json();
+        console.log('✅ Vector store info retrieved!');
+        console.log(`📊 Vector Store: ${vectorStoreInfo.name || 'Unknown'}`);
+        
+        // Get files from vector store
+        console.log('🔍 Fetching files from vector store...');
+        const filesResponse = await fetch(`https://api.openai.com/v1/vector_stores/${VECTOR_STORE_ID}/files`, {
           headers: {
             'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
             'Content-Type': 'application/json',
           },
         });
         
-        if (response.ok) {
-          vectorStoreInfo = await response.json();
-          console.log('✅ Direct API call worked!');
-          console.log(`📊 Vector Store: ${vectorStoreInfo.name}`);
-          
-          // Try to get files
-          const filesResponse = await fetch(`https://api.openai.com/v1/vector_stores/${VECTOR_STORE_ID}/files`, {
-            headers: {
-              'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-          });
-          
-          if (filesResponse.ok) {
-            const filesData = await filesResponse.json();
-            filesList = filesData.data || [];
-            console.log(`✅ Found ${filesList.length} files via direct API`);
-          }
+        if (filesResponse.ok) {
+          const filesData = await filesResponse.json();
+          filesList = filesData.data || [];
+          console.log(`✅ Found ${filesList.length} files in vector store`);
+        } else {
+          console.log(`❌ Failed to fetch files: ${filesResponse.status} ${filesResponse.statusText}`);
         }
-      } catch (directError) {
-        console.log('❌ Direct API call failed:', directError.message);
+      } else {
+        console.log(`❌ Failed to fetch vector store: ${response.status} ${response.statusText}`);
       }
+    } catch (apiError) {
+      const errorMessage = apiError instanceof Error ? apiError.message : "Unknown API error";
+      console.log('❌ API call failed:', errorMessage);
     }
 
     // If we have files, create documents in database
@@ -73,25 +60,37 @@ export async function POST() {
       
       for (const file of filesList) {
         try {
-          // Get file details
-          const fileInfo = await openai.files.retrieve(file.id);
-          
-          documentsToInsert.push({
-            openai_file_id: file.id,
-            openai_vector_store_id: VECTOR_STORE_ID,
-            title: fileInfo.filename,
-            status: file.status === 'completed' ? 'ready' : 'processing',
-            file_path: `openai/${file.id}`,
-            file_hash: `openai_${file.id}`,
-            emirate_scope: null,
-            authority_name: null,
-            uploaded_at: new Date(fileInfo.created_at * 1000).toISOString(),
-            user_id: '00000000-0000-0000-0000-000000000000',
+          // Get file details via direct API
+          const fileResponse = await fetch(`https://api.openai.com/v1/files/${file.id}`, {
+            headers: {
+              'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
           });
           
-          console.log(`✅ Processed: ${fileInfo.filename} (${file.status})`);
+          if (fileResponse.ok) {
+            const fileInfo = await fileResponse.json();
+            
+            documentsToInsert.push({
+              openai_file_id: file.id,
+              openai_vector_store_id: VECTOR_STORE_ID,
+              title: fileInfo.filename,
+              status: file.status === 'completed' ? 'ready' : 'processing',
+              file_path: `openai/${file.id}`,
+              file_hash: `openai_${file.id}`,
+              emirate_scope: null,
+              authority_name: null,
+              uploaded_at: new Date(fileInfo.created_at * 1000).toISOString(),
+              user_id: '00000000-0000-0000-0000-000000000000',
+            });
+            
+            console.log(`✅ Processed: ${fileInfo.filename} (${file.status})`);
+          } else {
+            console.error(`❌ Failed to fetch file details for ${file.id}: ${fileResponse.status}`);
+          }
         } catch (fileError) {
-          console.error(`❌ Error processing file ${file.id}:`, fileError.message);
+          const errorMessage = fileError instanceof Error ? fileError.message : "Unknown file error";
+          console.error(`❌ Error processing file ${file.id}:`, errorMessage);
         }
       }
 
