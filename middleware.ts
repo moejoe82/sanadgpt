@@ -1,7 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
+import { NextResponse } from "next/server";
 
-export async function middleware(req: NextRequest) {
+export async function middleware() {
   // Completely disable middleware for now to test core functionality
   return NextResponse.next();
 }
