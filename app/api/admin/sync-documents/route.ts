@@ -49,10 +49,11 @@ export async function POST() {
         console.log(`✅ Created system user: ${systemUserId}`);
       }
     } catch (userError) {
-      console.log('❌ Error with user management:', userError.message);
+      const errorMessage = userError instanceof Error ? userError.message : "Unknown user management error";
+      console.log('❌ Error with user management:', errorMessage);
       return NextResponse.json({ 
         success: false, 
-        error: `User management error: ${userError.message}` 
+        error: `User management error: ${errorMessage}` 
       }, { status: 500 });
     }
 
