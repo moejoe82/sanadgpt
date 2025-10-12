@@ -3,7 +3,7 @@ export const runtime = "nodejs";
 import { NextRequest } from "next/server";
 import { fileSearchTool, Agent, AgentInputItem, Runner } from "@openai/agents";
 
-// Tool definitions
+// Tool definitions - File search with vector store
 const fileSearch = fileSearchTool([
   "vs_68eb60e012988191be5a60558a1f1de6"
 ]);
@@ -11,21 +11,17 @@ const fileSearch = fileSearchTool([
 const sanadgptAgent = new Agent({
   name: "SanadGPT Agent",
   instructions: `You are SanadGPT, a bilingual (Arabic/English) audit assistant designed for use by professional internal auditors.
+
+Key Guidelines:
 - Answer in Arabic if the question is asked in Arabic, and in English if the question is asked in English.
-- Answer concisely and accurately, using only information from the provided documents.
-- Cite sources or page numbers when relevant.
-- If you lack sufficient context, request additional documents or clarifications.`,
-  model: "gpt-5",
-  tools: [
-    fileSearch
-  ],
-  modelSettings: {
-    reasoning: {
-      effort: "low",
-      summary: "auto"
-    },
-    store: true
-  }
+- Provide concise, accurate answers based only on information from the provided documents.
+- Always cite sources with specific page numbers or document references when available.
+- If you lack sufficient context to answer accurately, request additional documents or clarifications.
+- Maintain professional tone appropriate for internal audit work.
+- Focus on factual information and avoid speculation.`,
+  model: "gpt-4o", // Using verified available model
+  tools: [fileSearch],
+  // Simplified settings - removing potentially unsupported options
 });
 
 type WorkflowInput = { input_as_text: string };

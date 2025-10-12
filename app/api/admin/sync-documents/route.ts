@@ -206,8 +206,10 @@ export async function POST() {
         console.log(`✅ Successfully inserted ${data.length} documents!`);
 
         // Calculate summary statistics
-        const readyCount = data.filter(doc => doc.status === 'ready').length;
-        const processingCount = data.filter(doc => doc.status === 'processing').length;
+        const readyCount = data.filter((doc) => doc.status === "ready").length;
+        const processingCount = data.filter(
+          (doc) => doc.status === "processing"
+        ).length;
 
         return NextResponse.json({
           success: true,

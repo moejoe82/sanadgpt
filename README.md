@@ -521,12 +521,13 @@ SanadGPT uses OpenAI's Vector Store for document indexing and retrieval:
 
 ### API Usage
 
-- **Model**: GPT-5 for superior performance and reasoning
-- **API Type**: OpenAI Agent Builder with Agents SDK
+- **Model**: GPT-4o (verified available model for production use)
+- **API Type**: OpenAI Agent Builder with Agents SDK v0.1.9
 - **File Search**: Built-in file search tool with automatic citation handling
 - **Workflow ID**: `wf_68eb60b897a88190a7ea0f20a6eefa8f04fea11a9486fa43`
 - **Vector Store**: `vs_68eb60e012988191be5a60558a1f1de6`
 - **Bilingual**: Supports both Arabic and English queries with automatic language detection
+- **Official Compliance**: Follows OpenAI Agent Builder best practices and official documentation
 
 ## 🚀 Deployment
 
