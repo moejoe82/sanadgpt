@@ -126,7 +126,12 @@ export default function AdminDashboard() {
       const data = await response.json();
       
       if (data.success) {
-        alert(`${t("تم مزامنة المستندات بنجاح!", "Documents synced successfully!")}\n${t("العدد الإجمالي:", "Total:")} ${data.summary.total}\n${t("جاهز:", "Ready:")} ${data.summary.ready}\n${t("قيد المعالجة:", "Processing:")} ${data.summary.processing}`);
+        const summary = data.summary || {};
+        const total = summary.total || data.documents?.length || 0;
+        const ready = summary.ready || 0;
+        const processing = summary.processing || 0;
+        
+        alert(`${t("تم مزامنة المستندات بنجاح!", "Documents synced successfully!")}\n${t("العدد الإجمالي:", "Total:")} ${total}\n${t("جاهز:", "Ready:")} ${ready}\n${t("قيد المعالجة:", "Processing:")} ${processing}`);
         // Reload data to show synced documents
         loadAnalytics();
       } else {
