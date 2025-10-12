@@ -54,7 +54,7 @@ export default function ChatInterface() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           question,
-          conversationHistory: messages.map((msg) => ({
+          conversationHistory: messages.filter(msg => msg.id !== userId).map((msg) => ({
             role: msg.role,
             content: msg.content,
           })),
@@ -62,7 +62,8 @@ export default function ChatInterface() {
       });
 
       if (!resp.ok) {
-        throw new Error("Network error");
+        const errorData = await resp.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${resp.status}: ${resp.statusText}`);
       }
 
       // Handle both streaming and non-streaming responses
@@ -110,8 +111,10 @@ export default function ChatInterface() {
           // Citations are handled automatically by Agent Builder
         }
       }
-    } catch {
-      updateAssistant(assistantId, t("حدث خطأ في الإجابة.", "An error occurred."));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error("Chat error:", errorMessage);
+      updateAssistant(assistantId, `${t("حدث خطأ في الإجابة.", "An error occurred.")}: ${errorMessage}`);
     } finally {
       setLoading(false);
       // flush remaining buffer if it contains a final JSON object

@@ -79,15 +79,31 @@ export async function POST(req: NextRequest) {
     }
 
     // Convert conversation history to AgentInputItem format
-    const agentHistory: AgentInputItem[] = conversationHistory.map((msg: { role: string; content: string }) => ({
-      role: msg.role as "user" | "assistant" | "system",
-      content: [
-        {
-          type: "input_text",
-          text: msg.content
-        }
-      ]
-    }));
+    const agentHistory: AgentInputItem[] = conversationHistory.map((msg: { role: string; content: string }) => {
+      if (msg.role === "assistant") {
+        // Assistant messages should have output_text type
+        return {
+          role: msg.role as "assistant",
+          content: [
+            {
+              type: "output_text",
+              text: msg.content
+            }
+          ]
+        };
+      } else {
+        // User and system messages use input_text type
+        return {
+          role: msg.role as "user" | "system",
+          content: [
+            {
+              type: "input_text",
+              text: msg.content
+            }
+          ]
+        };
+      }
+    });
 
     // Add current question to history
     agentHistory.push({
