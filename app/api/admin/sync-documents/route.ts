@@ -175,15 +175,66 @@ export async function POST() {
         }
       }
 
-      // Insert into database
+      // Check for existing documents to avoid duplicates
       if (documentsToInsert.length > 0) {
         console.log(
-          `💾 Inserting ${documentsToInsert.length} documents into Supabase...`
+          `🔍 Checking for existing documents to avoid duplicates...`
+        );
+
+        // Get existing file hashes
+        const existingHashes = documentsToInsert.map(doc => doc.file_hash);
+        const { data: existingDocs, error: checkError } = await supabaseAdmin
+          .from("documents")
+          .select("file_hash")
+          .in("file_hash", existingHashes);
+
+        if (checkError) {
+          console.error("❌ Error checking existing documents:", checkError);
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Database check error: ${checkError.message}`,
+            },
+            { status: 500 }
+          );
+        }
+
+        // Filter out documents that already exist
+        const existingHashesSet = new Set(existingDocs?.map(doc => doc.file_hash) || []);
+        const newDocuments = documentsToInsert.filter(doc => !existingHashesSet.has(doc.file_hash));
+
+        console.log(
+          `📊 Found ${existingHashesSet.size} existing documents, ${newDocuments.length} new documents to insert`
+        );
+
+        if (newDocuments.length === 0) {
+          return NextResponse.json({
+            success: true,
+            message: "All documents already exist in database",
+            documents: [],
+            summary: {
+              total: documentsToInsert.length,
+              ready: documentsToInsert.filter(doc => doc.status === "ready").length,
+              processing: documentsToInsert.filter(doc => doc.status === "processing").length,
+            },
+            debug: {
+              vectorStoreInfo,
+              filesCount: filesList.length,
+              existingCount: existingHashesSet.size,
+              newCount: newDocuments.length,
+              systemUserId,
+            },
+          });
+        }
+
+        // Insert only new documents
+        console.log(
+          `💾 Inserting ${newDocuments.length} new documents into Supabase...`
         );
 
         const { data, error } = await supabaseAdmin
           .from("documents")
-          .insert(documentsToInsert)
+          .insert(newDocuments)
           .select();
 
         if (error) {
@@ -203,26 +254,28 @@ export async function POST() {
           );
         }
 
-        console.log(`✅ Successfully inserted ${data.length} documents!`);
+        console.log(`✅ Successfully inserted ${data.length} new documents!`);
 
-        // Calculate summary statistics
-        const readyCount = data.filter((doc) => doc.status === "ready").length;
-        const processingCount = data.filter(
+        // Calculate summary statistics for all documents (existing + new)
+        const totalDocuments = documentsToInsert.length;
+        const readyCount = documentsToInsert.filter((doc) => doc.status === "ready").length;
+        const processingCount = documentsToInsert.filter(
           (doc) => doc.status === "processing"
         ).length;
 
         return NextResponse.json({
           success: true,
-          message: `Successfully synced ${data.length} documents from OpenAI`,
+          message: `Successfully synced ${data.length} new documents from OpenAI (${existingHashesSet.size} already existed)`,
           documents: data,
           summary: {
-            total: data.length,
+            total: totalDocuments,
             ready: readyCount,
             processing: processingCount,
           },
           debug: {
             vectorStoreInfo,
             filesCount: filesList.length,
+            existingCount: existingHashesSet.size,
             insertedCount: data.length,
             systemUserId,
           },
