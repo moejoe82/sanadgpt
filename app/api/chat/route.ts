@@ -1,11 +1,80 @@
 export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
-import { openai } from "@/lib/openai";
+import { fileSearchTool, Agent, AgentInputItem, Runner } from "@openai/agents";
+
+// Tool definitions
+const fileSearch = fileSearchTool([
+  "vs_68eb60e012988191be5a60558a1f1de6"
+]);
+
+const sanadgptAgent = new Agent({
+  name: "SanadGPT Agent",
+  instructions: `You are SanadGPT, a bilingual (Arabic/English) audit assistant designed for use by professional internal auditors.
+- Answer in Arabic if the question is asked in Arabic, and in English if the question is asked in English.
+- Answer concisely and accurately, using only information from the provided documents.
+- Cite sources or page numbers when relevant.
+- If you lack sufficient context, request additional documents or clarifications.`,
+  model: "gpt-5",
+  tools: [
+    fileSearch
+  ],
+  modelSettings: {
+    reasoning: {
+      effort: "low",
+      summary: "auto"
+    },
+    store: true
+  }
+});
+
+type WorkflowInput = { input_as_text: string };
+
+// Main code entrypoint
+export const runWorkflow = async (workflow: WorkflowInput) => {
+  const conversationHistory: AgentInputItem[] = [
+    {
+      role: "user",
+      content: [
+        {
+          type: "input_text",
+          text: workflow.input_as_text
+        }
+      ]
+    }
+  ];
+  
+  const runner = new Runner({
+    traceMetadata: {
+      __trace_source__: "agent-builder",
+      workflow_id: "wf_68eb60b897a88190a7ea0f20a6eefa8f04fea11a9486fa43"
+    }
+  });
+  
+  const sanadgptAgentResultTemp = await runner.run(
+    sanadgptAgent,
+    [
+      ...conversationHistory
+    ]
+  );
+  
+  conversationHistory.push(...sanadgptAgentResultTemp.newItems.map((item) => item.rawItem));
+
+  if (!sanadgptAgentResultTemp.finalOutput) {
+      throw new Error("Agent result is undefined");
+  }
+
+  const sanadgptAgentResult = {
+    output_text: sanadgptAgentResultTemp.finalOutput ?? ""
+  };
+
+  return sanadgptAgentResult;
+};
 
 export async function POST(req: NextRequest) {
   try {
     const { question, conversationHistory = [] } = await req.json();
+    
     if (!question || typeof question !== "string") {
       return new Response(JSON.stringify({ error: "Missing 'question'" }), {
         status: 400,
@@ -13,60 +82,46 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const vectorStoreId = process.env.OPENAI_VECTOR_STORE_ID;
-    if (!vectorStoreId) {
-      return new Response(
-        JSON.stringify({ error: "Missing OPENAI_VECTOR_STORE_ID" }),
+    // Convert conversation history to AgentInputItem format
+    const agentHistory: AgentInputItem[] = conversationHistory.map((msg: { role: string; content: string }) => ({
+      role: msg.role as "user" | "assistant" | "system",
+      content: [
         {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
+          type: "input_text",
+          text: msg.content
         }
-      );
-    }
+      ]
+    }));
 
-    const systemPrompt = `أنت SanadGPT، مساعد تدقيق ثنائي اللغة (العربية/الإنجليزية).
-- قدّم إجابات دقيقة ومقتضبة مع مبررات مستندة إلى الوثائق.
-- اذكر الاقتباسات أو الصفحات عند الضرورة.
-- إذا لم تتوفر معلومات كافية، اطلب تحميل وثائق إضافية أو وضّح ما يلزم.
-
-You are SanadGPT, a bilingual (Arabic/English) audit assistant.
-- Provide concise, accurate answers grounded in the indexed documents.
-- Cite sources or page numbers when appropriate.
-- If context is insufficient, ask for additional documents or clarifications.`;
-
-    // Build input array with conversation history (limit to last 10 messages to control token usage)
-    const limitedHistory = conversationHistory.slice(-10);
-    const input = [
-      { role: "system", content: systemPrompt },
-      ...limitedHistory,
-      { role: "user", content: question },
-    ];
-
-    const response = await openai.responses.create({
-      model: "gpt-4o",
-      tools: [
+    // Add current question to history
+    agentHistory.push({
+      role: "user",
+      content: [
         {
-          type: "file_search",
-          vector_store_ids: [vectorStoreId],
-          max_num_results: 5, // Limit results for better performance and relevance
-        },
-      ],
-      input,
-      // Include search results for better debugging and transparency
-      include: ["file_search_call.results"],
+          type: "input_text",
+          text: question
+        }
+      ]
     });
 
-    // Extract the content from the response - use output_text for Responses API
-    const content = (response as { output_text?: string }).output_text ||
-      "I couldn't process your request. Please try again.";
+    const runner = new Runner({
+      traceMetadata: {
+        __trace_source__: "agent-builder",
+        workflow_id: "wf_68eb60b897a88190a7ea0f20a6eefa8f04fea11a9486fa43"
+      }
+    });
 
-    // For now, we'll extract citations from the content text if available
-    // The Responses API structure may vary, so we'll handle citations in a future update
-    const citations: Array<{ file_id: string; filename: string; index: number }> = [];
+    const result = await runner.run(sanadgptAgent, agentHistory);
+
+    if (!result.finalOutput) {
+      throw new Error("Agent result is undefined");
+    }
+
+    const content = result.finalOutput;
 
     return new Response(JSON.stringify({ 
       content,
-      citations: citations.length > 0 ? citations : undefined,
+      // Citations will be handled by the agent automatically
     }), {
       headers: {
         "Content-Type": "application/json",
@@ -74,6 +129,7 @@ You are SanadGPT, a bilingual (Arabic/English) audit assistant.
     });
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
+    console.error("[Chat API] Error:", errorMessage);
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

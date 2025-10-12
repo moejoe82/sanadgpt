@@ -172,43 +172,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: insertErr.message }, { status: 500 });
     }
 
-    // Start intelligent polling to detect when document is actually searchable
+    // With Agent Builder, files are automatically processed and ready for queries
+    // Update status to ready immediately as the agent handles file processing
     try {
-      await fetch(
-        `${
-          process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-        }/api/documents/poll-status`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            documentId: inserted.id,
-            config: {
-              maxAttempts: 20,
-              baseDelay: 2000,
-              maxDelay: 30000
-            }
-          }),
-        }
-      );
-      console.log(`[Upload] Started polling for document ${inserted.id}`);
-    } catch (pollingError) {
-      console.error("Failed to start document polling:", pollingError);
-      // Don't fail the upload if polling fails - fallback to old method
-      try {
-        await fetch(
-          `${
-            process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-          }/api/documents/update-status`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ documentIds: [inserted.id] }),
-          }
-        );
-      } catch (statusError) {
-        console.error("Failed to update document status:", statusError);
+      const { error: updateError } = await supabaseAdmin
+        .from("documents")
+        .update({ status: "ready" })
+        .eq("id", inserted.id);
+
+      if (updateError) {
+        console.error("Failed to update document status to ready:", updateError);
+      } else {
+        console.log(`[Upload] Document ${inserted.id} marked as ready for agent queries`);
       }
+    } catch (statusError) {
+      console.error("Failed to update document status:", statusError);
     }
 
     return NextResponse.json({ id: inserted.id, title }, { status: 200 });
