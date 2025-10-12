@@ -7,7 +7,7 @@ type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   content: string;
-  citations?: Array<{ title?: string; url?: string; page?: number }>;
+  // Citations are handled automatically by Agent Builder
 };
 
 export default function ChatInterface() {
@@ -18,7 +18,6 @@ export default function ChatInterface() {
   const t = useI18n();
   const { direction } = useLanguage();
   const alignment = direction === "rtl" ? "text-right" : "text-left";
-  const citationsMargin = direction === "rtl" ? "mr-5" : "ml-5";
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -101,20 +100,11 @@ export default function ChatInterface() {
           }
         }
       } else {
-        // Handle JSON response
+        // Handle JSON response from Agent Builder
         const data = await resp.json();
         if (data.content) {
           updateAssistant(assistantId, data.content);
-          // Update citations if available
-          if (data.citations && data.citations.length > 0) {
-            setMessages((prev) =>
-              prev.map((m) => 
-                m.id === assistantId 
-                  ? { ...m, citations: data.citations }
-                  : m
-              )
-            );
-          }
+          // Citations are handled automatically by Agent Builder
         }
       }
     } catch {
@@ -149,20 +139,7 @@ export default function ChatInterface() {
               <div className="whitespace-pre-wrap leading-relaxed">
                 {m.content}
               </div>
-              {m.citations && m.citations.length > 0 && (
-                <div className="mt-2 text-xs text-slate-600 dark:text-slate-300 space-y-1">
-                  <div className="font-medium">{t("المراجع", "Citations")}</div>
-                  <ul className={`list-disc ${citationsMargin} space-y-0.5`}>
-                    {m.citations.map((c, i) => (
-                      <li key={i} className="truncate">
-                        {c.filename || c.title || c.url || t("مرجع", "Reference")}
-                        {typeof c.index === "number" ? ` (index: ${c.index})` : ""}
-                        {typeof c.page === "number" ? ` (p. ${c.page})` : ""}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              {/* Citations are handled automatically by Agent Builder */}
             </div>
           </div>
         ))}
