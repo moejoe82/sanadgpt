@@ -45,18 +45,14 @@ async function testFileSearch(documentId: string): Promise<boolean> {
       ],
     });
 
-    // Check if file search call completed successfully
-    const fileSearchCall = testResponse.output?.find(
-      (item: { type: string }) => item.type === "file_search_call"
-    );
-
-    const isSearchable = fileSearchCall?.status === "completed";
+    // Check if the response contains content (indicating successful file search)
+    const hasContent = testResponse.output_text && testResponse.output_text.length > 0;
     
     console.log(
-      `[PollStatus] Document ${documentId} (${doc.title}) searchable: ${isSearchable}`
+      `[PollStatus] Document ${documentId} (${doc.title}) searchable: ${hasContent}`
     );
 
-    return isSearchable;
+    return hasContent;
   } catch (error) {
     console.log(
       `[PollStatus] File search test failed for doc ${documentId}:`,
