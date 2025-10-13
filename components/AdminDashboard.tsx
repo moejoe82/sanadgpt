@@ -442,95 +442,103 @@ export default function AdminDashboard() {
               </CardDescription>
             </div>
           </CardHeader>
-          <CardContent className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-border text-sm">
-              <thead className="bg-muted/60">
-                <tr className="text-muted-foreground">
-                  <th className="px-4 py-3 text-start font-medium">
-                    {t("العنوان", "Title")}
-                  </th>
-                  <th className="px-4 py-3 text-start font-medium">
-                    {t("الحالة", "Status")}
-                  </th>
-                  <th className="px-4 py-3 text-start font-medium">
-                    {t("الإمارة", "Emirate")}
-                  </th>
-                  <th className="px-4 py-3 text-start font-medium">
-                    {t("تاريخ الرفع", "Uploaded")}
-                  </th>
-                  <th className="px-4 py-3 text-end font-medium">
-                    {t("الإجراءات", "Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/60">
-                {documents.map((doc) => (
-                  <tr key={doc.id} className="text-foreground">
-                    <td className="px-4 py-3">
-                      <div className="flex flex-col">
-                        <span className="font-semibold">{doc.title}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {doc.file_path.split("/").pop()}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge
-                        variant={
-                          doc.status === "ready"
-                            ? "success"
-                            : doc.status === "failed"
-                            ? "destructive"
-                            : "outline"
-                        }
-                      >
-                        {doc.status}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      {doc.emirate_scope || t("غير محدد", "Not specified")}
-                    </td>
-                    <td className="px-4 py-3">
-                      {formatDate(doc.uploaded_at, direction)}
-                    </td>
-                    <td className="px-4 py-3 text-end">
-                      <div className="flex flex-wrap items-center justify-end gap-2">
-                        {doc.status === "processing" && (
+          <CardContent>
+            {documents.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
+                <h3 className="text-lg font-semibold text-foreground">
+                  {t("لا توجد مستندات مسجلة", "No documents available")}
+                </h3>
+                <p className="max-w-md text-sm text-muted-foreground">
+                  {t(
+                    "سيظهر كل مستند يتم رفعه هنا مع حالة معالجته.",
+                    "Every document uploaded will appear here with processing status."
+                  )}
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {documents.map((doc) => {
+                  const filename = doc.file_path.split("/").pop() || doc.file_path;
+                  const date = new Date(doc.uploaded_at);
+                  const formattedDate = new Intl.DateTimeFormat(
+                    languageToLocale(direction),
+                    {
+                      dateStyle: "medium",
+                    }
+                  ).format(date);
+
+                  return (
+                    <Card
+                      key={doc.id}
+                      className="group flex h-full flex-col justify-between border border-border/60 bg-background/80 shadow-soft"
+                    >
+                      <CardHeader className="gap-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1 space-y-1 text-start overflow-hidden">
+                            <CardTitle className="text-lg font-semibold text-foreground break-words">
+                              {doc.title || "Document"}
+                            </CardTitle>
+                          </div>
+                          <Badge
+                            variant={
+                              doc.status === "ready"
+                                ? "success"
+                                : doc.status === "failed"
+                                ? "destructive"
+                                : "outline"
+                            }
+                            className="flex-shrink-0 ml-2"
+                          >
+                            {doc.status}
+                          </Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                          <span className="rounded-full bg-muted/50 px-3 py-1">
+                            {t("رفع", "Uploaded")} • {formattedDate}
+                          </span>
+                          {doc.emirate_scope && (
+                            <span className="rounded-full bg-muted/50 px-3 py-1">
+                              {doc.emirate_scope}
+                            </span>
+                          )}
+                          {doc.authority_name && (
+                            <span className="rounded-full bg-muted/50 px-3 py-1">
+                              {doc.authority_name}
+                            </span>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="border-t border-border/60 bg-background/70 py-4">
+                        <div className="flex flex-wrap items-center justify-end gap-2">
+                          {doc.status === "processing" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => checkDocumentStatus(doc.id)}
+                              disabled={checkingStatusIds.has(doc.id)}
+                              className="rounded-full"
+                            >
+                              {checkingStatusIds.has(doc.id)
+                                ? t("جارٍ الفحص", "Checking")
+                                : t("فحص الحالة", "Check status")}
+                            </Button>
+                          )}
                           <Button
                             size="sm"
-                            variant="outline"
-                            onClick={() => checkDocumentStatus(doc.id)}
-                            disabled={checkingStatusIds.has(doc.id)}
+                            variant="destructive"
+                            onClick={() => deleteDocument(doc.id)}
+                            className="rounded-full"
                           >
-                            {checkingStatusIds.has(doc.id)
-                              ? t("جارٍ الفحص", "Checking")
-                              : t("فحص الحالة", "Check status")}
+                            <Trash2 className="me-2 size-4 rtl:flip" aria-hidden />
+                            {t("حذف", "Delete")}
                           </Button>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => deleteDocument(doc.id)}
-                        >
-                          <Trash2 className="me-2 size-4 rtl:flip" aria-hidden />
-                          {t("حذف", "Delete")}
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {documents.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-4 py-6 text-center text-sm text-muted-foreground"
-                    >
-                      {t("لا توجد مستندات مسجلة", "No documents available")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
       </TabsContent>
@@ -546,54 +554,71 @@ export default function AdminDashboard() {
               )}
             </CardDescription>
           </CardHeader>
-          <CardContent className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-border text-sm">
-              <thead className="bg-muted/60 text-muted-foreground">
-                <tr>
-                  <th className="px-4 py-3 text-start font-medium">
-                    {t("البريد الإلكتروني", "Email")}
-                  </th>
-                  <th className="px-4 py-3 text-start font-medium">
-                    {t("التسجيل", "Registered")}
-                  </th>
-                  <th className="px-4 py-3 text-start font-medium">
-                    {t("آخر دخول", "Last sign-in")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/60">
-                {users.map((user) => (
-                  <tr key={user.id} className="text-foreground">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                          {user.email?.[0]?.toUpperCase()}
-                        </span>
-                        <span className="font-semibold">{user.email}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      {formatDate(user.created_at, direction)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {user.last_sign_in_at
-                        ? formatDate(user.last_sign_in_at, direction)
-                        : t("لم يسجل دخول", "Never")}
-                    </td>
-                  </tr>
-                ))}
-                {users.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={3}
-                      className="px-4 py-6 text-center text-sm text-muted-foreground"
+          <CardContent>
+            {users.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
+                <h3 className="text-lg font-semibold text-foreground">
+                  {t("لا يوجد مستخدمون", "No users found")}
+                </h3>
+                <p className="max-w-md text-sm text-muted-foreground">
+                  {t(
+                    "سيظهر كل مستخدم مسجل هنا مع تفاصيل تسجيله.",
+                    "Every registered user will appear here with registration details."
+                  )}
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {users.map((user) => {
+                  const date = new Date(user.created_at);
+                  const formattedDate = new Intl.DateTimeFormat(
+                    languageToLocale(direction),
+                    {
+                      dateStyle: "medium",
+                    }
+                  ).format(date);
+
+                  return (
+                    <Card
+                      key={user.id}
+                      className="group flex h-full flex-col justify-between border border-border/60 bg-background/80 shadow-soft"
                     >
-                      {t("لا يوجد مستخدمون", "No users found")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                      <CardHeader className="gap-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1 space-y-1 text-start overflow-hidden">
+                            <CardTitle className="text-lg font-semibold text-foreground break-words">
+                              {user.email}
+                            </CardTitle>
+                          </div>
+                          <div className="flex-shrink-0 ml-2">
+                            <span className="inline-flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-semibold">
+                              {user.email?.[0]?.toUpperCase()}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                          <span className="rounded-full bg-muted/50 px-3 py-1">
+                            {t("انضم في", "Joined")} • {formattedDate}
+                          </span>
+                          {user.last_sign_in_at && (
+                            <span className="rounded-full bg-muted/50 px-3 py-1">
+                              {t("آخر دخول", "Last sign-in")} • {formatDate(user.last_sign_in_at, direction)}
+                            </span>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="border-t border-border/60 bg-background/70 py-4">
+                        <div className="flex flex-wrap items-center justify-end gap-2">
+                          <Badge variant="outline" className="rounded-full">
+                            {t("مستخدم نشط", "Active user")}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
       </TabsContent>
@@ -706,4 +731,8 @@ function formatDate(value: string, direction: "rtl" | "ltr") {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function languageToLocale(direction: "rtl" | "ltr") {
+  return direction === "rtl" ? "ar-EG" : "en-US";
 }
