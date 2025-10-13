@@ -391,10 +391,12 @@ graph TD
 **Processing States:**
 
 1. **`processing`** (Initial State)
+
    - File uploaded to OpenAI and vector store
    - Agent Builder begins processing automatically
 
 2. **`ready`** (Final State)
+
    - Agent Builder has processed the file
    - Document is immediately available for agent queries
    - Users can ask questions and get accurate answers with citations
@@ -415,8 +417,8 @@ const sanadgptAgent = new Agent({
   tools: [fileSearchTool(["vs_68eb60e012988191be5a60558a1f1de6"])],
   modelSettings: {
     reasoning: { effort: "low", summary: "auto" },
-    store: true
-  }
+    store: true,
+  },
 });
 
 // Files are automatically processed and ready for queries
@@ -460,7 +462,7 @@ graph TD
        { role: "user", content: question },
      ],
    });
-   
+
    // Extract content using output_text (Responses API specific)
    const content = response.output_text || "I couldn't process your request.";
    ```
@@ -478,16 +480,17 @@ graph TD
 
 ### **Timing & Performance**
 
-| Phase             | Duration        | Notes                                  |
-| ----------------- | --------------- | -------------------------------------- |
-| Client Upload     | 1-5 seconds     | Depends on file size                   |
-| Server Processing | 2-10 seconds    | File upload + database operations      |
-| Agent Builder Processing | Immediate | Agent Builder handles processing automatically |
-| **Total Time**    | **3-15 seconds** | **Ready for queries**                  |
+| Phase                    | Duration         | Notes                                          |
+| ------------------------ | ---------------- | ---------------------------------------------- |
+| Client Upload            | 1-5 seconds      | Depends on file size                           |
+| Server Processing        | 2-10 seconds     | File upload + database operations              |
+| Agent Builder Processing | Immediate        | Agent Builder handles processing automatically |
+| **Total Time**           | **3-15 seconds** | **Ready for queries**                          |
 
 **Typical Processing Times:**
+
 - **Small files (1-5MB)**: 3-8 seconds
-- **Medium files (5-20MB)**: 5-12 seconds  
+- **Medium files (5-20MB)**: 5-12 seconds
 - **Large files (20-50MB)**: 8-15 seconds
 
 **Key Improvement**: With Agent Builder, documents are **immediately ready** for queries after upload. No polling or status checking required!
@@ -672,17 +675,20 @@ Content-Type: application/json
 
 {
   "question": "What are the audit requirements?",
-  "conversationHistory": [
-    { "role": "user", "content": "Previous question" },
-    { "role": "assistant", "content": "Previous answer" }
-  ]
+  "threadId": "thd_abc123" // optional on first call
 }
 
 Response:
 {
-  "content": "Based on the uploaded documents..."
+  "content": "Based on the uploaded documents...",
+  "threadId": "thd_abc123" // reuse this in subsequent requests
 }
 ```
+
+Notes:
+
+- Conversation history is managed by OpenAI Agents. Provide the same `threadId` to maintain context across the session.
+- Do not send previous messages; the Agent platform retrieves them using the `threadId`.
 
 ### Document Upload API (`/api/documents/upload`)
 

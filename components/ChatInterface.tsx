@@ -14,6 +14,7 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const t = useI18n();
   const { direction } = useLanguage();
@@ -26,6 +27,23 @@ export default function ChatInterface() {
     }
   }, [messages, loading]);
 
+  // Hydrate threadId from sessionStorage on mount
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem("sanadgpt_thread_id");
+      if (stored) setThreadId(stored);
+    } catch {}
+  }, []);
+
+  // Persist threadId when it changes
+  useEffect(() => {
+    try {
+      if (threadId) {
+        sessionStorage.setItem("sanadgpt_thread_id", threadId);
+      }
+    } catch {}
+  }, [threadId]);
+
   const appendMessage = useCallback((msg: ChatMessage) => {
     setMessages((prev) => [...prev, msg]);
   }, []);
@@ -35,7 +53,6 @@ export default function ChatInterface() {
       prev.map((m) => (m.id === id ? { ...m, content: m.content + delta } : m))
     );
   }, []);
-
 
   async function send() {
     if (!input.trim() || loading) return;
@@ -54,67 +71,33 @@ export default function ChatInterface() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           question,
-          conversationHistory: messages.filter(msg => msg.id !== userId).map((msg) => ({
-            role: msg.role,
-            content: msg.content,
-          })),
+          threadId: threadId ?? undefined,
         }),
       });
 
       if (!resp.ok) {
         const errorData = await resp.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${resp.status}: ${resp.statusText}`);
+        throw new Error(
+          errorData.error || `HTTP ${resp.status}: ${resp.statusText}`
+        );
       }
 
-      // Handle both streaming and non-streaming responses
-      const contentType = resp.headers.get("content-type");
-
-      if (contentType?.includes("text/event-stream")) {
-        // Handle streaming response
-        const reader = resp.body?.getReader();
-        if (!reader) throw new Error("No response body");
-
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-
-          let idx;
-          while ((idx = buffer.indexOf("\n\n")) !== -1) {
-            const chunk = buffer.slice(0, idx);
-            buffer = buffer.slice(idx + 2);
-            const lines = chunk.split("\n");
-            for (const line of lines) {
-              const t = line.trim();
-              if (!t.startsWith("data:")) continue;
-              const dataStr = t.slice(5).trim();
-              if (!dataStr || dataStr === "[DONE]") continue;
-              try {
-                const evt = JSON.parse(dataStr);
-                if (typeof evt?.content === "string") {
-                  updateAssistant(assistantId, evt.content);
-                }
-              } catch {
-                // ignore JSON parse errors
-              }
-            }
-          }
-        }
-      } else {
-        // Handle JSON response from Agent Builder
-        const data = await resp.json();
-        if (data.content) {
-          updateAssistant(assistantId, data.content);
-          // Citations are handled automatically by Agent Builder
-        }
+      // Handle JSON response from Agent Builder
+      const data = await resp.json();
+      if (data.content) {
+        updateAssistant(assistantId, data.content);
+      }
+      if (data.threadId && typeof data.threadId === "string") {
+        setThreadId(data.threadId);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       console.error("Chat error:", errorMessage);
-      updateAssistant(assistantId, `${t("حدث خطأ في الإجابة.", "An error occurred.")}: ${errorMessage}`);
+      updateAssistant(
+        assistantId,
+        `${t("حدث خطأ في الإجابة.", "An error occurred.")}: ${errorMessage}`
+      );
     } finally {
       setLoading(false);
       // flush remaining buffer if it contains a final JSON object

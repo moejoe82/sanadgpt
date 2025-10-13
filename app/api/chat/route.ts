@@ -4,9 +4,7 @@ import { NextRequest } from "next/server";
 import { fileSearchTool, Agent, AgentInputItem, Runner } from "@openai/agents";
 
 // Tool definitions - File search with vector store
-const fileSearch = fileSearchTool([
-  "vs_68eb60e012988191be5a60558a1f1de6"
-]);
+const fileSearch = fileSearchTool(["vs_68eb60e012988191be5a60558a1f1de6"]);
 
 const sanadgptAgent = new Agent({
   name: "SanadGPT Agent",
@@ -24,53 +22,51 @@ Key Guidelines:
   // Simplified settings - removing potentially unsupported options
 });
 
+// Read workflow id from environment (no hardcoding)
+const workflowId = process.env.OPENAI_CHATKIT_WORKFLOW_ID;
+if (!workflowId) {
+  throw new Error("Missing OPENAI_CHATKIT_WORKFLOW_ID environment variable");
+}
+
 type WorkflowInput = { input_as_text: string };
 
 // Main code entrypoint
 export const runWorkflow = async (workflow: WorkflowInput) => {
-  const conversationHistory: AgentInputItem[] = [
+  const items: AgentInputItem[] = [
     {
       role: "user",
       content: [
         {
           type: "input_text",
-          text: workflow.input_as_text
-        }
-      ]
-    }
+          text: workflow.input_as_text,
+        },
+      ],
+    },
   ];
-  
+
   const runner = new Runner({
     traceMetadata: {
       __trace_source__: "agent-builder",
-      workflow_id: "wf_68eb60b897a88190a7ea0f20a6eefa8f04fea11a9486fa43"
-    }
-  });
-  
-  const sanadgptAgentResultTemp = await runner.run(
-    sanadgptAgent,
-    [
-      ...conversationHistory
-    ]
-  );
-  
-  conversationHistory.push(...sanadgptAgentResultTemp.newItems.map((item) => item.rawItem));
+      workflow_id: workflowId,
+    },
+  } as any);
 
-  if (!sanadgptAgentResultTemp.finalOutput) {
-      throw new Error("Agent result is undefined");
+  const result = await runner.run(sanadgptAgent, items);
+
+  if (!result.finalOutput) {
+    throw new Error("Agent result is undefined");
   }
 
-  const sanadgptAgentResult = {
-    output_text: sanadgptAgentResultTemp.finalOutput ?? ""
-  };
-
-  return sanadgptAgentResult;
+  return { output_text: result.finalOutput ?? "" };
 };
 
 export async function POST(req: NextRequest) {
   try {
-    const { question, conversationHistory = [] } = await req.json();
-    
+    const {
+      question,
+      threadId,
+    }: { question?: unknown; threadId?: string | null } = await req.json();
+
     if (!question || typeof question !== "string") {
       return new Response(JSON.stringify({ error: "Missing 'question'" }), {
         status: 400,
@@ -78,67 +74,48 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Convert conversation history to AgentInputItem format
-    const agentHistory: AgentInputItem[] = conversationHistory.map((msg: { role: string; content: string }) => {
-      if (msg.role === "assistant") {
-        // Assistant messages should have output_text type
-        return {
-          role: msg.role as "assistant",
-          content: [
-            {
-              type: "output_text",
-              text: msg.content
-            }
-          ]
-        };
-      } else {
-        // User and system messages use input_text type
-        return {
-          role: msg.role as "user" | "system",
-          content: [
-            {
-              type: "input_text",
-              text: msg.content
-            }
-          ]
-        };
-      }
-    });
-
-    // Add current question to history
-    agentHistory.push({
-      role: "user",
-      content: [
-        {
-          type: "input_text",
-          text: question
-        }
-      ]
-    });
+    const items: AgentInputItem[] = [
+      {
+        role: "user",
+        content: [
+          {
+            type: "input_text",
+            text: question,
+          },
+        ],
+      },
+    ];
 
     const runner = new Runner({
       traceMetadata: {
         __trace_source__: "agent-builder",
-        workflow_id: "wf_68eb60b897a88190a7ea0f20a6eefa8f04fea11a9486fa43"
-      }
-    });
+        workflow_id: workflowId,
+      },
+      // Pass threadId through constructor using any-cast to allow SDK to handle threads if supported
+      ...(threadId ? { threadId } : {}),
+    } as any);
 
-    const result = await runner.run(sanadgptAgent, agentHistory);
+    const result: any = await runner.run(sanadgptAgent, items);
 
     if (!result.finalOutput) {
       throw new Error("Agent result is undefined");
     }
 
     const content = result.finalOutput;
+    const returnedThreadId: string | null = result.threadId ?? threadId ?? null;
 
-    return new Response(JSON.stringify({ 
-      content,
-      // Citations will be handled by the agent automatically
-    }), {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    return new Response(
+      JSON.stringify({
+        content,
+        threadId: returnedThreadId,
+        // Citations will be handled by the agent automatically
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
     console.error("[Chat API] Error:", errorMessage);
