@@ -336,7 +336,7 @@ export default function AdminDashboard() {
 
       {/* Responsive Tabs */}
       <TabsList className={`flex rounded-full bg-muted/60 p-1 ${
-        isNarrowScreen ? "w-fit mx-auto gap-0.5" : "w-full gap-1"
+        isNarrowScreen ? "gap-0.5" : "gap-1"
       }`}>
         <TabsTrigger
           value="overview"
