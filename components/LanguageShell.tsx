@@ -4,44 +4,48 @@ import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "./LanguageProvider";
 import LanguageToggle from "./LanguageToggle";
+import { cn } from "@/lib/utils";
 
 export default function LanguageShell({ children }: { children: ReactNode }) {
   const { direction, t } = useLanguage();
   const pathname = usePathname();
-  
-  // Don't apply padding-top on dashboard page as it has its own layout
+
   const isDashboard = pathname === "/dashboard";
-  const mainClasses = isDashboard ? "flex-1" : "flex-1 pt-20";
 
   return (
-    <div dir={direction} className="relative flex min-h-screen flex-col">
-      {/* Language toggle only for non-dashboard pages */}
+    <div dir={direction} className="flex min-h-[100dvh] flex-col">
       {!isDashboard && (
-        <div className="absolute top-4 left-4 z-50">
+        <header className="sticky top-0 z-40 flex items-center justify-end gap-3 border-b border-border/60 bg-background/80 px-safe pb-3 pt-safe-t text-sm shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <LanguageToggle />
-        </div>
+        </header>
       )}
-      <main className={mainClasses}>{children}</main>
-      <footer className="border-t border-slate-200 bg-white/80 py-10 text-slate-700 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-200">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 sm:flex-row sm:items-center sm:justify-between">
-          <nav className="flex flex-wrap items-center gap-4 text-sm font-medium">
+      <main
+        className={cn(
+          "flex-1",
+          isDashboard ? "px-0" : "px-safe pb-safe-b pt-8"
+        )}
+      >
+        {children}
+      </main>
+      <footer className="border-t border-border/60 bg-background/85 px-safe pb-safe-b pt-8 text-sm text-muted-foreground shadow-[0_-20px_60px_-40px_hsl(var(--shadow-soft))] backdrop-blur supports-[backdrop-filter]:bg-background/65">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 text-center sm:flex-row sm:items-center sm:justify-between sm:text-start">
+          <nav className="flex flex-wrap items-center justify-center gap-4 sm:justify-start">
             <a
               href="/terms-of-use"
-              className="transition hover:text-slate-900 dark:hover:text-white"
+              className="font-medium text-foreground transition hover:text-primary"
             >
               {t("شروط الاستخدام", "Terms of Use")}
             </a>
-            <span className="hidden text-slate-400 sm:inline">|</span>
+            <span className="hidden text-muted-foreground sm:inline">•</span>
             <a
               href="/privacy-policy"
-              className="transition hover:text-slate-900 dark:hover:text-white"
+              className="font-medium text-foreground transition hover:text-primary"
             >
               {t("سياسة الخصوصية", "Privacy Policy")}
             </a>
           </nav>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            SanadGPT.com © 2025.{" "}
-            {t("جميع الحقوق محفوظة.", "All Rights Reserved.")}
+          <p className="text-xs text-muted-foreground">
+            © 2025 SanadGPT. {t("جميع الحقوق محفوظة.", "All rights reserved.")}
           </p>
         </div>
       </footer>

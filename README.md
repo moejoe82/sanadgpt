@@ -97,6 +97,19 @@ SanadGPT is designed to revolutionize how audit professionals and organizations 
 - **Document Monitoring**: Track upload status and processing
 - **System Settings**: Configure API keys and vector stores
 
+## 🎨 Design System & Frontend Guidelines
+
+The UI is built with a composable shadcn/ui + Tailwind 4 design system tailored for Arabic/English enterprise deployments:
+
+- **Design Tokens** – Core color, typography, spacing, radius, and elevation primitives live in [`app/globals.css`](app/globals.css). Tokens expose semantic variables such as `--color-primary`, `--color-surface`, `--radius-lg`, and safe-area helpers (`pt-safe-t`, `pb-safe-b`, `px-safe`). Dark mode is handled via `data-theme="dark"` and respects OS preference on hydration.
+- **Component Library** – Reusable primitives live under [`components/ui`](components/ui). Available building blocks include `Button`, `Badge`, `Card`, `Input`, `Textarea`, `Select`, `Dialog`, `DropdownMenu`, `Sheet`, `Tabs`, and `Toast`. Each component follows shadcn patterns (Radix + CVA) with enterprise focus states and reduced-motion support.
+- **Layout Shell** – The main workspace shell lives in [`app/dashboard/page.tsx`](app/dashboard/page.tsx) and coordinates header, navigation drawer, safe-area padding, and responsive breakpoints. `LanguageShell` maintains footer consistency for all routes.
+- **RTL / LTR Support** – Direction is controlled by the language provider, setting the `dir` attribute globally. Utilities like `.rtl:flip`, logical padding helpers, and Radix mirroring ensure icons and layouts render natively in Arabic and English without duplicated markup.
+- **Extensibility** – When adding new UI, import from `components/ui` and rely on design tokens rather than raw hex values. For new surfaces, start with the `Card` primitive or the `SectionWrapper` pattern in the dashboard to inherit spacing, shadows, and background treatments automatically.
+- **Feedback & Toasts** – Use the shared `toast` helper from `components/ui/use-toast` for status notifications. The global `<Toaster />` is registered in `app/layout.tsx`, so no additional setup is needed.
+
+> Tip: Avoid fixed widths/heights. Use `minmax`, `clamp`, and logical spacing utilities to keep the UI elastic across 320px mobile screens up to widescreen desktops.
+
 ## 📁 Project Structure
 
 ```

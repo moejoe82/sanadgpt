@@ -1,16 +1,61 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import {
+  MessageSquare,
+  UploadCloud,
+  FileText,
+  ShieldCheck,
+  Menu,
+  LogOut,
+  Loader2,
+} from "lucide-react";
+
 import ChatInterface from "@/components/ChatInterface";
 import DocumentUpload from "@/components/DocumentUpload";
 import DocumentsList from "@/components/DocumentsList";
 import AdminDashboard from "@/components/AdminDashboard";
+import LanguageToggle from "@/components/LanguageToggle";
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
+import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/components/ui/use-toast";
+
+const NAV_ICONS = {
+  chat: MessageSquare,
+  upload: UploadCloud,
+  documents: FileText,
+  admin: ShieldCheck,
+} as const;
 
 type TabKey = "chat" | "upload" | "documents" | "admin";
+
+type NavItem = {
+  key: TabKey;
+  label: string;
+  description: string;
+  badge?: ReactNode;
+};
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -18,12 +63,11 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("chat");
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
   const headerRef = useRef<HTMLElement | null>(null);
-  const [headerHeight, setHeaderHeight] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(80);
   const t = useI18n();
-  const { direction, language, toggleLanguage } = useLanguage();
-  const textAlign = direction === "rtl" ? "text-right" : "text-left";
+  const { direction, language } = useLanguage();
 
   useEffect(() => {
     let mounted = true;
@@ -39,7 +83,6 @@ export default function DashboardPage() {
       }
       setEmail(user.email ?? null);
 
-      // Fetch user role - handle gracefully if table doesn't exist or has RLS issues
       try {
         const { data, error } = await supabase
           .from("user_roles")
@@ -48,23 +91,19 @@ export default function DashboardPage() {
           .maybeSingle();
 
         if (error) {
-          console.warn("Could not fetch user role:", error.message);
-          // Temporary workaround: check if email is admin@sanadgpt.com
           if (user.email === "admin@sanadgpt.com") {
-            console.log("Using email-based admin detection for:", user.email);
             setIsAdmin(true);
           }
         } else if (data?.role === "admin") {
           setIsAdmin(true);
         }
       } catch (err) {
-        console.warn("Error fetching user role:", err);
-        // Temporary workaround: check if email is admin@sanadgpt.com
+        console.warn("Error resolving user role", err);
         if (user.email === "admin@sanadgpt.com") {
-          console.log("Using email-based admin detection for:", user.email);
           setIsAdmin(true);
         }
       }
+
       setLoading(false);
     })();
     return () => {
@@ -73,45 +112,11 @@ export default function DashboardPage() {
   }, [router]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mediaQuery = window.matchMedia("(min-width: 768px)");
-
-    const handleChange = (event: MediaQueryListEvent | MediaQueryList) => {
-      if ("matches" in event && event.matches) {
-        setIsSidebarOpen(false);
-      }
-    };
-
-    handleChange(mediaQuery);
-
-    if (typeof mediaQuery.addEventListener === "function") {
-      mediaQuery.addEventListener("change", handleChange);
-      return () => mediaQuery.removeEventListener("change", handleChange);
-    }
-
-    mediaQuery.addListener(handleChange);
-    return () => mediaQuery.removeListener(handleChange);
-  }, []);
-
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-    if (isSidebarOpen) {
-      document.body.style.setProperty("overflow", "hidden");
-    } else {
-      document.body.style.removeProperty("overflow");
-    }
-
-    return () => {
-      document.body.style.removeProperty("overflow");
-    };
-  }, [isSidebarOpen]);
-
-  useEffect(() => {
     const element = headerRef.current;
     if (!element) return;
 
     const updateHeight = () => {
-      setHeaderHeight(element.offsetHeight);
+      setHeaderHeight(element.getBoundingClientRect().height);
     };
 
     updateHeight();
@@ -126,242 +131,286 @@ export default function DashboardPage() {
     return () => window.removeEventListener("resize", updateHeight);
   }, []);
 
-  const topBarStyle: CSSProperties = useMemo(
-    () => ({
-      paddingTop: "max(env(safe-area-inset-top), 0.75rem)",
-      paddingBottom: "0.75rem",
-      paddingInlineStart:
-        direction === "rtl"
-          ? "max(env(safe-area-inset-right), 1rem)"
-          : "max(env(safe-area-inset-left), 1rem)",
-      paddingInlineEnd:
-        direction === "rtl"
-          ? "max(env(safe-area-inset-left), 1rem)"
-          : "max(env(safe-area-inset-right), 1rem)",
-    }),
-    [direction]
-  );
+  const navItems = useMemo<NavItem[]>(() => {
+    const base: NavItem[] = [
+      {
+        key: "chat",
+        label: t("المحادثة", "Chat"),
+        description: t("اسأل النظام واحصل على إجابات فورية.", "Ask the workspace for instant insights."),
+      },
+      {
+        key: "upload",
+        label: t("رفع", "Upload"),
+        description: t("أضف مستندات جديدة إلى مساحة العمل.", "Bring new documents into the workspace."),
+      },
+      {
+        key: "documents",
+        label: t("المستندات", "Documents"),
+        description: t("استعرض الملفات المؤرشفة وتحقق من حالتها.", "Review and track uploaded records."),
+      },
+    ];
 
-  const drawerPositionClasses = useMemo(() => {
-    const sideClass = direction === "rtl" ? "right-0" : "left-0";
-    const closedTransform = direction === "rtl" ? "translate-x-full" : "-translate-x-full";
-    return {
-      container: `fixed inset-y-0 ${sideClass} z-40 w-72 max-w-full border-slate-200 bg-white shadow-xl transition-transform duration-300 ease-in-out dark:border-slate-800 dark:bg-slate-900 md:hidden`,
-      open: "translate-x-0",
-      closed: closedTransform,
-    };
-  }, [direction]);
+    if (isAdmin) {
+      base.push({
+        key: "admin",
+        label: t("الإدارة", "Admin"),
+        description: t("مقاييس النظام وإدارة المستخدمين.", "System metrics and controls."),
+        badge: <Badge variant="outline">{t("مستوى مرتفع", "Elevated")}</Badge>,
+      });
+    }
 
-  const drawerSafeAreaStyle: CSSProperties = useMemo(
-    () => ({
-      paddingTop: "calc(env(safe-area-inset-top) + 1rem)",
-      paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)",
-      paddingInlineStart:
-        direction === "rtl"
-          ? "calc(env(safe-area-inset-right) + 1rem)"
-          : "calc(env(safe-area-inset-left) + 1rem)",
-      paddingInlineEnd:
-        direction === "rtl"
-          ? "calc(env(safe-area-inset-left) + 1rem)"
-          : "calc(env(safe-area-inset-right) + 1rem)",
-    }),
-    [direction]
-  );
+    return base;
+  }, [isAdmin, t]);
 
-  const desktopSidebarStyle: CSSProperties = useMemo(
+  const asideStyle: CSSProperties = useMemo(
     () => ({
-      top: 0, // Remove header height offset
-      height: '100vh', // Full viewport height
-      paddingTop: `${headerHeight}px`, // Use padding instead
+      top: headerHeight,
+      insetInlineStart: 0,
+      blockSize: `calc(100dvh - ${headerHeight}px)`,
     }),
     [headerHeight]
   );
 
-  // Compute tabs BEFORE any conditional returns to keep hooks order stable
-  const tabs = useMemo(() => {
-    const base: { key: TabKey; label: string }[] = [
-      { key: "chat", label: t("المحادثة", "Chat") },
-      { key: "upload", label: t("رفع", "Upload") },
-      { key: "documents", label: t("المستندات", "Documents") },
-    ];
-    if (isAdmin) base.push({ key: "admin", label: t("الإدارة", "Admin") });
-    return base;
-  }, [isAdmin, t]);
-
   async function logout() {
     await supabase.auth.signOut();
+    toast({
+      title: t("تم تسجيل الخروج", "Signed out"),
+      description: t("تم إنهاء الجلسة الحالية.", "You have successfully ended your session."),
+    });
     router.replace("/login");
   }
 
-  return (
-    <div dir={direction} className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
-      {loading && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-black/40">
-          <div className="text-center">
-            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900" />
-            <div className="text-slate-600">{t("جاري التحميل...", "Loading...")}</div>
-          </div>
-        </div>
-      )}
-
-      <header
-        ref={headerRef}
-        className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b bg-white/90 backdrop-blur dark:bg-slate-900/85"
-        style={topBarStyle}
-      >
-        <button
-          type="button"
-          onClick={() => setIsSidebarOpen(true)}
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 md:hidden"
-          aria-label={t("فتح قائمة التنقل", "Open navigation")}
-        >
-          <span className="sr-only">{t("القائمة", "Menu")}</span>
-          <span className="flex flex-col gap-1.5">
-            <span className="block h-0.5 w-6 rounded-full bg-current" />
-            <span className="block h-0.5 w-6 rounded-full bg-current" />
-            <span className="block h-0.5 w-6 rounded-full bg-current" />
-          </span>
-        </button>
-        <div className="flex items-center gap-2">
-          <div className="text-lg font-semibold">SanadGPT</div>
-          <div className="rounded px-2 py-1 text-xs text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-            v1.0.0
-          </div>
-        </div>
-        <div className="flex flex-1 items-center justify-end gap-3 text-sm">
-          <div
-            className={`min-w-0 flex-1 truncate text-slate-700 dark:text-slate-300 ${textAlign}`}
-            title={email ?? undefined}
+  const NavigationList = ({
+    layout,
+  }: {
+    layout: "vertical" | "compact";
+  }) => (
+    <TabsList
+      className={
+        layout === "vertical"
+          ? "flex h-full flex-col gap-2 rounded-3xl border-0 bg-transparent p-0"
+          : "grid w-full grid-cols-1 gap-2 rounded-3xl border-0 bg-transparent"
+      }
+    >
+      {navItems.map((item) => {
+        const Icon = NAV_ICONS[item.key];
+        return (
+          <TabsTrigger
+            key={item.key}
+            value={item.key}
+            className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-transparent bg-muted/40 px-4 py-3 text-start text-sm font-medium text-muted-foreground transition focus-visible:ring-2 data-[state=active]:border-primary/60 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground"
+            onClick={() => setNavOpen(false)}
           >
-            {email || (loading ? "..." : "")}
-          </div>
-          <button
-            onClick={logout}
-            className="inline-flex h-10 items-center justify-center rounded-md bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500"
-          >
-            {t("خروج", "Logout")}
-          </button>
-        </div>
-      </header>
-
-      <div className="flex flex-1 min-h-0 relative">
-        {isSidebarOpen && (
-          <button
-            type="button"
-            aria-label={t("إغلاق قائمة التنقل", "Close navigation")}
-            className="fixed inset-0 z-20 bg-slate-900/40 backdrop-blur-sm md:hidden"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
-
-        <aside
-          className={`${drawerPositionClasses.container} ${
-            isSidebarOpen ? drawerPositionClasses.open : drawerPositionClasses.closed
-          }`}
-          style={drawerSafeAreaStyle}
-        >
-          <div className="mb-6 flex items-center justify-between">
-            <div className="text-base font-semibold text-slate-900 dark:text-slate-50">
-              {t("التنقل", "Navigation")}
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsSidebarOpen(false)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 dark:bg-slate-900 dark:text-slate-200"
-              aria-label={t("إغلاق", "Close")}
-            >
-              <span className="sr-only">{t("إغلاق", "Close")}</span>
-              <span aria-hidden className="text-2xl leading-none">
-                ×
+            <span className="flex items-center gap-3">
+              <span className="flex size-10 items-center justify-center rounded-2xl bg-muted text-muted-foreground transition group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">
+                <Icon className="size-5 rtl:flip" aria-hidden />
               </span>
-            </button>
-          </div>
-          
-          {/* Language Toggle - Moved to top */}
-          <div className="mt-4 mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
-            <button
-              onClick={() => {
-                toggleLanguage();
-                setIsSidebarOpen(false);
-              }}
-              className={`w-full ${textAlign} text-sm font-bold text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300 transition-colors`}
-            >
-              {language === "ar" ? "English" : "العربية"}
-            </button>
-          </div>
-          
-          <nav className="space-y-2">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActiveTab(tab.key);
-                  setIsSidebarOpen(false);
-                }}
-                className={
-                  `w-full ${textAlign} rounded-lg px-4 py-3 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 ` +
-                  (activeTab === tab.key
-                    ? "bg-slate-900 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700/70")
-                }
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-        </aside>
+              <span className="flex flex-col text-start">
+                <span className="text-base font-semibold">
+                  {item.label}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {item.description}
+                </span>
+              </span>
+            </span>
+            {item.badge}
+          </TabsTrigger>
+        );
+      })}
+    </TabsList>
+  );
 
-        <aside
-          className={`${
-            direction === "rtl" ? "md:border-l" : "md:border-r"
-          } fixed ${direction === "rtl" ? "right-0" : "left-0"} hidden w-72 shrink-0 flex-col border-slate-200 bg-white/95 dark:bg-slate-900/85 md:flex overflow-hidden px-6 py-8`}
-          style={desktopSidebarStyle}
+  return (
+    <Tabs
+      dir={direction}
+      value={activeTab}
+      onValueChange={(value) => setActiveTab(value as TabKey)}
+      className="flex min-h-full flex-col"
+    >
+      <Sheet open={navOpen} onOpenChange={setNavOpen}>
+        <header
+          ref={headerRef}
+          className="sticky top-0 z-50 border-b border-border/60 bg-background/80 px-safe pt-safe-t pb-3 shadow-[0_16px_40px_-32px_hsl(var(--shadow-soft))] backdrop-blur supports-[backdrop-filter]:bg-background/60"
         >
-          {/* Language Toggle - Desktop sidebar */}
-          <div className="mt-4 mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
-            <button
-              onClick={toggleLanguage}
-              className={`w-full ${textAlign} text-sm font-bold text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300 transition-colors`}
-            >
-              {language === "ar" ? "English" : "العربية"}
-            </button>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="lg:hidden"
+                  aria-label={t("فتح القائمة", "Open navigation")}
+                >
+                  <Menu className="size-5" aria-hidden />
+                </Button>
+              </SheetTrigger>
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                  {t("منصة التدقيق", "Audit workspace")}
+                </span>
+                <h1 className="text-lg font-semibold text-foreground sm:text-2xl">
+                  SanadGPT
+                </h1>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <LanguageToggle />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full border-border/70 bg-background/80 px-4"
+                    aria-label={t("إعدادات الحساب", "Account settings")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-semibold">
+                      <span className="inline-flex size-8 items-center justify-center rounded-full bg-primary/15 text-primary">
+                        {email?.[0]?.toUpperCase() ?? "U"}
+                      </span>
+                      <span className="hidden sm:inline text-start">
+                        {email ?? t("مستخدم", "User")}
+                      </span>
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align={direction === "rtl" ? "start" : "end"} className="w-64">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-semibold text-foreground">
+                        {email ?? t("مستخدم", "User")}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {language === "ar"
+                          ? "مساحة عمل SanadGPT"
+                          : "SanadGPT workspace"}
+                      </span>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="gap-2 text-destructive focus:text-destructive"
+                    onSelect={logout}
+                  >
+                    <LogOut className="size-4 rtl:flip" aria-hidden />
+                    {t("تسجيل الخروج", "Sign out")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
-          
-          <nav className="space-y-2">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActiveTab(tab.key);
-                }}
-                className={
-                  `w-full ${textAlign} rounded-lg px-4 py-3 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 ` +
-                  (activeTab === tab.key
-                    ? "bg-slate-900 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800/80 dark:text-slate-200 dark:hover:bg-slate-700/70")
-                }
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
+        </header>
+
+        <SheetContent side={direction === "rtl" ? "end" : "start"}>
+          <SheetHeader>
+            <SheetTitle>{t("التنقل", "Navigation")}</SheetTitle>
+            <SheetDescription>
+              {t("اختر القسم الذي ترغب بالعمل عليه.", "Choose where you’d like to work today.")}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6 space-y-3">
+            <NavigationList layout="compact" />
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <div className="flex flex-1 flex-col lg:flex-row">
+        <aside
+          className="relative hidden w-full max-w-xs flex-none border-border/60 lg:block lg:border-e lg:sticky"
+          style={asideStyle}
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="flex h-full flex-col gap-4 overflow-y-auto px-6 pb-10 pt-8 scrollbar-thin">
+              <NavigationList layout="vertical" />
+            </div>
+          </div>
         </aside>
 
-        <main className={`flex-1 min-w-0 overflow-y-auto px-4 pb-[max(env(safe-area-inset-bottom),1rem)] pt-4 md:px-8 md:pt-6 ${direction === "rtl" ? "md:mr-72" : "md:ml-72"}`}>
-          <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-            {!email ? null : activeTab === "chat" ? <ChatInterface /> : null}
-            {activeTab === "upload" && (
-              <div className="w-full">
-                <DocumentUpload />
-              </div>
-            )}
-            {activeTab === "documents" && <DocumentsList />}
-            {activeTab === "admin" && <AdminDashboard />}
-          </div>
+        <main className="flex-1 px-safe pb-safe-b pt-8">
+          {loading ? (
+            <div className="flex min-h-[40vh] items-center justify-center">
+              <span className="inline-flex items-center gap-3 rounded-full border border-border/60 bg-background/80 px-5 py-3 text-sm font-medium text-muted-foreground shadow-soft">
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+                {t("جاري التحقق من الجلسة...", "Validating your session...")}
+              </span>
+            </div>
+          ) : (
+            <div className="space-y-12">
+              <TabsContent value="chat" className="m-0">
+                <SectionWrapper
+                  title={t("محادثة الذكاء الاصطناعي", "AI workspace chat")}
+                  description={t(
+                    "تفاعل مع المحتوى المعتمد واطلب ما تحتاجه مباشرة.",
+                    "Collaborate with your content and get crisp answers."
+                  )}
+                >
+                  <ChatInterface />
+                </SectionWrapper>
+              </TabsContent>
+
+              <TabsContent value="upload" className="m-0">
+                <SectionWrapper
+                  title={t("رفع المستندات", "Upload documents")}
+                  description={t(
+                    "ارفع ملفات جديدة وستتم معالجتها وتوجيهها تلقائياً.",
+                    "Bring new evidence into the workspace for automated processing."
+                  )}
+                >
+                  <DocumentUpload />
+                </SectionWrapper>
+              </TabsContent>
+
+              <TabsContent value="documents" className="m-0">
+                <SectionWrapper
+                  title={t("أرشيف المستندات", "Document archive")}
+                  description={t(
+                    "استعرض كل الملفات وتتبّع حالة التحميل والمعالجة.",
+                    "Monitor upload progress and review archived documents."
+                  )}
+                >
+                  <DocumentsList />
+                </SectionWrapper>
+              </TabsContent>
+
+              {isAdmin && (
+                <TabsContent value="admin" className="m-0">
+                  <SectionWrapper
+                    title={t("لوحة الإدارة", "Administrative console")}
+                    description={t(
+                      "استعرض المؤشرات الحيوية للنظام وأدِر المستخدمين.",
+                      "Review system vitals and manage workspace governance."
+                    )}
+                  >
+                    <AdminDashboard />
+                  </SectionWrapper>
+                </TabsContent>
+              )}
+            </div>
+          )}
         </main>
       </div>
-    </div>
+    </Tabs>
+  );
+}
+
+function SectionWrapper({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="space-y-5 text-start">
+      <div className="space-y-1">
+        <h2 className="text-2xl font-semibold text-foreground">
+          {title}
+        </h2>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+      {children}
+    </section>
   );
 }
