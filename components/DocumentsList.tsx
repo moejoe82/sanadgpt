@@ -145,7 +145,6 @@ export default function DocumentsList() {
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {docs.map((doc) => {
-          const filename = doc.file_path.split("/").pop() || doc.file_path;
           const date = new Date(doc.uploaded_at);
           const formattedDate = new Intl.DateTimeFormat(
             languageToLocale(direction),
@@ -164,11 +163,8 @@ export default function DocumentsList() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 space-y-1 text-start">
                     <CardTitle className="text-lg font-semibold text-foreground">
-                      {doc.title || filename}
+                      {doc.title || "Document"}
                     </CardTitle>
-                    <CardDescription className="truncate text-xs font-medium text-muted-foreground">
-                      {filename}
-                    </CardDescription>
                   </div>
                   <Badge
                     variant="outline"
@@ -193,14 +189,6 @@ export default function DocumentsList() {
                   )}
                 </div>
               </CardHeader>
-               <CardContent className="flex-1 text-sm text-muted-foreground">
-                 <p className="leading-relaxed">
-                   {t(
-                     "مستند مؤرشف ومتاح للبحث والاستعلام.",
-                     "Document archived and available for search and query."
-                   )}
-                 </p>
-               </CardContent>
               <CardContent className="border-t border-border/60 bg-background/70 py-4">
                 <Dialog
                   open={pendingDelete?.id === doc.id}
@@ -208,7 +196,7 @@ export default function DocumentsList() {
                     open
                       ? setPendingDelete({
                           id: doc.id,
-                          title: doc.title || filename,
+                          title: doc.title || "Document",
                         })
                       : setPendingDelete(null)
                   }
@@ -220,7 +208,7 @@ export default function DocumentsList() {
                       onClick={() =>
                         setPendingDelete({
                           id: doc.id,
-                          title: doc.title || filename,
+                          title: doc.title || "Document",
                         })
                       }
                     >
@@ -242,7 +230,7 @@ export default function DocumentsList() {
                       </DialogDescription>
                     </DialogHeader>
                     <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                      {doc.title || filename}
+                      {doc.title || "Document"}
                     </div>
                     <DialogFooter>
                       <Button
