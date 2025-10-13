@@ -1,7 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 
 type ChatMessage = {
   id: string;
@@ -20,12 +31,10 @@ export default function ChatInterface() {
   const alignment = direction === "rtl" ? "text-right" : "text-left";
 
   useEffect(() => {
-    // Only scroll if there are messages
     if (messages.length > 0) {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, loading]);
-
 
   const appendMessage = useCallback((msg: ChatMessage) => {
     setMessages((prev) => [...prev, msg]);
@@ -54,10 +63,12 @@ export default function ChatInterface() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           question,
-          conversationHistory: messages.filter(msg => msg.id !== userId).map((msg) => ({
-            role: msg.role,
-            content: msg.content,
-          })),
+          conversationHistory: messages
+            .filter((msg) => msg.id !== userId)
+            .map((msg) => ({
+              role: msg.role,
+              content: msg.content,
+            })),
         }),
       });
 
@@ -68,7 +79,6 @@ export default function ChatInterface() {
         );
       }
 
-      // Handle JSON response from Agent Builder
       const data = await resp.json();
       if (data.content) {
         updateAssistant(assistantId, data.content);
@@ -87,64 +97,101 @@ export default function ChatInterface() {
   }
 
   return (
-    <div
+    <Card
       dir={direction}
-      className={`flex flex-col h-full max-h-[80vh] border rounded-lg p-4 gap-3 bg-white/90 dark:bg-slate-900/80 ${alignment}`}
+      className={`flex h-full flex-col gap-4 border border-border/60 bg-background/90 p-0 shadow-soft ${alignment}`}
     >
-      <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-        {messages.map((m) => (
-          <div
-            key={m.id}
-            className={
-              m.role === "user" ? "flex justify-end" : "flex justify-start"
-            }
-          >
+      <CardHeader className="gap-1 border-b border-border/60 bg-background/80 px-6 py-5">
+        <CardTitle className="text-lg font-semibold">
+          {t("محادثة الذكاء الاصطناعي", "Workspace assistant")}
+        </CardTitle>
+        <CardDescription className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <span>
+            {t(
+              "تم تدريب الإجابات على المستندات الموثوقة فقط.",
+              "Responses are grounded in your approved evidence."
+            )}
+          </span>
+          <Badge variant="outline" className="bg-primary/10 text-primary">
+            {t("آمن للمراجعة", "Audit-ready")}
+          </Badge>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-1 flex-col gap-4 overflow-hidden px-0 pb-0">
+        <div className="flex-1 space-y-4 overflow-y-auto px-6 pb-6 pt-4 scrollbar-thin" aria-live="polite">
+          {messages.length === 0 && !loading && (
+            <div className="rounded-2xl border border-dashed border-border/70 bg-muted/40 p-6 text-sm text-muted-foreground">
+              {t(
+                "ابدأ المحادثة بطرح سؤال حول إجراءات التدقيق أو السياسات.",
+                "Ask a question about audit procedures or policies to begin."
+              )}
+            </div>
+          )}
+          {messages.map((message) => (
             <div
+              key={message.id}
               className={
-                "max-w-[80%] rounded-2xl px-4 py-2 shadow-sm transition " +
-                (m.role === "user"
-                  ? "bg-slate-900 text-white rounded-br-sm"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-bl-sm")
+                message.role === "user"
+                  ? "flex justify-end"
+                  : "flex justify-start"
               }
             >
-              <div className="whitespace-pre-wrap leading-relaxed">
-                {m.content}
+              <div
+                className={`max-w-[min(90%,40rem)] rounded-3xl border px-4 py-3 text-sm leading-relaxed shadow-sm ${
+                  message.role === "user"
+                    ? "rounded-br-lg border-primary/30 bg-primary text-primary-foreground"
+                    : "rounded-bl-lg border-border/60 bg-muted/40 text-foreground"
+                }`}
+              >
+                <div className="whitespace-pre-wrap text-pretty">{message.content}</div>
               </div>
-              {/* Citations are handled automatically by Agent Builder */}
             </div>
-          </div>
-        ))}
-        {loading && (
-          <div className="flex justify-start">
-            <div className="max-w-[80%] rounded-2xl px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-bl-sm animate-pulse">
-              {t("جاري التفكير...", "Thinking...")}
+          ))}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="max-w-[min(90%,32rem)] rounded-3xl rounded-bl-lg border border-border/50 bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
+                {t("جاري التفكير...", "Thinking...")}
+              </div>
             </div>
-          </div>
-        )}
-        <div ref={bottomRef} />
-      </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
 
-      <div className="flex gap-2 items-center">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              send();
-            }
+        <form
+          className="flex flex-col gap-3 border-t border-border/60 bg-background/80 px-6 py-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            send();
           }}
-          placeholder={t("اطرح سؤالك هنا", "Ask your question...")}
-          className="flex-1 rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
-        />
-        <button
-          onClick={send}
-          disabled={loading || !input.trim()}
-          className="rounded-md bg-slate-900 text-white px-4 py-2 hover:bg-slate-800 disabled:opacity-50"
         >
-          {t("إرسال", "Send")}
-        </button>
-      </div>
-    </div>
+          <Textarea
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                send();
+              }
+            }}
+            aria-label={t("اطرح سؤالك هنا", "Ask your question")}
+            placeholder={t("اطرح سؤالك هنا", "Ask your question...")}
+            className="resize-none bg-background/70"
+          />
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <p className="text-xs text-muted-foreground">
+              {t(
+                "اضغط على إدخال للإرسال. استخدم Shift + إدخال لسطر جديد.",
+                "Press Enter to send. Use Shift + Enter for a new line."
+              )}
+            </p>
+            <Button type="submit" disabled={loading || !input.trim()}>
+              {loading
+                ? t("جاري الإرسال...", "Sending...")
+                : t("إرسال", "Send")}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
