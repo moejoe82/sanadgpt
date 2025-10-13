@@ -337,15 +337,7 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-10">
               <TabsContent value="chat" className="m-0">
-                <SectionWrapper
-                  title={t("محادثة الذكاء الاصطناعي", "AI workspace chat")}
-                  description={t(
-                    "تفاعل مع المحتوى المعتمد واطلب ما تحتاجه مباشرة.",
-                    "Collaborate with your content and get crisp answers."
-                  )}
-                >
-                  <ChatInterface />
-                </SectionWrapper>
+                <ChatInterface />
               </TabsContent>
 
               <TabsContent value="upload" className="m-0">

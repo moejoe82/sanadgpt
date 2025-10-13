@@ -4,15 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 
 type ChatMessage = {
   id: string;
@@ -97,28 +89,11 @@ export default function ChatInterface() {
   }
 
   return (
-    <Card
+    <div
       dir={direction}
-      className={`flex h-full flex-col gap-4 border border-border/60 bg-background/90 p-0 shadow-soft ${alignment}`}
+      className={`flex h-full flex-col gap-4 rounded-3xl border border-border/60 bg-background/70 p-6 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55 ${alignment}`}
     >
-      <CardHeader className="gap-1 border-b border-border/60 bg-background/80 px-6 py-5">
-        <CardTitle className="text-lg font-semibold">
-          {t("محادثة الذكاء الاصطناعي", "Workspace assistant")}
-        </CardTitle>
-        <CardDescription className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <span>
-            {t(
-              "تم تدريب الإجابات على المستندات الموثوقة فقط.",
-              "Responses are grounded in your approved evidence."
-            )}
-          </span>
-          <Badge variant="outline" className="bg-primary/10 text-primary">
-            {t("آمن للمراجعة", "Audit-ready")}
-          </Badge>
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-1 flex-col gap-4 overflow-hidden px-0 pb-0">
-        <div className="flex-1 space-y-4 overflow-y-auto px-6 pb-6 pt-4 scrollbar-thin" aria-live="polite">
+      <div className="flex-1 space-y-4 overflow-y-auto scrollbar-thin" aria-live="polite">
           {messages.length === 0 && !loading && (
             <div className="rounded-2xl border border-dashed border-border/70 bg-muted/40 p-6 text-sm text-muted-foreground">
               {t(
@@ -157,8 +132,8 @@ export default function ChatInterface() {
           <div ref={bottomRef} />
         </div>
 
-        <form
-          className="flex flex-col gap-3 border-t border-border/60 bg-background/80 px-6 py-4"
+      <form
+        className="flex flex-col gap-3 border-t border-border/60 bg-background/80 py-4"
           onSubmit={(event) => {
             event.preventDefault();
             send();
@@ -190,8 +165,7 @@ export default function ChatInterface() {
                 : t("إرسال", "Send")}
             </Button>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+      </form>
+    </div>
   );
 }
