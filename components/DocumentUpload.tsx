@@ -4,14 +4,6 @@ import { useCallback, useMemo, useRef, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -244,22 +236,8 @@ export default function DocumentUpload() {
   }
 
   return (
-    <Card dir={direction} className="border border-border/60 bg-background/80 shadow-soft">
-      <CardHeader className="gap-2">
-        <div className="flex items-center justify-between gap-3">
-          <CardTitle className="text-xl font-semibold">
-            {t("رفع ملف جديد", "Upload a new document")}
-          </CardTitle>
-          {statusBadge}
-        </div>
-        <CardDescription className="text-sm text-muted-foreground">
-          {t(
-            "يدعم النظام ملفات PDF وDOCX وTXT حتى 50 ميجابايت لكل ملف.",
-            "Supported formats: PDF, DOCX, TXT up to 50MB per file."
-          )}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <div dir={direction} className="rounded-3xl border border-border/60 bg-background/70 p-6 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55">
+      <div className="space-y-6">
         <div
           onDrop={onDrop}
           onDragOver={(event) => {
@@ -327,32 +305,33 @@ export default function DocumentUpload() {
             {message}
           </div>
         )}
-      </CardContent>
-      <CardFooter className="flex flex-col gap-4 border-t border-border/60 bg-background/70 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-          <span>
-            {t("سيتم مسح المستند وترميزه تلقائياً بعد الرفع.", "Documents are scanned and indexed automatically.")}
-          </span>
-          {state === "uploading" && (
-            <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-primary transition-all"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          )}
+
+        <div className="flex flex-col gap-4 border-t border-border/60 bg-background/80 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+            <span>
+              {t("سيتم مسح المستند وترميزه تلقائياً بعد الرفع.", "Documents are scanned and indexed automatically.")}
+            </span>
+            {state === "uploading" && (
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary transition-all"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            )}
+          </div>
+          <Button
+            type="button"
+            onClick={onUpload}
+            disabled={!file || state === "uploading"}
+            className="min-w-[12rem]"
+          >
+            {state === "uploading"
+              ? t("جارٍ الرفع...", "Uploading...")
+              : t("بدء الرفع", "Start upload")}
+          </Button>
         </div>
-        <Button
-          type="button"
-          onClick={onUpload}
-          disabled={!file || state === "uploading"}
-          className="min-w-[12rem]"
-        >
-          {state === "uploading"
-            ? t("جارٍ الرفع...", "Uploading...")
-            : t("بدء الرفع", "Start upload")}
-        </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }

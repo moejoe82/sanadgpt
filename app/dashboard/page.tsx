@@ -136,17 +136,26 @@ export default function DashboardPage() {
       {
         key: "chat",
         label: t("المحادثة", "Chat"),
-        description: t("اسأل النظام واحصل على إجابات فورية.", "Ask the workspace for instant insights."),
+        description: t(
+          "اسأل النظام واحصل على إجابات فورية.",
+          "Ask the workspace for instant insights."
+        ),
       },
       {
         key: "upload",
         label: t("رفع", "Upload"),
-        description: t("أضف مستندات جديدة إلى مساحة العمل.", "Bring new documents into the workspace."),
+        description: t(
+          "أضف مستندات جديدة إلى مساحة العمل.",
+          "Bring new documents into the workspace."
+        ),
       },
       {
         key: "documents",
         label: t("المستندات", "Documents"),
-        description: t("استعرض الملفات المؤرشفة وتحقق من حالتها.", "Review and track uploaded records."),
+        description: t(
+          "استعرض الملفات المؤرشفة وتحقق من حالتها.",
+          "Review and track uploaded records."
+        ),
       },
     ];
 
@@ -154,7 +163,10 @@ export default function DashboardPage() {
       base.push({
         key: "admin",
         label: t("الإدارة", "Admin"),
-        description: t("مقاييس النظام وإدارة المستخدمين.", "System metrics and controls."),
+        description: t(
+          "مقاييس النظام وإدارة المستخدمين.",
+          "System metrics and controls."
+        ),
         badge: <Badge variant="outline">{t("مستوى مرتفع", "Elevated")}</Badge>,
       });
     }
@@ -175,16 +187,15 @@ export default function DashboardPage() {
     await supabase.auth.signOut();
     toast({
       title: t("تم تسجيل الخروج", "Signed out"),
-      description: t("تم إنهاء الجلسة الحالية.", "You have successfully ended your session."),
+      description: t(
+        "تم إنهاء الجلسة الحالية.",
+        "You have successfully ended your session."
+      ),
     });
     router.replace("/login");
   }
 
-  const NavigationList = ({
-    layout,
-  }: {
-    layout: "vertical" | "compact";
-  }) => (
+  const NavigationList = ({ layout }: { layout: "vertical" | "compact" }) => (
     <TabsList
       className={
         layout === "vertical"
@@ -206,9 +217,7 @@ export default function DashboardPage() {
                 <Icon className="size-5 rtl:flip" aria-hidden />
               </span>
               <span className="flex flex-col text-start">
-                <span className="text-base font-semibold">
-                  {item.label}
-                </span>
+                <span className="text-base font-semibold">{item.label}</span>
                 <span className="text-xs text-muted-foreground">
                   {item.description}
                 </span>
@@ -274,7 +283,10 @@ export default function DashboardPage() {
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align={direction === "rtl" ? "start" : "end"} className="w-64">
+                <DropdownMenuContent
+                  align={direction === "rtl" ? "start" : "end"}
+                  className="w-64"
+                >
                   <DropdownMenuLabel>
                     <div className="flex flex-col gap-1">
                       <span className="text-sm font-semibold text-foreground">
@@ -305,7 +317,10 @@ export default function DashboardPage() {
           <SheetHeader>
             <SheetTitle>{t("التنقل", "Navigation")}</SheetTitle>
             <SheetDescription>
-              {t("اختر القسم الذي ترغب بالعمل عليه.", "Choose where you’d like to work today.")}
+              {t(
+                "اختر القسم الذي ترغب بالعمل عليه.",
+                "Choose where you’d like to work today."
+              )}
             </SheetDescription>
           </SheetHeader>
           <div className="mt-6 space-y-3">
@@ -341,15 +356,7 @@ export default function DashboardPage() {
               </TabsContent>
 
               <TabsContent value="upload" className="m-0">
-                <SectionWrapper
-                  title={t("رفع المستندات", "Upload documents")}
-                  description={t(
-                    "ارفع ملفات جديدة وستتم معالجتها وتوجيهها تلقائياً.",
-                    "Bring new evidence into the workspace for automated processing."
-                  )}
-                >
-                  <DocumentUpload />
-                </SectionWrapper>
+                <DocumentUpload />
               </TabsContent>
 
               <TabsContent value="documents" className="m-0">
