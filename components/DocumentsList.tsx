@@ -161,14 +161,14 @@ export default function DocumentsList() {
             >
               <CardHeader className="gap-3">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 space-y-1 text-start">
-                    <CardTitle className="text-lg font-semibold text-foreground">
+                  <div className="min-w-0 flex-1 space-y-1 text-start">
+                    <CardTitle className="text-lg font-semibold text-foreground truncate">
                       {doc.title || "Document"}
                     </CardTitle>
                   </div>
                   <Badge
                     variant="outline"
-                    className="rounded-full border-primary/40 bg-primary/10 text-primary"
+                    className="rounded-full border-primary/40 bg-primary/10 text-primary flex-shrink-0"
                   >
                     {t("مؤرشف", "Archived")}
                   </Badge>
