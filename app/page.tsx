@@ -34,7 +34,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       <main className="max-w-6xl mx-auto px-6 py-16">
         {/* Hero */}
         <section className={`mb-16 ${heroAlign}`}>

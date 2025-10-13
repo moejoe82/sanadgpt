@@ -110,6 +110,11 @@
     @apply border-border;
   }
 
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
   body {
     @apply min-h-screen bg-background font-sans text-base text-foreground antialiased;
     text-rendering: optimizeLegibility;
