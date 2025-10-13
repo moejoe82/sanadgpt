@@ -49,7 +49,7 @@ export const runWorkflow = async (workflow: WorkflowInput) => {
       __trace_source__: "agent-builder",
       workflow_id: workflowId,
     },
-  } as any);
+  });
 
   const result = await runner.run(sanadgptAgent, items);
 
@@ -86,16 +86,18 @@ export async function POST(req: NextRequest) {
       },
     ];
 
-    const runner = new Runner({
+    const runnerOptions = {
       traceMetadata: {
         __trace_source__: "agent-builder",
         workflow_id: workflowId,
       },
-      // Pass threadId through constructor using any-cast to allow SDK to handle threads if supported
       ...(threadId ? { threadId } : {}),
-    } as any);
+    } as unknown as ConstructorParameters<typeof Runner>[0];
 
-    const result: any = await runner.run(sanadgptAgent, items);
+    const runner = new Runner(runnerOptions);
+
+    type AgentRunResultMinimal = { finalOutput?: string; threadId?: string };
+    const result = (await runner.run(sanadgptAgent, items)) as unknown as AgentRunResultMinimal;
 
     if (!result.finalOutput) {
       throw new Error("Agent result is undefined");
