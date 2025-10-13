@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "./LanguageProvider";
+import { Button } from "@/components/ui/button";
 
 export default function LanguageToggle() {
   const { language, toggleLanguage } = useLanguage();
@@ -10,13 +11,15 @@ export default function LanguageToggle() {
     language === "ar" ? "التبديل إلى اللغة الإنجليزية" : "Switch to Arabic";
 
   return (
-    <button
+    <Button
       type="button"
-      onClick={toggleLanguage}
+      variant="outline"
+      size="sm"
       aria-label={ariaLabel}
-      className="inline-flex items-center rounded-full border border-slate-200 bg-white/90 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100 dark:hover:bg-slate-800"
+      onClick={toggleLanguage}
+      className="rounded-full border-border/60 bg-background/80 px-5 text-sm font-semibold text-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/70"
     >
       {label}
-    </button>
+    </Button>
   );
 }
