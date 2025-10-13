@@ -93,78 +93,81 @@ export default function ChatInterface() {
       dir={direction}
       className={`flex h-full flex-col gap-4 rounded-3xl border border-border/60 bg-background/70 p-6 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55 ${alignment}`}
     >
-      <div className="flex-1 space-y-4 overflow-y-auto scrollbar-thin" aria-live="polite">
-          {messages.length === 0 && !loading && (
-            <div className="rounded-2xl border border-dashed border-border/70 bg-muted/40 p-6 text-sm text-muted-foreground">
-              {t(
-                "ابدأ المحادثة بطرح سؤال حول إجراءات التدقيق أو السياسات.",
-                "Ask a question about audit procedures or policies to begin."
-              )}
-            </div>
-          )}
-          {messages.map((message) => (
+      <div
+        className="flex-1 space-y-4 overflow-y-auto scrollbar-thin"
+        aria-live="polite"
+      >
+        {messages.length === 0 && !loading && (
+          <div className="rounded-2xl border border-dashed border-border/70 bg-muted/40 p-6 text-sm text-muted-foreground">
+            {t(
+              "ابدأ المحادثة بطرح سؤال حول إجراءات التدقيق أو السياسات.",
+              "Ask a question about audit procedures or policies to begin."
+            )}
+          </div>
+        )}
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={
+              message.role === "user"
+                ? "flex justify-end"
+                : "flex justify-start"
+            }
+          >
             <div
-              key={message.id}
-              className={
+              className={`max-w-[min(90%,40rem)] rounded-3xl border px-4 py-3 text-sm leading-relaxed shadow-sm ${
                 message.role === "user"
-                  ? "flex justify-end"
-                  : "flex justify-start"
-              }
+                  ? "rounded-br-lg border-primary/30 bg-primary text-primary-foreground"
+                  : "rounded-bl-lg border-border/60 bg-muted/40 text-foreground"
+              }`}
             >
-              <div
-                className={`max-w-[min(90%,40rem)] rounded-3xl border px-4 py-3 text-sm leading-relaxed shadow-sm ${
-                  message.role === "user"
-                    ? "rounded-br-lg border-primary/30 bg-primary text-primary-foreground"
-                    : "rounded-bl-lg border-border/60 bg-muted/40 text-foreground"
-                }`}
-              >
-                <div className="whitespace-pre-wrap text-pretty">{message.content}</div>
+              <div className="whitespace-pre-wrap text-pretty">
+                {message.content}
               </div>
             </div>
-          ))}
-          {loading && (
-            <div className="flex justify-start">
-              <div className="max-w-[min(90%,32rem)] rounded-3xl rounded-bl-lg border border-border/50 bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
-                {t("جاري التفكير...", "Thinking...")}
-              </div>
+          </div>
+        ))}
+        {loading && (
+          <div className="flex justify-start">
+            <div className="max-w-[min(90%,32rem)] rounded-3xl rounded-bl-lg border border-border/50 bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
+              {t("جاري التفكير...", "Thinking...")}
             </div>
-          )}
-          <div ref={bottomRef} />
-        </div>
+          </div>
+        )}
+        <div ref={bottomRef} />
+      </div>
 
       <form
         className="flex flex-col gap-3 border-t border-border/60 bg-background/80 py-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            send();
+        onSubmit={(event) => {
+          event.preventDefault();
+          send();
+        }}
+      >
+        <Textarea
+          value={input}
+          onChange={(event) => setInput(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              send();
+            }
           }}
-        >
-          <Textarea
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                send();
-              }
-            }}
-            aria-label={t("اطرح سؤالك هنا", "Ask your question")}
-            placeholder={t("اطرح سؤالك هنا", "Ask your question...")}
-            className="resize-none bg-background/70"
-          />
-          <div className="flex flex-wrap items-center justify-end gap-3">
-            <p className="text-xs text-muted-foreground">
-              {t(
-                "اضغط على إدخال للإرسال. استخدم Shift + إدخال لسطر جديد.",
-                "Press Enter to send. Use Shift + Enter for a new line."
-              )}
-            </p>
-            <Button type="submit" disabled={loading || !input.trim()}>
-              {loading
-                ? t("جاري الإرسال...", "Sending...")
-                : t("إرسال", "Send")}
-            </Button>
-          </div>
+          aria-label={t("اطرح سؤالك هنا", "Ask your question")}
+          placeholder={t("اطرح سؤالك هنا", "Ask your question...")}
+          className="resize-none bg-background/70"
+        />
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <p className="text-xs text-muted-foreground">
+            {t(
+              "اضغط على إدخال للإرسال. استخدم Shift + إدخال لسطر جديد.",
+              "Press Enter to send. Use Shift + Enter for a new line."
+            )}
+          </p>
+          <Button type="submit" disabled={loading || !input.trim()}>
+            {loading ? t("جاري الإرسال...", "Sending...") : t("إرسال", "Send")}
+          </Button>
+        </div>
       </form>
     </div>
   );

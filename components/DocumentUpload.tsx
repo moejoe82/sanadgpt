@@ -24,7 +24,8 @@ async function sha256HexBrowser(file: File): Promise<string> {
   const hashBuffer = await crypto.subtle.digest("SHA-256", arrayBuffer);
   const bytes = new Uint8Array(hashBuffer);
   let hex = "";
-  for (let i = 0; i < bytes.length; i++) hex += bytes[i].toString(16).padStart(2, "0");
+  for (let i = 0; i < bytes.length; i++)
+    hex += bytes[i].toString(16).padStart(2, "0");
   return hex;
 }
 
@@ -128,7 +129,10 @@ export default function DocumentUpload() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        const warn = t("يجب تسجيل الدخول أولاً.", "You must be logged in first.");
+        const warn = t(
+          "يجب تسجيل الدخول أولاً.",
+          "You must be logged in first."
+        );
         setMessage(warn);
         setState("error");
         toast({
@@ -199,7 +203,9 @@ export default function DocumentUpload() {
         const resp = xhr.responseText ? JSON.parse(xhr.responseText) : {};
         if (xhr.status === 409 && resp?.error) {
           const detail = resp?.message || resp?.error;
-          const duplicate = `${t("ملف مكرر.", "Duplicate file.")}${detail ? ` (${detail})` : ""}`;
+          const duplicate = `${t("ملف مكرر.", "Duplicate file.")}${
+            detail ? ` (${detail})` : ""
+          }`;
           setMessage(duplicate);
           toast({
             title: t("ملف مكرر", "Duplicate document"),
@@ -236,7 +242,10 @@ export default function DocumentUpload() {
   }
 
   return (
-    <div dir={direction} className="rounded-3xl border border-border/60 bg-background/70 p-6 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55">
+    <div
+      dir={direction}
+      className="rounded-3xl border border-border/60 bg-background/70 p-6 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55"
+    >
       <div className="space-y-6">
         <div
           onDrop={onDrop}
@@ -255,13 +264,23 @@ export default function DocumentUpload() {
           />
           <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
             <span className="text-lg font-semibold text-foreground">
-              {file ? file.name : t("اسحب الملف وأفلته هنا", "Drag & drop your file here")}
+              {file
+                ? file.name
+                : t("اسحب الملف وأفلته هنا", "Drag & drop your file here")}
             </span>
             <span className="text-xs text-muted-foreground">
-              {t("أو انقر للاختيار من جهازك.", "or click to browse from your device.")}
+              {t(
+                "أو انقر للاختيار من جهازك.",
+                "or click to browse from your device."
+              )}
             </span>
           </div>
-          <Button type="button" variant="outline" onClick={onBrowse} className="rounded-full px-6">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onBrowse}
+            className="rounded-full px-6"
+          >
             {t("اختيار ملف", "Choose file")}
           </Button>
         </div>
@@ -273,7 +292,10 @@ export default function DocumentUpload() {
               id="title"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              placeholder={t("مثال: سياسة الحوكمة 2025", "e.g. Governance Policy 2025")}
+              placeholder={t(
+                "مثال: سياسة الحوكمة 2025",
+                "e.g. Governance Policy 2025"
+              )}
             />
           </div>
           <div className="space-y-2">
@@ -295,7 +317,10 @@ export default function DocumentUpload() {
               id="authority"
               value={authorityName}
               onChange={(event) => setAuthorityName(event.target.value)}
-              placeholder={t("اسم الجهة الحكومية أو القسم", "Government entity or department")}
+              placeholder={t(
+                "اسم الجهة الحكومية أو القسم",
+                "Government entity or department"
+              )}
             />
           </div>
         </div>
@@ -309,7 +334,10 @@ export default function DocumentUpload() {
         <div className="flex flex-col gap-4 border-t border-border/60 bg-background/80 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-2 text-sm text-muted-foreground">
             <span>
-              {t("سيتم مسح المستند وترميزه تلقائياً بعد الرفع.", "Documents are scanned and indexed automatically.")}
+              {t(
+                "سيتم مسح المستند وترميزه تلقائياً بعد الرفع.",
+                "Documents are scanned and indexed automatically."
+              )}
             </span>
             {state === "uploading" && (
               <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
