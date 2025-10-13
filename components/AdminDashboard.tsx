@@ -64,7 +64,9 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
-  const [checkingStatusIds, setCheckingStatusIds] = useState<Set<string>>(new Set());
+  const [checkingStatusIds, setCheckingStatusIds] = useState<Set<string>>(
+    new Set()
+  );
   const [syncingDocuments, setSyncingDocuments] = useState(false);
   const t = useI18n();
   const { direction } = useLanguage();
@@ -85,7 +87,10 @@ export default function AdminDashboard() {
       console.error("Error loading analytics:", error);
       toast({
         title: t("تعذّر تحميل البيانات", "Analytics unavailable"),
-        description: t("تحقق من الاتصال وأعد المحاولة.", "Check connectivity and retry."),
+        description: t(
+          "تحقق من الاتصال وأعد المحاولة.",
+          "Check connectivity and retry."
+        ),
         variant: "destructive",
       });
     } finally {
@@ -195,7 +200,9 @@ export default function AdminDashboard() {
 
       if (newStatus) {
         setDocuments((prev) =>
-          prev.map((doc) => (doc.id === id ? { ...doc, status: newStatus } : doc))
+          prev.map((doc) =>
+            doc.id === id ? { ...doc, status: newStatus } : doc
+          )
         );
         toast({
           title: t("تم تحديث الحالة", "Status refreshed"),
@@ -300,7 +307,10 @@ export default function AdminDashboard() {
           disabled={syncingDocuments}
         >
           {syncingDocuments ? (
-            <Loader2 className="me-2 size-4 animate-spin rtl:flip" aria-hidden />
+            <Loader2
+              className="me-2 size-4 animate-spin rtl:flip"
+              aria-hidden
+            />
           ) : (
             <ShieldCheck className="me-2 size-4 rtl:flip" aria-hidden />
           )}
@@ -311,16 +321,25 @@ export default function AdminDashboard() {
       </div>
 
       <TabsList className="flex flex-wrap gap-2 rounded-full bg-muted/60 p-1">
-        <TabsTrigger value="overview" className="rounded-full px-4 py-2 text-sm">
+        <TabsTrigger
+          value="overview"
+          className="rounded-full px-4 py-2 text-sm"
+        >
           {t("نظرة عامة", "Overview")}
         </TabsTrigger>
-        <TabsTrigger value="documents" className="rounded-full px-4 py-2 text-sm">
+        <TabsTrigger
+          value="documents"
+          className="rounded-full px-4 py-2 text-sm"
+        >
           {t("المستندات", "Documents")}
         </TabsTrigger>
         <TabsTrigger value="users" className="rounded-full px-4 py-2 text-sm">
           {t("المستخدمون", "Users")}
         </TabsTrigger>
-        <TabsTrigger value="settings" className="rounded-full px-4 py-2 text-sm">
+        <TabsTrigger
+          value="settings"
+          className="rounded-full px-4 py-2 text-sm"
+        >
           {t("الإعدادات", "Settings")}
         </TabsTrigger>
       </TabsList>
@@ -328,12 +347,18 @@ export default function AdminDashboard() {
       <TabsContent value="overview" className="m-0 space-y-6">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {stats.map((stat) => (
-            <Card key={stat.title} className="border border-border/60 bg-background/80 shadow-soft">
+            <Card
+              key={stat.title}
+              className="border border-border/60 bg-background/80 shadow-soft"
+            >
               <CardHeader className="flex flex-row items-center justify-between gap-4">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   {stat.title}
                 </CardTitle>
-                <stat.icon className="size-5 text-primary rtl:flip" aria-hidden />
+                <stat.icon
+                  className="size-5 text-primary rtl:flip"
+                  aria-hidden
+                />
               </CardHeader>
               <CardContent>
                 <span className="text-3xl font-semibold text-foreground">
@@ -433,7 +458,9 @@ export default function AdminDashboard() {
         <Card className="border border-border/60 bg-background/80 shadow-soft">
           <CardHeader className="flex flex-row items-center justify-between gap-4">
             <div className="space-y-1 text-start">
-              <CardTitle>{t("إدارة المستندات", "Document management")}</CardTitle>
+              <CardTitle>
+                {t("إدارة المستندات", "Document management")}
+              </CardTitle>
               <CardDescription>
                 {t(
                   "تتبع حالة المعالجة واتخذ الإجراءات السريعة.",
@@ -458,7 +485,8 @@ export default function AdminDashboard() {
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {documents.map((doc) => {
-                  const filename = doc.file_path.split("/").pop() || doc.file_path;
+                  const filename =
+                    doc.file_path.split("/").pop() || doc.file_path;
                   const date = new Date(doc.uploaded_at);
                   const formattedDate = new Intl.DateTimeFormat(
                     languageToLocale(direction),
@@ -507,9 +535,7 @@ export default function AdminDashboard() {
                             </span>
                           )}
                         </div>
-                      </CardHeader>
-                      <CardContent className="border-t border-border/60 bg-background/70 py-4">
-                        <div className="flex flex-wrap items-center justify-end gap-2">
+                        <div className="flex flex-wrap items-center justify-end gap-2 pt-3">
                           {doc.status === "processing" && (
                             <Button
                               size="sm"
@@ -529,11 +555,14 @@ export default function AdminDashboard() {
                             onClick={() => deleteDocument(doc.id)}
                             className="rounded-full"
                           >
-                            <Trash2 className="me-2 size-4 rtl:flip" aria-hidden />
+                            <Trash2
+                              className="me-2 size-4 rtl:flip"
+                              aria-hidden
+                            />
                             {t("حذف", "Delete")}
                           </Button>
                         </div>
-                      </CardContent>
+                      </CardHeader>
                     </Card>
                   );
                 })}
@@ -602,18 +631,17 @@ export default function AdminDashboard() {
                           </span>
                           {user.last_sign_in_at && (
                             <span className="rounded-full bg-muted/50 px-3 py-1">
-                              {t("آخر دخول", "Last sign-in")} • {formatDate(user.last_sign_in_at, direction)}
+                              {t("آخر دخول", "Last sign-in")} •{" "}
+                              {formatDate(user.last_sign_in_at, direction)}
                             </span>
                           )}
                         </div>
-                      </CardHeader>
-                      <CardContent className="border-t border-border/60 bg-background/70 py-4">
-                        <div className="flex flex-wrap items-center justify-end gap-2">
+                        <div className="flex flex-wrap items-center justify-end gap-2 pt-3">
                           <Badge variant="outline" className="rounded-full">
                             {t("مستخدم نشط", "Active user")}
                           </Badge>
                         </div>
-                      </CardContent>
+                      </CardHeader>
                     </Card>
                   );
                 })}
@@ -627,7 +655,9 @@ export default function AdminDashboard() {
         <div className="grid gap-4 md:grid-cols-2">
           <Card className="border border-border/60 bg-background/80 shadow-soft">
             <CardHeader>
-              <CardTitle>{t("إعدادات OpenAI", "OpenAI configuration")}</CardTitle>
+              <CardTitle>
+                {t("إعدادات OpenAI", "OpenAI configuration")}
+              </CardTitle>
               <CardDescription>
                 {t(
                   "معلومات المخزن حول التكامل الحالي.",
@@ -644,14 +674,18 @@ export default function AdminDashboard() {
               </div>
               <div className="flex justify-between gap-4">
                 <span>{t("حالة المفتاح", "API key status")}</span>
-                <Badge variant="outline">{settings?.openaiApiKeyStatus || "..."}</Badge>
+                <Badge variant="outline">
+                  {settings?.openaiApiKeyStatus || "..."}
+                </Badge>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border border-border/60 bg-background/80 shadow-soft">
             <CardHeader>
-              <CardTitle>{t("إعدادات Supabase", "Supabase configuration")}</CardTitle>
+              <CardTitle>
+                {t("إعدادات Supabase", "Supabase configuration")}
+              </CardTitle>
               <CardDescription>
                 {t(
                   "تفاصيل الاتصال بقاعدة البيانات الموثوقة.",
