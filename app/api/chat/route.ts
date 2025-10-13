@@ -66,7 +66,10 @@ export async function POST(req: NextRequest) {
     const {
       question,
       conversationHistory = [],
-    }: { question?: unknown; conversationHistory?: Array<{ role: string; content: string }> } = await req.json();
+    }: {
+      question?: unknown;
+      conversationHistory?: Array<{ role: string; content: string }>;
+    } = await req.json();
 
     if (!question || typeof question !== "string") {
       return new Response(JSON.stringify({ error: "Missing 'question'" }), {
@@ -76,32 +79,34 @@ export async function POST(req: NextRequest) {
     }
 
     // Convert conversation history to AgentInputItem format
-    const agentHistory: AgentInputItem[] = conversationHistory.map((msg: { role: string; content: string }) => {
-      if (msg.role === "assistant") {
-        // Assistant messages must include a status for Agents SDK
-        return {
-          status: "completed",
-          role: "assistant",
-          content: [
-            {
-              type: "output_text",
-              text: msg.content,
-            },
-          ],
-        } as AgentInputItem;
-      } else {
-        // User and system messages use input_text type
-        return {
-          role: msg.role as "user" | "system",
-          content: [
-            {
-              type: "input_text",
-              text: msg.content,
-            },
-          ],
-        } as AgentInputItem;
+    const agentHistory: AgentInputItem[] = conversationHistory.map(
+      (msg: { role: string; content: string }) => {
+        if (msg.role === "assistant") {
+          // Assistant messages must include a status for Agents SDK
+          return {
+            status: "completed",
+            role: "assistant",
+            content: [
+              {
+                type: "output_text",
+                text: msg.content,
+              },
+            ],
+          } as AgentInputItem;
+        } else {
+          // User and system messages use input_text type
+          return {
+            role: msg.role as "user" | "system",
+            content: [
+              {
+                type: "input_text",
+                text: msg.content,
+              },
+            ],
+          } as AgentInputItem;
+        }
       }
-    });
+    );
 
     // Add current question to history
     agentHistory.push({
