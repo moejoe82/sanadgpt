@@ -1,12 +1,16 @@
 "use client";
 
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
+import PageLayout from "@/components/layouts/PageLayout";
+import Container from "@/components/layouts/Container";
+import Section from "@/components/layouts/Section";
+import { H1, H3, Body } from "@/components/ui/typography";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const t = useI18n();
   const { direction } = useLanguage();
-  const heroAlign =
-    direction === "rtl" ? "text-right sm:text-center" : "text-left sm:text-center";
+  const heroAlign = direction === "rtl" ? "text-right sm:text-center" : "text-left sm:text-center";
   const cardAlign = direction === "rtl" ? "text-right" : "text-left";
 
   const features = [
@@ -34,37 +38,38 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-      <main className="max-w-6xl mx-auto px-6 py-16">
-        {/* Hero */}
-        <section className={`mb-16 ${heroAlign}`}>
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4">SanadGPT</h1>
-          <p className="text-lg sm:text-xl text-slate-200 mb-8">
-            {t("نظام ذكي لإدارة وثائق التدقيق", "Intelligent audit document management")}
-          </p>
-          <a
-            href="/login"
-            className="inline-block rounded-md bg-white text-slate-900 px-6 py-3 font-semibold hover:bg-slate-100"
-          >
-            {t("ابدأ الآن", "Get Started")}
-          </a>
-        </section>
+    <PageLayout variant="gradient-dark">
+      <Container size="lg">
+        <Section spacing="lg">
+          {/* Hero */}
+          <section className={`mb-16 ${heroAlign}`}>
+            <H1 className="mb-4">SanadGPT</H1>
+            <Body size="lg" className="mb-8">
+              {t("نظام ذكي لإدارة وثائق التدقيق", "Intelligent audit document management")}
+            </Body>
+            <Button asChild size="lg">
+              <a href="/login">
+                {t("ابدأ الآن", "Get Started")}
+              </a>
+            </Button>
+          </section>
 
-        {/* Features */}
-        <section className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {features.map((feature) => (
-            <div
-              key={feature.title}
-              className={`rounded-xl bg-white/10 backdrop-blur border border-white/10 p-6 ${cardAlign}`}
-            >
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-slate-200 text-sm leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
-          ))}
-        </section>
-      </main>
-    </div>
+          {/* Features */}
+          <section className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {features.map((feature) => (
+              <div
+                key={feature.title}
+                className={`rounded-xl bg-white/10 backdrop-blur border border-white/10 p-6 ${cardAlign}`}
+              >
+                <H3 className="mb-2">{feature.title}</H3>
+                <Body size="sm" className="leading-relaxed">
+                  {feature.description}
+                </Body>
+              </div>
+            ))}
+          </section>
+        </Section>
+      </Container>
+    </PageLayout>
   );
 }

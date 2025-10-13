@@ -13,21 +13,13 @@ export default function LanguageShell({ children }: { children: ReactNode }) {
   const isDashboard = pathname === "/dashboard";
 
   return (
-    <div
-      dir={direction}
-      className="relative flex min-h-screen flex-col"
-    >
+    <div dir={direction} className="relative flex min-h-screen flex-col">
       {!isDashboard && (
         <header className="sticky top-0 z-40 flex items-center justify-end gap-3 border-b border-border/60 bg-background/70 px-safe pt-safe-t pb-3 text-sm shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55">
           <LanguageToggle />
         </header>
       )}
-      <main
-        className={cn(
-          "flex-1",
-          isDashboard && "contents"
-        )}
-      >
+      <main className={cn("flex-1", isDashboard && "contents")}>
         {children}
       </main>
       <footer className="border-t border-border/60 bg-background/80 px-safe pb-safe-b pt-8 text-sm text-muted-foreground shadow-[0_-20px_60px_-40px_hsl(var(--shadow-soft))] backdrop-blur supports-[backdrop-filter]:bg-background/60">

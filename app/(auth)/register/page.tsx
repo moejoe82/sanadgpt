@@ -4,6 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
+import PageLayout from "@/components/layouts/PageLayout";
+import Container from "@/components/layouts/Container";
+import AuthCard from "@/components/ui/auth-card";
+import { Form, FormField, FormLabel, FormError } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import Divider from "@/components/ui/divider";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -15,7 +22,6 @@ export default function RegisterPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const t = useI18n();
   const { direction } = useLanguage();
-  const alignment = direction === "rtl" ? "text-right" : "text-left";
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -92,101 +98,100 @@ export default function RegisterPage() {
   }
 
   return (
-    <div dir={direction} className={alignment}>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold">
-          {t("إنشاء حساب", "Create account")}
-        </h1>
-        <div className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">
-          v1.0.0
+    <PageLayout variant="gradient-dark">
+      <Container size="sm">
+        <div className="min-h-screen flex items-center justify-center py-12">
+          <AuthCard title={t("إنشاء حساب", "Create account")}>
+            <div className="space-y-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGoogleSignIn}
+                disabled={googleLoading || loading}
+                className="w-full"
+              >
+                {googleButtonLabel}
+              </Button>
+              
+              <Divider>{t("أو", "Or")}</Divider>
+            </div>
+
+            <Form onSubmit={onSubmit}>
+              <FormField>
+                <FormLabel htmlFor="email">
+                  {t("البريد الإلكتروني", "Email")}
+                </FormLabel>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                  placeholder={t("أدخل بريدك الإلكتروني", "Enter your email")}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-300 focus:ring-white/50"
+                />
+              </FormField>
+
+              <FormField>
+                <FormLabel htmlFor="password">
+                  {t("كلمة المرور", "Password")}
+                </FormLabel>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  minLength={6}
+                  placeholder={t("أدخل كلمة المرور", "Enter your password")}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-300 focus:ring-white/50"
+                />
+              </FormField>
+
+              <FormField>
+                <FormLabel htmlFor="confirm">
+                  {t("تأكيد كلمة المرور", "Confirm password")}
+                </FormLabel>
+                <Input
+                  id="confirm"
+                  type="password"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  minLength={6}
+                  placeholder={t("أكد كلمة المرور", "Confirm your password")}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-300 focus:ring-white/50"
+                />
+              </FormField>
+
+              {error && <FormError>{error}</FormError>}
+              {success && (
+                <p className="text-sm text-green-300" role="status">
+                  {success}
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? "..." : t("تسجيل", "Register")}
+              </Button>
+            </Form>
+
+            <p className="mt-4 text-sm text-slate-300">
+              {t("لديك حساب؟", "Already have an account?")}{" "}
+              <a href="/login" className="text-white underline">
+                {t("تسجيل الدخول", "Login")}
+              </a>
+            </p>
+          </AuthCard>
         </div>
-      </div>
-      <div className="space-y-3">
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          disabled={googleLoading || loading}
-          className="w-full rounded-md border border-slate-300 bg-white text-slate-900 py-2 hover:bg-slate-50 disabled:opacity-50"
-        >
-          {googleButtonLabel}
-        </button>
-        <div className="relative py-2">
-          <div className="absolute inset-0 flex items-center" aria-hidden="true">
-            <div className="w-full border-t border-slate-200" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="bg-white dark:bg-slate-900 px-2 text-xs text-slate-500">
-              {t("أو", "Or")}
-            </span>
-          </div>
-        </div>
-      </div>
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            {t("البريد الإلكتروني", "Email")}
-          </label>
-          <input
-            type="email"
-            className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            {t("كلمة المرور", "Password")}
-          </label>
-          <input
-            type="password"
-            className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="new-password"
-            minLength={6}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            {t("تأكيد كلمة المرور", "Confirm password")}
-          </label>
-          <input
-            type="password"
-            className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            required
-            autoComplete="new-password"
-            minLength={6}
-          />
-        </div>
-        {error && (
-          <p className="text-sm text-red-600" role="alert">
-            {error}
-          </p>
-        )}
-        {success && (
-          <p className="text-sm text-green-700" role="status">
-            {success}
-          </p>
-        )}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-md bg-slate-900 text-white py-2 hover:bg-slate-800 disabled:opacity-50"
-        >
-          {loading ? "..." : t("تسجيل", "Register")}
-        </button>
-      </form>
-      <p className="mt-4 text-sm">
-        {t("لديك حساب؟", "Already have an account?")} {" "}
-        <a href="/login" className="text-slate-900 underline">
-          {t("تسجيل الدخول", "Login")}
-        </a>
-      </p>
-    </div>
+      </Container>
+    </PageLayout>
   );
 }

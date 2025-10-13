@@ -4,6 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
+import PageLayout from "@/components/layouts/PageLayout";
+import Container from "@/components/layouts/Container";
+import AuthCard from "@/components/ui/auth-card";
+import { Form, FormField, FormLabel, FormError } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import Divider from "@/components/ui/divider";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -13,7 +20,6 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const t = useI18n();
   const { direction } = useLanguage();
-  const alignment = direction === "rtl" ? "text-right" : "text-left";
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -90,85 +96,77 @@ export default function LoginPage() {
   }
 
   return (
-    <div dir={direction} className={`min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white ${alignment}`}>
-      <div className="max-w-md mx-auto px-6 py-16">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-semibold">
-            {t("تسجيل الدخول", "Login")}
-          </h1>
-          <div className="text-xs bg-white/10 text-white px-2 py-1 rounded">
-            v1.0.0
-          </div>
-        </div>
-        <div className="space-y-3">
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={googleLoading || loading}
-            className="w-full rounded-md border border-white/20 bg-white/10 text-white py-2 hover:bg-white/20 disabled:opacity-50"
-          >
-            {googleButtonLabel}
-          </button>
-          <div className="relative py-2">
-            <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-white/20" />
+    <PageLayout variant="gradient-dark">
+      <Container size="sm">
+        <div className="min-h-screen flex items-center justify-center py-12">
+          <AuthCard title={t("تسجيل الدخول", "Login")}>
+            <div className="space-y-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGoogleSignIn}
+                disabled={googleLoading || loading}
+                className="w-full"
+              >
+                {googleButtonLabel}
+              </Button>
+              
+              <Divider>{t("أو", "Or")}</Divider>
             </div>
-            <div className="relative flex justify-center">
-              <span className="bg-slate-800 px-2 text-xs text-slate-300">
-                {t("أو", "Or")}
-              </span>
-            </div>
-          </div>
-        </div>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              {t("البريد الإلكتروني", "Email")}
-            </label>
-            <input
-              type="email"
-              className="w-full rounded-md border border-white/20 bg-white/10 text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder:text-slate-300"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              placeholder={t("أدخل بريدك الإلكتروني", "Enter your email")}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              {t("كلمة المرور", "Password")}
-            </label>
-            <input
-              type="password"
-              className="w-full rounded-md border border-white/20 bg-white/10 text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder:text-slate-300"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              placeholder={t("أدخل كلمة المرور", "Enter your password")}
-            />
-          </div>
-          {error && (
-            <p className="text-sm text-red-300" role="alert">
-              {error}
+
+            <Form onSubmit={onSubmit}>
+              <FormField>
+                <FormLabel htmlFor="email">
+                  {t("البريد الإلكتروني", "Email")}
+                </FormLabel>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                  placeholder={t("أدخل بريدك الإلكتروني", "Enter your email")}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-300 focus:ring-white/50"
+                />
+              </FormField>
+
+              <FormField>
+                <FormLabel htmlFor="password">
+                  {t("كلمة المرور", "Password")}
+                </FormLabel>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  placeholder={t("أدخل كلمة المرور", "Enter your password")}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-300 focus:ring-white/50"
+                />
+              </FormField>
+
+              {error && <FormError>{error}</FormError>}
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? "..." : t("دخول", "Sign in")}
+              </Button>
+            </Form>
+
+            <p className="mt-4 text-sm text-slate-300">
+              {t("ليس لديك حساب؟", "Don't have an account?")}{" "}
+              <a href="/register" className="text-white underline">
+                {t("إنشاء حساب جديد", "Create account")}
+              </a>
             </p>
-          )}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-white text-slate-900 py-2 hover:bg-slate-100 disabled:opacity-50"
-          >
-            {loading ? "..." : t("دخول", "Sign in")}
-          </button>
-        </form>
-        <p className="mt-4 text-sm">
-          {t("ليس لديك حساب؟", "Don't have an account?")} {" "}
-          <a href="/register" className="text-white underline">
-            {t("إنشاء حساب جديد", "Create account")}
-          </a>
-        </p>
-      </div>
-    </div>
+          </AuthCard>
+        </div>
+      </Container>
+    </PageLayout>
   );
 }
