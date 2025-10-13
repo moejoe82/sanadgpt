@@ -11,6 +11,11 @@ import {
   Menu,
   LogOut,
   Loader2,
+  ChevronDown,
+  User,
+  Mail,
+  Lock,
+  Edit,
 } from "lucide-react";
 
 import ChatInterface from "@/components/ChatInterface";
@@ -23,14 +28,6 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -38,6 +35,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast";
 
@@ -64,6 +68,8 @@ export default function DashboardPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [navOpen, setNavOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const headerRef = useRef<HTMLElement | null>(null);
   const [headerHeight, setHeaderHeight] = useState(80);
   const t = useI18n();
@@ -183,6 +189,21 @@ export default function DashboardPage() {
     [headerHeight]
   );
 
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuOpen) {
+        const target = event.target as Element;
+        if (!target.closest("[data-user-menu]")) {
+          setUserMenuOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [userMenuOpen]);
+
   async function logout() {
     await supabase.auth.signOut();
     toast({
@@ -210,7 +231,6 @@ export default function DashboardPage() {
             key={item.key}
             value={item.key}
             className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-transparent bg-muted/40 px-4 py-3 text-start text-sm font-medium text-muted-foreground transition focus-visible:ring-2 data-[state=active]:border-primary/60 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground"
-            onClick={() => setNavOpen(false)}
           >
             <span className="flex items-center gap-3">
               <span className="flex size-10 items-center justify-center rounded-2xl bg-muted text-muted-foreground transition group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">
@@ -234,7 +254,10 @@ export default function DashboardPage() {
     <Tabs
       dir={direction}
       value={activeTab}
-      onValueChange={(value) => setActiveTab(value as TabKey)}
+      onValueChange={(value) => {
+        setActiveTab(value as TabKey);
+        setNavOpen(false); // Close mobile navigation when tab changes
+      }}
       className="flex min-h-[100dvh] flex-col"
     >
       <Sheet open={navOpen} onOpenChange={setNavOpen}>
@@ -265,50 +288,73 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
               <LanguageToggle />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full border-border/70 bg-background/80 px-4"
-                    aria-label={t("إعدادات الحساب", "Account settings")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-semibold">
-                      <span className="inline-flex size-8 items-center justify-center rounded-full bg-primary/15 text-primary">
+
+              {/* User Avatar Menu */}
+              <div className="relative" data-user-menu>
+                {/* Initial Avatar Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="rounded-full p-0 hover:bg-transparent"
+                  aria-label={t("إعدادات الحساب", "Account settings")}
+                >
+                  <span className="inline-flex size-8 items-center justify-center rounded-full bg-primary/15 text-primary text-sm font-semibold hover:bg-primary/20 transition-colors">
+                    {email?.[0]?.toUpperCase() ?? "U"}
+                  </span>
+                </Button>
+
+                {/* User Menu Dropdown */}
+                {userMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-border/60 bg-background/95 p-4 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/80">
+                    <div className="flex items-center gap-3">
+                      {/* Bigger Avatar */}
+                      <span className="inline-flex size-12 items-center justify-center rounded-full bg-primary/15 text-primary text-lg font-semibold">
                         {email?.[0]?.toUpperCase() ?? "U"}
                       </span>
-                      <span className="hidden sm:inline text-start">
-                        {email ?? t("مستخدم", "User")}
-                      </span>
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align={direction === "rtl" ? "start" : "end"}
-                  className="w-64"
-                >
-                  <DropdownMenuLabel>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-sm font-semibold text-foreground">
-                        {email ?? t("مستخدم", "User")}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {language === "ar"
-                          ? "مساحة عمل SanadGPT"
-                          : "SanadGPT workspace"}
-                      </span>
+
+                      {/* Email + Chevron */}
+                      <div className="flex-1">
+                        <div className="text-sm font-semibold text-foreground">
+                          {email ?? t("مستخدم", "User")}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {language === "ar"
+                            ? "مساحة عمل SanadGPT"
+                            : "SanadGPT workspace"}
+                        </div>
+                      </div>
+
+                      {/* Chevron Arrow */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setProfileModalOpen(true);
+                          setUserMenuOpen(false);
+                        }}
+                        className="rounded-full p-2 hover:bg-muted/50"
+                        aria-label={t("فتح الملف الشخصي", "Open profile")}
+                      >
+                        <ChevronDown className="size-4 rtl:flip" aria-hidden />
+                      </Button>
                     </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="gap-2 text-destructive focus:text-destructive"
-                    onSelect={logout}
-                  >
-                    <LogOut className="size-4 rtl:flip" aria-hidden />
-                    {t("تسجيل الخروج", "Sign out")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+
+                    {/* Sign Out Button */}
+                    <div className="mt-4 pt-3 border-t border-border/60">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={logout}
+                        className="w-full rounded-full border-destructive/20 bg-destructive/5 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                      >
+                        <LogOut className="size-4 rtl:flip me-2" aria-hidden />
+                        {t("تسجيل الخروج", "Sign out")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </header>
@@ -335,7 +381,7 @@ export default function DashboardPage() {
           style={asideStyle}
         >
           <div className="absolute inset-0 overflow-hidden">
-            <div className="flex h-full flex-col gap-4 overflow-y-auto px-6 pb-10 pt-8 scrollbar-thin">
+            <div className="flex h-full flex-col gap-4 overflow-y-auto px-6 pb-10 scrollbar-thin">
               <NavigationList layout="vertical" />
             </div>
           </div>
@@ -365,21 +411,124 @@ export default function DashboardPage() {
 
               {isAdmin && (
                 <TabsContent value="admin" className="m-0">
-                  <SectionWrapper
-                    title={t("لوحة الإدارة", "Administrative console")}
-                    description={t(
-                      "استعرض المؤشرات الحيوية للنظام وأدِر المستخدمين.",
-                      "Review system vitals and manage workspace governance."
-                    )}
-                  >
+                  <div className="rounded-3xl border border-border/60 bg-background/70 p-6 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55">
                     <AdminDashboard />
-                  </SectionWrapper>
+                  </div>
                 </TabsContent>
               )}
             </div>
           )}
         </main>
       </div>
+
+      {/* Profile Modal */}
+      <Dialog open={profileModalOpen} onOpenChange={setProfileModalOpen}>
+        <DialogContent className="w-[95vw] max-w-md mx-auto my-4 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-center">
+              {t("الملف الشخصي", "User Profile")}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Large Avatar */}
+            <div className="flex justify-center">
+              <span className="inline-flex size-20 items-center justify-center rounded-full bg-primary/15 text-primary text-2xl font-semibold">
+                {email?.[0]?.toUpperCase() ?? "U"}
+              </span>
+            </div>
+
+            {/* User Information */}
+            <div className="space-y-4">
+              {/* Name Field */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  {t("الاسم", "Name")}
+                </label>
+                <div className="flex items-center gap-2">
+                  <User className="size-4 text-muted-foreground flex-shrink-0" />
+                  <input
+                    type="text"
+                    placeholder={t("أدخل اسمك", "Enter your name")}
+                    className="flex-1 min-w-0 rounded-lg border border-border/60 bg-background/80 px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 px-3 rounded-lg flex-shrink-0 font-semibold"
+                  >
+                    <Edit className="size-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Email Field */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  {t("البريد الإلكتروني", "Email")}
+                </label>
+                <div className="flex items-center gap-2">
+                  <Mail className="size-4 text-muted-foreground flex-shrink-0" />
+                  <input
+                    type="email"
+                    value={email ?? ""}
+                    disabled
+                    className="flex-1 min-w-0 rounded-lg border border-border/60 bg-muted/50 px-3 py-2 text-sm text-muted-foreground"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 px-3 rounded-lg flex-shrink-0 font-semibold"
+                    disabled
+                  >
+                    <Edit className="size-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Password Management */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  {t("إدارة كلمة المرور", "Password Management")}
+                </label>
+                <div className="flex items-center gap-2">
+                  <Lock className="size-4 text-muted-foreground flex-shrink-0" />
+                  <Button
+                    variant="outline"
+                    className="flex-1 justify-start rounded-lg"
+                    disabled
+                  >
+                    {t("إضافة كلمة مرور", "Add Password")}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t(
+                    "للمستخدمين الذين سجلوا عبر Google",
+                    "For users who signed up via Google"
+                  )}
+                </p>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                className="flex-1 rounded-xl px-6 py-3 text-sm font-medium"
+                onClick={() => setProfileModalOpen(false)}
+              >
+                {t("إلغاء", "Cancel")}
+              </Button>
+              <Button
+                className="flex-1 rounded-xl px-6 py-3 text-sm font-medium"
+                disabled
+              >
+                {t("حفظ التغييرات", "Save Changes")}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Tabs>
   );
 }

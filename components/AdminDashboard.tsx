@@ -9,6 +9,8 @@ import {
   Users,
   ShieldCheck,
   Loader2,
+  BarChart3,
+  Settings,
 } from "lucide-react";
 
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
@@ -68,8 +70,20 @@ export default function AdminDashboard() {
     new Set()
   );
   const [syncingDocuments, setSyncingDocuments] = useState(false);
+  const [isNarrowScreen, setIsNarrowScreen] = useState(false);
   const t = useI18n();
   const { direction } = useLanguage();
+
+  // Detect narrow screen for responsive tabs
+  useEffect(() => {
+    const checkScreenWidth = () => {
+      setIsNarrowScreen(window.innerWidth < 640); // sm breakpoint
+    };
+
+    checkScreenWidth();
+    window.addEventListener("resize", checkScreenWidth);
+    return () => window.removeEventListener("resize", checkScreenWidth);
+  }, []);
 
   const loadAnalytics = useCallback(async () => {
     try {
@@ -320,27 +334,59 @@ export default function AdminDashboard() {
         </Button>
       </div>
 
-      <TabsList className="flex flex-wrap gap-2 rounded-full bg-muted/60 p-1">
+      {/* Responsive Tabs */}
+      <TabsList className="flex w-full rounded-full bg-muted/60 p-1">
         <TabsTrigger
           value="overview"
-          className="rounded-full px-4 py-2 text-sm"
+          className={`flex-1 rounded-full text-sm ${
+            isNarrowScreen ? "p-1.5" : "px-3 py-2"
+          }`}
+          title={isNarrowScreen ? t("نظرة عامة", "Overview") : undefined}
         >
-          {t("نظرة عامة", "Overview")}
+          {isNarrowScreen ? (
+            <BarChart3 className="size-3.5" />
+          ) : (
+            t("نظرة عامة", "Overview")
+          )}
         </TabsTrigger>
         <TabsTrigger
           value="documents"
-          className="rounded-full px-4 py-2 text-sm"
+          className={`flex-1 rounded-full text-sm ${
+            isNarrowScreen ? "p-1.5" : "px-3 py-2"
+          }`}
+          title={isNarrowScreen ? t("المستندات", "Documents") : undefined}
         >
-          {t("المستندات", "Documents")}
+          {isNarrowScreen ? (
+            <Files className="size-3.5" />
+          ) : (
+            t("المستندات", "Documents")
+          )}
         </TabsTrigger>
-        <TabsTrigger value="users" className="rounded-full px-4 py-2 text-sm">
-          {t("المستخدمون", "Users")}
+        <TabsTrigger
+          value="users"
+          className={`flex-1 rounded-full text-sm ${
+            isNarrowScreen ? "p-1.5" : "px-3 py-2"
+          }`}
+          title={isNarrowScreen ? t("المستخدمون", "Users") : undefined}
+        >
+          {isNarrowScreen ? (
+            <Users className="size-3.5" />
+          ) : (
+            t("المستخدمون", "Users")
+          )}
         </TabsTrigger>
         <TabsTrigger
           value="settings"
-          className="rounded-full px-4 py-2 text-sm"
+          className={`flex-1 rounded-full text-sm ${
+            isNarrowScreen ? "p-1.5" : "px-3 py-2"
+          }`}
+          title={isNarrowScreen ? t("الإعدادات", "Settings") : undefined}
         >
-          {t("الإعدادات", "Settings")}
+          {isNarrowScreen ? (
+            <Settings className="size-3.5" />
+          ) : (
+            t("الإعدادات", "Settings")
+          )}
         </TabsTrigger>
       </TabsList>
 
@@ -454,22 +500,9 @@ export default function AdminDashboard() {
         </div>
       </TabsContent>
 
-      <TabsContent value="documents" className="m-0 space-y-4">
-        <Card className="border border-border/60 bg-background/80 shadow-soft">
-          <CardHeader className="flex flex-row items-center justify-between gap-4">
-            <div className="space-y-1 text-start">
-              <CardTitle>
-                {t("إدارة المستندات", "Document management")}
-              </CardTitle>
-              <CardDescription>
-                {t(
-                  "تتبع حالة المعالجة واتخذ الإجراءات السريعة.",
-                  "Monitor processing state and take quick actions."
-                )}
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent>
+      <TabsContent value="documents" className="m-0">
+        <div className="rounded-3xl border border-border/60 bg-background/70 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55">
+          <div className="p-6">
             {documents.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
                 <h3 className="text-lg font-semibold text-foreground">
@@ -483,10 +516,8 @@ export default function AdminDashboard() {
                 </p>
               </div>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {documents.map((doc) => {
-                  const filename =
-                    doc.file_path.split("/").pop() || doc.file_path;
                   const date = new Date(doc.uploaded_at);
                   const formattedDate = new Intl.DateTimeFormat(
                     languageToLocale(direction),
@@ -498,12 +529,12 @@ export default function AdminDashboard() {
                   return (
                     <Card
                       key={doc.id}
-                      className="group flex h-full flex-col justify-between border border-border/60 bg-background/80 shadow-soft"
+                      className="group flex flex-col border border-border/60 bg-background/80 shadow-soft min-h-0"
                     >
-                      <CardHeader className="gap-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0 flex-1 space-y-1 text-start overflow-hidden">
-                            <CardTitle className="text-lg font-semibold text-foreground break-words">
+                      <CardHeader className="gap-2 p-4 pb-3">
+                        <div className="flex items-start gap-2">
+                          <div className="min-w-0 flex-1">
+                            <CardTitle className="text-base font-semibold text-foreground break-words line-clamp-2 leading-tight">
                               {doc.title || "Document"}
                             </CardTitle>
                           </div>
@@ -515,34 +546,36 @@ export default function AdminDashboard() {
                                 ? "destructive"
                                 : "outline"
                             }
-                            className="flex-shrink-0 ml-2"
+                            className="flex-shrink-0 text-xs px-2 py-1"
                           >
                             {doc.status}
                           </Badge>
                         </div>
-                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                          <span className="rounded-full bg-muted/50 px-3 py-1">
+                        <div className="flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+                          <span className="rounded-full bg-muted/50 px-2 py-1">
                             {t("رفع", "Uploaded")} • {formattedDate}
                           </span>
                           {doc.emirate_scope && (
-                            <span className="rounded-full bg-muted/50 px-3 py-1">
+                            <span className="rounded-full bg-muted/50 px-2 py-1">
                               {doc.emirate_scope}
                             </span>
                           )}
                           {doc.authority_name && (
-                            <span className="rounded-full bg-muted/50 px-3 py-1">
+                            <span className="rounded-full bg-muted/50 px-2 py-1">
                               {doc.authority_name}
                             </span>
                           )}
                         </div>
-                        <div className="flex flex-wrap items-center justify-end gap-2 pt-3">
+                      </CardHeader>
+                      <CardContent className="border-t border-border/60 bg-background/70 p-4 pt-3 mt-auto">
+                        <div className="flex flex-col gap-2">
                           {doc.status === "processing" && (
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => checkDocumentStatus(doc.id)}
                               disabled={checkingStatusIds.has(doc.id)}
-                              className="rounded-full"
+                              className="w-full rounded-xl text-xs"
                             >
                               {checkingStatusIds.has(doc.id)
                                 ? t("جارٍ الفحص", "Checking")
@@ -553,37 +586,28 @@ export default function AdminDashboard() {
                             size="sm"
                             variant="destructive"
                             onClick={() => deleteDocument(doc.id)}
-                            className="rounded-full"
+                            className="w-full rounded-xl text-xs"
                           >
                             <Trash2
-                              className="me-2 size-4 rtl:flip"
+                              className="me-2 size-3 rtl:flip"
                               aria-hidden
                             />
                             {t("حذف", "Delete")}
                           </Button>
                         </div>
-                      </CardHeader>
+                      </CardContent>
                     </Card>
                   );
                 })}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </TabsContent>
 
-      <TabsContent value="users" className="m-0 space-y-4">
-        <Card className="border border-border/60 bg-background/80 shadow-soft">
-          <CardHeader>
-            <CardTitle>{t("المستخدمون", "Users")}</CardTitle>
-            <CardDescription>
-              {t(
-                "عرض حالة الوصول لمستخدمي النظام.",
-                "Review user access and onboarding status."
-              )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+      <TabsContent value="users" className="m-0">
+        <div className="rounded-3xl border border-border/60 bg-background/70 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55">
+          <div className="p-6">
             {users.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
                 <h3 className="text-lg font-semibold text-foreground">
@@ -597,7 +621,7 @@ export default function AdminDashboard() {
                 </p>
               </div>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {users.map((user) => {
                   const date = new Date(user.created_at);
                   const formattedDate = new Intl.DateTimeFormat(
@@ -610,45 +634,50 @@ export default function AdminDashboard() {
                   return (
                     <Card
                       key={user.id}
-                      className="group flex h-full flex-col justify-between border border-border/60 bg-background/80 shadow-soft"
+                      className="group flex flex-col border border-border/60 bg-background/80 shadow-soft min-h-0"
                     >
-                      <CardHeader className="gap-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0 flex-1 space-y-1 text-start overflow-hidden">
-                            <CardTitle className="text-lg font-semibold text-foreground break-words">
+                      <CardHeader className="gap-2 p-4 pb-3">
+                        <div className="flex items-start gap-2">
+                          <div className="min-w-0 flex-1">
+                            <CardTitle className="text-base font-semibold text-foreground break-words line-clamp-2 leading-tight">
                               {user.email}
                             </CardTitle>
                           </div>
-                          <div className="flex-shrink-0 ml-2">
+                          <div className="flex-shrink-0">
                             <span className="inline-flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-semibold">
                               {user.email?.[0]?.toUpperCase()}
                             </span>
                           </div>
                         </div>
-                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                          <span className="rounded-full bg-muted/50 px-3 py-1">
+                        <div className="flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+                          <span className="rounded-full bg-muted/50 px-2 py-1">
                             {t("انضم في", "Joined")} • {formattedDate}
                           </span>
                           {user.last_sign_in_at && (
-                            <span className="rounded-full bg-muted/50 px-3 py-1">
+                            <span className="rounded-full bg-muted/50 px-2 py-1">
                               {t("آخر دخول", "Last sign-in")} •{" "}
                               {formatDate(user.last_sign_in_at, direction)}
                             </span>
                           )}
                         </div>
-                        <div className="flex flex-wrap items-center justify-end gap-2 pt-3">
-                          <Badge variant="outline" className="rounded-full">
+                      </CardHeader>
+                      <CardContent className="border-t border-border/60 bg-background/70 p-4 pt-3 mt-auto">
+                        <div className="flex justify-center">
+                          <Badge
+                            variant="outline"
+                            className="rounded-full text-xs px-3 py-1"
+                          >
                             {t("مستخدم نشط", "Active user")}
                           </Badge>
                         </div>
-                      </CardHeader>
+                      </CardContent>
                     </Card>
                   );
                 })}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </TabsContent>
 
       <TabsContent value="settings" className="m-0 space-y-4">
@@ -666,15 +695,19 @@ export default function AdminDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <div className="flex justify-between gap-4">
-                <span>{t("معرّف المخزن", "Vector store ID")}</span>
-                <code className="rounded-full bg-muted/50 px-3 py-1 text-xs">
+              <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+                <span className="text-xs font-medium">
+                  {t("معرّف المخزن", "Vector store ID")}
+                </span>
+                <code className="rounded-full bg-muted/50 px-3 py-1 text-xs break-all">
                   {settings?.openaiVectorStoreId || "..."}
                 </code>
               </div>
-              <div className="flex justify-between gap-4">
-                <span>{t("حالة المفتاح", "API key status")}</span>
-                <Badge variant="outline">
+              <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+                <span className="text-xs font-medium">
+                  {t("حالة المفتاح", "API key status")}
+                </span>
+                <Badge variant="outline" className="w-fit">
                   {settings?.openaiApiKeyStatus || "..."}
                 </Badge>
               </div>
@@ -694,15 +727,19 @@ export default function AdminDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <div className="flex justify-between gap-4">
-                <span>{t("عنوان المشروع", "Project URL")}</span>
-                <code className="rounded-full bg-muted/50 px-3 py-1 text-xs">
+              <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+                <span className="text-xs font-medium">
+                  {t("عنوان المشروع", "Project URL")}
+                </span>
+                <code className="rounded-full bg-muted/50 px-3 py-1 text-xs break-all">
                   {settings?.supabaseUrl || "..."}
                 </code>
               </div>
-              <div className="flex justify-between gap-4">
-                <span>{t("مفتاح الوصول", "Anon key")}</span>
-                <code className="truncate rounded-full bg-muted/50 px-3 py-1 text-xs">
+              <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+                <span className="text-xs font-medium">
+                  {t("مفتاح الوصول", "Anon key")}
+                </span>
+                <code className="rounded-full bg-muted/50 px-3 py-1 text-xs break-all">
                   {settings?.supabaseAnonKey?.slice(0, 6)}•••
                 </code>
               </div>
@@ -720,9 +757,9 @@ export default function AdminDashboard() {
               )}
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-3">
+          <CardContent className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-border/50 bg-muted/30 px-4 py-3 text-sm">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground mb-1">
                 {t("إجمالي المستندات", "Documents total")}
               </p>
               <p className="text-lg font-semibold text-foreground">
@@ -730,7 +767,7 @@ export default function AdminDashboard() {
               </p>
             </div>
             <div className="rounded-2xl border border-border/50 bg-muted/30 px-4 py-3 text-sm">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground mb-1">
                 {t("نسبة الجاهز", "Ready ratio")}
               </p>
               <p className="text-lg font-semibold text-foreground">
@@ -745,7 +782,7 @@ export default function AdminDashboard() {
               </p>
             </div>
             <div className="rounded-2xl border border-border/50 bg-muted/30 px-4 py-3 text-sm">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground mb-1">
                 {t("المستخدمون", "Users")}
               </p>
               <p className="text-lg font-semibold text-foreground">

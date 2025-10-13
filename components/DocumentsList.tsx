@@ -72,11 +72,11 @@ export default function DocumentsList() {
 
   const skeleton = useMemo(
     () => (
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             key={index}
-            className="h-40 rounded-3xl border border-border/60 bg-muted/30 animate-pulse"
+            className="h-32 rounded-2xl border border-border/60 bg-muted/30 animate-pulse"
           />
         ))}
       </div>
@@ -141,121 +141,123 @@ export default function DocumentsList() {
   return (
     <div
       dir={direction}
-      className="rounded-3xl border border-border/60 bg-background/70 p-6 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55"
+      className="rounded-3xl border border-border/60 bg-background/70 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55"
     >
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {docs.map((doc) => {
-          const date = new Date(doc.uploaded_at);
-          const formattedDate = new Intl.DateTimeFormat(
-            languageToLocale(direction),
-            {
-              dateStyle: "medium",
-            }
-          ).format(date);
+      <div className="p-6">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {docs.map((doc) => {
+            const date = new Date(doc.uploaded_at);
+            const formattedDate = new Intl.DateTimeFormat(
+              languageToLocale(direction),
+              {
+                dateStyle: "medium",
+              }
+            ).format(date);
 
-          return (
-            <Card
-              key={doc.id}
-              className="group flex h-full flex-col justify-between border border-border/60 bg-background/80 shadow-soft"
-            >
-              <CardHeader className="gap-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1 space-y-1 text-start overflow-hidden">
-                    <CardTitle className="text-lg font-semibold text-foreground break-words">
-                      {doc.title || "Document"}
-                    </CardTitle>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className="rounded-full border-primary/40 bg-primary/10 text-primary flex-shrink-0 ml-2"
-                  >
-                    {t("مؤرشف", "Archived")}
-                  </Badge>
-                </div>
-                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  <span className="rounded-full bg-muted/50 px-3 py-1">
-                    {t("رفع", "Uploaded")} • {formattedDate}
-                  </span>
-                  {doc.emirate_scope && (
-                    <span className="rounded-full bg-muted/50 px-3 py-1">
-                      {doc.emirate_scope}
-                    </span>
-                  )}
-                  {doc.authority_name && (
-                    <span className="rounded-full bg-muted/50 px-3 py-1">
-                      {doc.authority_name}
-                    </span>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="border-t border-border/60 bg-background/70 py-4">
-                <Dialog
-                  open={pendingDelete?.id === doc.id}
-                  onOpenChange={(open) =>
-                    open
-                      ? setPendingDelete({
-                          id: doc.id,
-                          title: doc.title || "Document",
-                        })
-                      : setPendingDelete(null)
-                  }
-                >
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-center rounded-full border-destructive/40 text-destructive hover:bg-destructive/10"
-                      onClick={() =>
-                        setPendingDelete({
-                          id: doc.id,
-                          title: doc.title || "Document",
-                        })
-                      }
-                    >
-                      {deletingId === doc.id
-                        ? t("جارٍ الحذف...", "Removing...")
-                        : t("حذف المستند", "Delete document")}
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>
-                        {t("تأكيد الحذف", "Confirm deletion")}
-                      </DialogTitle>
-                      <DialogDescription>
-                        {t(
-                          "سيؤدي هذا إلى حذف المستند نهائياً من مساحة العمل.",
-                          "This action will permanently remove the document from the workspace."
-                        )}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                      {doc.title || "Document"}
+            return (
+              <Card
+                key={doc.id}
+                className="group flex flex-col border border-border/60 bg-background/80 shadow-soft min-h-0"
+              >
+                <CardHeader className="gap-2 p-4 pb-3">
+                  <div className="flex items-start gap-2">
+                    <div className="min-w-0 flex-1">
+                      <CardTitle className="text-base font-semibold text-foreground break-words line-clamp-2 leading-tight">
+                        {doc.title || "Document"}
+                      </CardTitle>
                     </div>
-                    <DialogFooter>
+                    <Badge
+                      variant="outline"
+                      className="rounded-full border-primary/40 bg-primary/10 text-primary flex-shrink-0 text-xs px-2 py-1"
+                    >
+                      {t("مؤرشف", "Archived")}
+                    </Badge>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+                    <span className="rounded-full bg-muted/50 px-2 py-1">
+                      {t("رفع", "Uploaded")} • {formattedDate}
+                    </span>
+                    {doc.emirate_scope && (
+                      <span className="rounded-full bg-muted/50 px-2 py-1">
+                        {doc.emirate_scope}
+                      </span>
+                    )}
+                    {doc.authority_name && (
+                      <span className="rounded-full bg-muted/50 px-2 py-1">
+                        {doc.authority_name}
+                      </span>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="border-t border-border/60 bg-background/70 p-4 pt-3 mt-auto">
+                  <Dialog
+                    open={pendingDelete?.id === doc.id}
+                    onOpenChange={(open) =>
+                      open
+                        ? setPendingDelete({
+                            id: doc.id,
+                            title: doc.title || "Document",
+                          })
+                        : setPendingDelete(null)
+                    }
+                  >
+                    <DialogTrigger asChild>
                       <Button
-                        type="button"
                         variant="outline"
-                        onClick={() => setPendingDelete(null)}
-                      >
-                        {t("إلغاء", "Cancel")}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        onClick={confirmDelete}
-                        disabled={deletingId === doc.id}
+                        className="w-full justify-center rounded-full border-destructive/40 text-destructive hover:bg-destructive/10"
+                        onClick={() =>
+                          setPendingDelete({
+                            id: doc.id,
+                            title: doc.title || "Document",
+                          })
+                        }
                       >
                         {deletingId === doc.id
                           ? t("جارٍ الحذف...", "Removing...")
-                          : t("تأكيد الحذف", "Confirm delete")}
+                          : t("حذف المستند", "Delete document")}
                       </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </CardContent>
-            </Card>
-          );
-        })}
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>
+                          {t("تأكيد الحذف", "Confirm deletion")}
+                        </DialogTitle>
+                        <DialogDescription>
+                          {t(
+                            "سيؤدي هذا إلى حذف المستند نهائياً من مساحة العمل.",
+                            "This action will permanently remove the document from the workspace."
+                          )}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                        {doc.title || "Document"}
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setPendingDelete(null)}
+                        >
+                          {t("إلغاء", "Cancel")}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          onClick={confirmDelete}
+                          disabled={deletingId === doc.id}
+                        >
+                          {deletingId === doc.id
+                            ? t("جارٍ الحذف...", "Removing...")
+                            : t("تأكيد الحذف", "Confirm delete")}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
