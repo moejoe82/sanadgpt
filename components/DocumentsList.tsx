@@ -150,7 +150,6 @@ export default function DocumentsList() {
             languageToLocale(direction),
             {
               dateStyle: "medium",
-              timeStyle: "short",
             }
           ).format(date);
 
