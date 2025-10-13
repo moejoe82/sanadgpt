@@ -90,12 +90,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div dir={direction} className={alignment}>
-      <div className="flex items-center justify-between mb-4">
+    <section
+      dir={direction}
+      className={`${alignment} mx-auto flex w-full max-w-sm flex-col gap-6`}
+    >
+      <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">
           {t("تسجيل الدخول", "Login")}
         </h1>
-        <div className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">
+        <div className="rounded px-2 py-1 text-xs text-muted-foreground">
           v1.0.0
         </div>
       </div>
@@ -104,16 +107,16 @@ export default function LoginPage() {
           type="button"
           onClick={handleGoogleSignIn}
           disabled={googleLoading || loading}
-          className="w-full rounded-md border border-slate-300 bg-white text-slate-900 py-2 hover:bg-slate-50 disabled:opacity-50"
+          className="w-full rounded-md border border-border/80 bg-card px-3 py-2 text-sm font-medium text-foreground transition hover:bg-card/90 disabled:opacity-60"
         >
           {googleButtonLabel}
         </button>
         <div className="relative py-2">
           <div className="absolute inset-0 flex items-center" aria-hidden="true">
-            <div className="w-full border-t border-slate-200" />
+            <div className="w-full border-t border-border/60" />
           </div>
           <div className="relative flex justify-center">
-            <span className="bg-white dark:bg-slate-900 px-2 text-xs text-slate-500">
+            <span className="bg-background px-2 text-xs text-muted-foreground">
               {t("أو", "Or")}
             </span>
           </div>
@@ -126,7 +129,7 @@ export default function LoginPage() {
           </label>
           <input
             type="email"
-            className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
+            className="w-full rounded-md border border-border/80 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -139,7 +142,7 @@ export default function LoginPage() {
           </label>
           <input
             type="password"
-            className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500"
+            className="w-full rounded-md border border-border/80 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -154,17 +157,17 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-slate-900 text-white py-2 hover:bg-slate-800 disabled:opacity-50"
+          className="w-full rounded-md bg-primary py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
         >
           {loading ? "..." : t("دخول", "Sign in")}
         </button>
       </form>
       <p className="mt-4 text-sm">
         {t("ليس لديك حساب؟", "Don't have an account?")} {" "}
-        <a href="/register" className="text-slate-900 underline">
+        <a href="/register" className="text-primary underline">
           {t("إنشاء حساب جديد", "Create account")}
         </a>
       </p>
-    </div>
+    </section>
   );
 }
