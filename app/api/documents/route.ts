@@ -8,7 +8,7 @@ export async function GET() {
     // For testing, get all documents (bypassing auth for now)
     const { data: documents, error } = await supabaseAdmin
       .from("documents")
-      .select("id, title, file_path, openai_file_id, uploaded_at")
+      .select("id, title, file_path, openai_file_id, uploaded_at, emirate_scope, authority_name")
       .order("uploaded_at", { ascending: false });
 
     if (error) {
