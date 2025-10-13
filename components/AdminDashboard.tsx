@@ -283,44 +283,31 @@ export default function AdminDashboard() {
       onValueChange={setActiveTab}
       className="flex flex-col gap-6"
     >
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-1 text-start">
-          <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">
-            {t("لوحة الإدارة", "Administrative control")}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {t(
-              "تابع صحة النظام ووجّه المستندات والمستخدمين.",
-              "Track system health and orchestrate documents and users."
-            )}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={loadAnalytics}
-            className="rounded-full"
-          >
-            <RefreshCw className="me-2 size-4 rtl:flip" aria-hidden />
-            {t("تحديث", "Refresh")}
-          </Button>
-          <Button
-            size="sm"
-            className="rounded-full"
-            onClick={syncDocumentsFromOpenAI}
-            disabled={syncingDocuments}
-          >
-            {syncingDocuments ? (
-              <Loader2 className="me-2 size-4 animate-spin rtl:flip" aria-hidden />
-            ) : (
-              <ShieldCheck className="me-2 size-4 rtl:flip" aria-hidden />
-            )}
-            {syncingDocuments
-              ? t("جاري المزامنة", "Syncing...")
-              : t("مزامنة من OpenAI", "Sync from OpenAI")}
-          </Button>
-        </div>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={loadAnalytics}
+          className="rounded-full"
+        >
+          <RefreshCw className="me-2 size-4 rtl:flip" aria-hidden />
+          {t("تحديث", "Refresh")}
+        </Button>
+        <Button
+          size="sm"
+          className="rounded-full"
+          onClick={syncDocumentsFromOpenAI}
+          disabled={syncingDocuments}
+        >
+          {syncingDocuments ? (
+            <Loader2 className="me-2 size-4 animate-spin rtl:flip" aria-hidden />
+          ) : (
+            <ShieldCheck className="me-2 size-4 rtl:flip" aria-hidden />
+          )}
+          {syncingDocuments
+            ? t("جاري المزامنة", "Syncing...")
+            : t("مزامنة من OpenAI", "Sync from OpenAI")}
+        </Button>
       </div>
 
       <TabsList className="flex flex-wrap gap-2 rounded-full bg-muted/60 p-1">
