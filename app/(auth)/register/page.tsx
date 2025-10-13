@@ -21,7 +21,7 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
   const t = useI18n();
-  const { direction } = useLanguage();
+  const { language } = useLanguage();
   const searchParams = useSearchParams();
 
   useEffect(() => {

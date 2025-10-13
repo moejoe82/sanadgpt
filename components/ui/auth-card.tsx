@@ -38,7 +38,7 @@ export default function AuthCard({
             </h1>
           )}
           {version && (
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="outline" className="text-xs">
               {version}
             </Badge>
           )}

@@ -47,21 +47,6 @@ export default function DocumentUpload() {
     return true;
   }, []);
 
-  const statusBadge = useMemo(() => {
-    switch (state) {
-      case "hashing":
-        return <Badge variant="outline">{t("جاري التحقق", "Hashing")}</Badge>;
-      case "uploading":
-        return <Badge variant="outline">{t("جاري الرفع", "Uploading")}</Badge>;
-      case "success":
-        return <Badge variant="success">{t("تم", "Completed")}</Badge>;
-      case "error":
-        return <Badge variant="destructive">{t("خطأ", "Error")}</Badge>;
-      default:
-        return <Badge variant="outline">{t("جاهز", "Ready")}</Badge>;
-    }
-  }, [state, t]);
-
   const onFiles = useCallback(
     (files: FileList | null) => {
       if (!files || files.length === 0) return;

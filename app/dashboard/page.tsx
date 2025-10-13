@@ -38,7 +38,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -533,26 +532,3 @@ export default function DashboardPage() {
   );
 }
 
-function SectionWrapper({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description: string;
-  children: ReactNode;
-}) {
-  return (
-    <section className="grid gap-4 rounded-3xl border border-border/60 bg-background/70 p-6 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55">
-      <div className="space-y-1 text-start">
-        <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
-          {title}
-        </h2>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-      <div className="rounded-2xl border border-border/50 bg-surface/80 p-4 shadow-sm">
-        {children}
-      </div>
-    </section>
-  );
-}

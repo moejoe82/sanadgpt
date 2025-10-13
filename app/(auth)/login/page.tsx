@@ -19,7 +19,7 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const t = useI18n();
-  const { direction } = useLanguage();
+  const { language } = useLanguage();
   const searchParams = useSearchParams();
 
   useEffect(() => {
