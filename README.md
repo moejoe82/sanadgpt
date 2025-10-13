@@ -675,20 +675,22 @@ Content-Type: application/json
 
 {
   "question": "What are the audit requirements?",
-  "threadId": "thd_abc123" // optional on first call
+  "conversationHistory": [
+    { "role": "user", "content": "Previous question" },
+    { "role": "assistant", "content": "Previous answer" }
+  ]
 }
 
 Response:
 {
-  "content": "Based on the uploaded documents...",
-  "threadId": "thd_abc123" // reuse this in subsequent requests
+  "content": "Based on the uploaded documents..."
 }
 ```
 
 Notes:
 
-- Conversation history is managed by OpenAI Agents. Provide the same `threadId` to maintain context across the session.
-- Do not send previous messages; the Agent platform retrieves them using the `threadId`.
+- Conversation history is maintained by passing previous messages in the `conversationHistory` array.
+- The Agents SDK processes the full conversation context to provide coherent responses.
 
 ### Document Upload API (`/api/documents/upload`)
 

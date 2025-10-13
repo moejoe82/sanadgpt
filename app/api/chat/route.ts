@@ -64,8 +64,8 @@ export async function POST(req: NextRequest) {
   try {
     const {
       question,
-      threadId,
-    }: { question?: unknown; threadId?: string | null } = await req.json();
+      conversationHistory = [],
+    }: { question?: unknown; conversationHistory?: Array<{ role: string; content: string }> } = await req.json();
 
     if (!question || typeof question !== "string") {
       return new Response(JSON.stringify({ error: "Missing 'question'" }), {
@@ -74,42 +74,62 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const items: AgentInputItem[] = [
-      {
-        role: "user",
-        content: [
-          {
-            type: "input_text",
-            text: question,
-          },
-        ],
-      },
-    ];
+    // Convert conversation history to AgentInputItem format
+    const agentHistory: AgentInputItem[] = conversationHistory.map((msg: { role: string; content: string }) => {
+      if (msg.role === "assistant") {
+        // Assistant messages should have output_text type
+        return {
+          role: msg.role as "assistant",
+          content: [
+            {
+              type: "output_text",
+              text: msg.content,
+            },
+          ],
+        };
+      } else {
+        // User and system messages use input_text type
+        return {
+          role: msg.role as "user" | "system",
+          content: [
+            {
+              type: "input_text",
+              text: msg.content,
+            },
+          ],
+        };
+      }
+    });
 
-    const runnerOptions = {
+    // Add current question to history
+    agentHistory.push({
+      role: "user",
+      content: [
+        {
+          type: "input_text",
+          text: question,
+        },
+      ],
+    });
+
+    const runner = new Runner({
       traceMetadata: {
         __trace_source__: "agent-builder",
         workflow_id: workflowId,
       },
-      ...(threadId ? { threadId } : {}),
-    } as unknown as ConstructorParameters<typeof Runner>[0];
+    });
 
-    const runner = new Runner(runnerOptions);
-
-    type AgentRunResultMinimal = { finalOutput?: string; threadId?: string };
-    const result = (await runner.run(sanadgptAgent, items)) as unknown as AgentRunResultMinimal;
+    const result = await runner.run(sanadgptAgent, agentHistory);
 
     if (!result.finalOutput) {
       throw new Error("Agent result is undefined");
     }
 
     const content = result.finalOutput;
-    const returnedThreadId: string | null = result.threadId ?? threadId ?? null;
 
     return new Response(
       JSON.stringify({
         content,
-        threadId: returnedThreadId,
         // Citations will be handled by the agent automatically
       }),
       {

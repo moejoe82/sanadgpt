@@ -14,7 +14,6 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [threadId, setThreadId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const t = useI18n();
   const { direction } = useLanguage();
@@ -27,22 +26,6 @@ export default function ChatInterface() {
     }
   }, [messages, loading]);
 
-  // Hydrate threadId from sessionStorage on mount
-  useEffect(() => {
-    try {
-      const stored = sessionStorage.getItem("sanadgpt_thread_id");
-      if (stored) setThreadId(stored);
-    } catch {}
-  }, []);
-
-  // Persist threadId when it changes
-  useEffect(() => {
-    try {
-      if (threadId) {
-        sessionStorage.setItem("sanadgpt_thread_id", threadId);
-      }
-    } catch {}
-  }, [threadId]);
 
   const appendMessage = useCallback((msg: ChatMessage) => {
     setMessages((prev) => [...prev, msg]);
@@ -71,7 +54,10 @@ export default function ChatInterface() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           question,
-          threadId: threadId ?? undefined,
+          conversationHistory: messages.filter(msg => msg.id !== userId).map((msg) => ({
+            role: msg.role,
+            content: msg.content,
+          })),
         }),
       });
 
@@ -87,9 +73,6 @@ export default function ChatInterface() {
       if (data.content) {
         updateAssistant(assistantId, data.content);
       }
-      if (data.threadId && typeof data.threadId === "string") {
-        setThreadId(data.threadId);
-      }
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
@@ -100,7 +83,6 @@ export default function ChatInterface() {
       );
     } finally {
       setLoading(false);
-      // flush remaining buffer if it contains a final JSON object
     }
   }
 
