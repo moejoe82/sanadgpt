@@ -335,13 +335,11 @@ export default function AdminDashboard() {
       </div>
 
       {/* Responsive Tabs */}
-      <TabsList className={`flex rounded-full bg-muted/60 p-1 ${
-        isNarrowScreen ? "gap-0.5" : "gap-1"
-      }`}>
+      <TabsList className="flex rounded-full bg-muted/60 p-1">
         <TabsTrigger
           value="overview"
           className={`rounded-full text-sm ${
-            isNarrowScreen ? "p-1.5 min-w-0" : "flex-1 px-3 py-2"
+            isNarrowScreen ? "flex-1 p-1.5" : "flex-1 px-3 py-2"
           }`}
           title={isNarrowScreen ? t("نظرة عامة", "Overview") : undefined}
         >
@@ -354,7 +352,7 @@ export default function AdminDashboard() {
         <TabsTrigger
           value="documents"
           className={`rounded-full text-sm ${
-            isNarrowScreen ? "p-1.5 min-w-0" : "flex-1 px-3 py-2"
+            isNarrowScreen ? "flex-1 p-1.5" : "flex-1 px-3 py-2"
           }`}
           title={isNarrowScreen ? t("المستندات", "Documents") : undefined}
         >
@@ -367,7 +365,7 @@ export default function AdminDashboard() {
         <TabsTrigger
           value="users"
           className={`rounded-full text-sm ${
-            isNarrowScreen ? "p-1.5 min-w-0" : "flex-1 px-3 py-2"
+            isNarrowScreen ? "flex-1 p-1.5" : "flex-1 px-3 py-2"
           }`}
           title={isNarrowScreen ? t("المستخدمون", "Users") : undefined}
         >
@@ -380,7 +378,7 @@ export default function AdminDashboard() {
         <TabsTrigger
           value="settings"
           className={`rounded-full text-sm ${
-            isNarrowScreen ? "p-1.5 min-w-0" : "flex-1 px-3 py-2"
+            isNarrowScreen ? "flex-1 p-1.5" : "flex-1 px-3 py-2"
           }`}
           title={isNarrowScreen ? t("الإعدادات", "Settings") : undefined}
         >
