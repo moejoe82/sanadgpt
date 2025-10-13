@@ -335,11 +335,13 @@ export default function AdminDashboard() {
       </div>
 
       {/* Responsive Tabs */}
-      <TabsList className="flex w-full rounded-full bg-muted/60 p-1">
+      <TabsList className={`flex rounded-full bg-muted/60 p-1 ${
+        isNarrowScreen ? "w-fit mx-auto gap-0.5" : "w-full gap-1"
+      }`}>
         <TabsTrigger
           value="overview"
-          className={`flex-1 rounded-full text-sm ${
-            isNarrowScreen ? "p-1.5" : "px-3 py-2"
+          className={`rounded-full text-sm ${
+            isNarrowScreen ? "p-1.5 min-w-0" : "flex-1 px-3 py-2"
           }`}
           title={isNarrowScreen ? t("نظرة عامة", "Overview") : undefined}
         >
@@ -351,8 +353,8 @@ export default function AdminDashboard() {
         </TabsTrigger>
         <TabsTrigger
           value="documents"
-          className={`flex-1 rounded-full text-sm ${
-            isNarrowScreen ? "p-1.5" : "px-3 py-2"
+          className={`rounded-full text-sm ${
+            isNarrowScreen ? "p-1.5 min-w-0" : "flex-1 px-3 py-2"
           }`}
           title={isNarrowScreen ? t("المستندات", "Documents") : undefined}
         >
@@ -364,8 +366,8 @@ export default function AdminDashboard() {
         </TabsTrigger>
         <TabsTrigger
           value="users"
-          className={`flex-1 rounded-full text-sm ${
-            isNarrowScreen ? "p-1.5" : "px-3 py-2"
+          className={`rounded-full text-sm ${
+            isNarrowScreen ? "p-1.5 min-w-0" : "flex-1 px-3 py-2"
           }`}
           title={isNarrowScreen ? t("المستخدمون", "Users") : undefined}
         >
@@ -377,8 +379,8 @@ export default function AdminDashboard() {
         </TabsTrigger>
         <TabsTrigger
           value="settings"
-          className={`flex-1 rounded-full text-sm ${
-            isNarrowScreen ? "p-1.5" : "px-3 py-2"
+          className={`rounded-full text-sm ${
+            isNarrowScreen ? "p-1.5 min-w-0" : "flex-1 px-3 py-2"
           }`}
           title={isNarrowScreen ? t("الإعدادات", "Settings") : undefined}
         >
