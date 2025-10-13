@@ -22,11 +22,12 @@ Key Guidelines:
   // Simplified settings - removing potentially unsupported options
 });
 
-// Read workflow id from environment (no hardcoding)
-const workflowId = process.env.OPENAI_CHATKIT_WORKFLOW_ID;
-if (!workflowId) {
+// Read workflow id from environment (no hardcoding) with proper type narrowing
+const workflowIdEnv = process.env.OPENAI_CHATKIT_WORKFLOW_ID;
+if (!workflowIdEnv) {
   throw new Error("Missing OPENAI_CHATKIT_WORKFLOW_ID environment variable");
 }
+const workflowId: string = workflowIdEnv;
 
 type WorkflowInput = { input_as_text: string };
 
