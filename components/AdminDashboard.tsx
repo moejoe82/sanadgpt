@@ -335,9 +335,11 @@ export default function AdminDashboard() {
       </div>
 
       {/* Responsive Tabs */}
-      <TabsList className={`flex rounded-full bg-muted/60 ${
-        isNarrowScreen ? "p-1.5 gap-1" : "p-1 gap-1"
-      }`}>
+      <TabsList
+        className={`flex rounded-full bg-muted/60 ${
+          isNarrowScreen ? "p-1.5 gap-1" : "p-1 gap-1"
+        }`}
+      >
         <TabsTrigger
           value="overview"
           className={`rounded-full text-sm ${
