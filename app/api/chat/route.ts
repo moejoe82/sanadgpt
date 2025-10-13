@@ -77,16 +77,17 @@ export async function POST(req: NextRequest) {
     // Convert conversation history to AgentInputItem format
     const agentHistory: AgentInputItem[] = conversationHistory.map((msg: { role: string; content: string }) => {
       if (msg.role === "assistant") {
-        // Assistant messages should have output_text type
+        // Assistant messages must include a status for Agents SDK
         return {
-          role: msg.role as "assistant",
+          status: "completed",
+          role: "assistant",
           content: [
             {
               type: "output_text",
               text: msg.content,
             },
           ],
-        };
+        } as AgentInputItem;
       } else {
         // User and system messages use input_text type
         return {
@@ -97,7 +98,7 @@ export async function POST(req: NextRequest) {
               text: msg.content,
             },
           ],
-        };
+        } as AgentInputItem;
       }
     });
 
