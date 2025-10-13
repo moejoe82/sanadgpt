@@ -360,15 +360,7 @@ export default function DashboardPage() {
               </TabsContent>
 
               <TabsContent value="documents" className="m-0">
-                <SectionWrapper
-                  title={t("أرشيف المستندات", "Document archive")}
-                  description={t(
-                    "استعرض كل الملفات وتتبّع حالة التحميل والمعالجة.",
-                    "Monitor upload progress and review archived documents."
-                  )}
-                >
-                  <DocumentsList />
-                </SectionWrapper>
+                <DocumentsList />
               </TabsContent>
 
               {isAdmin && (

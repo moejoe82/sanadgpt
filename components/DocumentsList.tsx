@@ -120,23 +120,24 @@ export default function DocumentsList() {
 
   if (!docs || docs.length === 0)
     return (
-      <Card dir={direction} className="border border-dashed border-border/70 bg-muted/20 p-10 text-center shadow-none">
-        <CardHeader className="items-center">
-          <CardTitle className="text-lg font-semibold">
+      <div dir={direction} className="rounded-3xl border border-border/60 bg-background/70 p-6 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55">
+        <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
+          <h3 className="text-lg font-semibold text-foreground">
             {t("لا يوجد مستندات بعد", "No documents yet")}
-          </CardTitle>
-          <CardDescription className="max-w-md text-pretty">
+          </h3>
+          <p className="max-w-md text-sm text-muted-foreground">
             {t(
               "سيظهر كل ملف تقوم برفعه هنا مع حالة معالجته.",
               "Every file you upload will appear here with processing status."
             )}
-          </CardDescription>
-        </CardHeader>
-      </Card>
+          </p>
+        </div>
+      </div>
     );
 
   return (
-    <div dir={direction} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div dir={direction} className="rounded-3xl border border-border/60 bg-background/70 p-6 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {docs.map((doc) => {
         const filename = doc.file_path.split("/").pop() || doc.file_path;
         const date = new Date(doc.uploaded_at);
@@ -246,6 +247,7 @@ export default function DocumentsList() {
           </Card>
         );
       })}
+      </div>
     </div>
   );
 }
