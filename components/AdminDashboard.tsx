@@ -341,12 +341,12 @@ export default function AdminDashboard() {
         <TabsTrigger
           value="overview"
           className={`rounded-full text-sm ${
-            isNarrowScreen ? "flex-1 p-1.5" : "flex-1 px-3 py-2"
+            isNarrowScreen ? "flex-1 p-1" : "flex-1 px-3 py-2"
           }`}
           title={isNarrowScreen ? t("نظرة عامة", "Overview") : undefined}
         >
           {isNarrowScreen ? (
-            <BarChart3 className="size-3.5" />
+            <BarChart3 className="size-3" />
           ) : (
             t("نظرة عامة", "Overview")
           )}
@@ -354,12 +354,12 @@ export default function AdminDashboard() {
         <TabsTrigger
           value="documents"
           className={`rounded-full text-sm ${
-            isNarrowScreen ? "flex-1 p-1.5" : "flex-1 px-3 py-2"
+            isNarrowScreen ? "flex-1 p-1" : "flex-1 px-3 py-2"
           }`}
           title={isNarrowScreen ? t("المستندات", "Documents") : undefined}
         >
           {isNarrowScreen ? (
-            <Files className="size-3.5" />
+            <Files className="size-3" />
           ) : (
             t("المستندات", "Documents")
           )}
@@ -367,12 +367,12 @@ export default function AdminDashboard() {
         <TabsTrigger
           value="users"
           className={`rounded-full text-sm ${
-            isNarrowScreen ? "flex-1 p-1.5" : "flex-1 px-3 py-2"
+            isNarrowScreen ? "flex-1 p-1" : "flex-1 px-3 py-2"
           }`}
           title={isNarrowScreen ? t("المستخدمون", "Users") : undefined}
         >
           {isNarrowScreen ? (
-            <Users className="size-3.5" />
+            <Users className="size-3" />
           ) : (
             t("المستخدمون", "Users")
           )}
@@ -380,12 +380,12 @@ export default function AdminDashboard() {
         <TabsTrigger
           value="settings"
           className={`rounded-full text-sm ${
-            isNarrowScreen ? "flex-1 p-1.5" : "flex-1 px-3 py-2"
+            isNarrowScreen ? "flex-1 p-1" : "flex-1 px-3 py-2"
           }`}
           title={isNarrowScreen ? t("الإعدادات", "Settings") : undefined}
         >
           {isNarrowScreen ? (
-            <Settings className="size-3.5" />
+            <Settings className="size-3" />
           ) : (
             t("الإعدادات", "Settings")
           )}
