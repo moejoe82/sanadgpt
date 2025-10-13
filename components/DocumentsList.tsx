@@ -145,15 +145,7 @@ export default function DocumentsList() {
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {docs.map((doc) => {
-          // Extract filename from file_path, but handle OpenAI file IDs
-          const pathParts = doc.file_path.split("/");
-          const lastPart = pathParts[pathParts.length - 1];
-          
-          // If the last part looks like an OpenAI file ID (starts with "file-"), use title instead
-          const filename = lastPart.startsWith("file-") 
-            ? doc.title || "Document"
-            : lastPart;
-            
+          const filename = doc.file_path.split("/").pop() || doc.file_path;
           const date = new Date(doc.uploaded_at);
           const formattedDate = new Intl.DateTimeFormat(
             languageToLocale(direction),
@@ -201,14 +193,14 @@ export default function DocumentsList() {
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="flex-1 text-sm text-muted-foreground">
-                <p className="leading-relaxed">
-                  {t(
-                    "يمكن فتح هذا المستند من لوحة الإدارة للتحقق من تفاصيله أو إعادة مزامنته.",
-                    "Open from the admin console to validate or re-sync with OpenAI."
-                  )}
-                </p>
-              </CardContent>
+               <CardContent className="flex-1 text-sm text-muted-foreground">
+                 <p className="leading-relaxed">
+                   {t(
+                     "مستند مؤرشف ومتاح للبحث والاستعلام.",
+                     "Document archived and available for search and query."
+                   )}
+                 </p>
+               </CardContent>
               <CardContent className="border-t border-border/60 bg-background/70 py-4">
                 <Dialog
                   open={pendingDelete?.id === doc.id}
