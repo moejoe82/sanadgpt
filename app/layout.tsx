@@ -18,6 +18,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "SanadGPT – نظام إدارة وثائق التدقيق",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 const tajawal = Tajawal({ subsets: ["arabic"], weight: ["400", "700"] });
