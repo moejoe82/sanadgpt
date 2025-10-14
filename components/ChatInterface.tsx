@@ -339,15 +339,11 @@ export default function ChatInterface() {
               >
                 {t("محادثة ذكية", "Smart Chat")}
               </h2>
-              <p
-                className={`text-xs ${
-                  isIncognitoMode ? "text-slate-400" : "text-muted-foreground"
-                }`}
-              >
-                {isIncognitoMode
-                  ? t("وضع التصفح الخفي", "Incognito Mode")
-                  : t("محادثة محفوظة", "Saved Chat")}
-              </p>
+              {isIncognitoMode && (
+                <p className="text-xs text-slate-400">
+                  {t("وضع التصفح الخفي", "Incognito Mode")}
+                </p>
+              )}
             </div>
           </div>
           {isIncognitoMode && (
@@ -366,27 +362,39 @@ export default function ChatInterface() {
             variant="outline"
             size="sm"
             onClick={() => setIsIncognitoMode(!isIncognitoMode)}
-            className={`text-xs ${isIncognitoMode ? 'border-slate-600 text-slate-200 hover:bg-slate-700 hover:text-slate-100' : ''}`}
+            className={`text-xs ${
+              isIncognitoMode
+                ? "border-slate-600 text-slate-200 hover:bg-slate-700 hover:text-slate-100"
+                : ""
+            }`}
+            title={isIncognitoMode ? t("إيقاف الخفي", "Exit Incognito") : t("وضع خفي", "Incognito")}
           >
             {isIncognitoMode ? (
-              <Eye className="w-4 h-4 mr-1" />
+              <Eye className="w-4 h-4 sm:mr-1" />
             ) : (
-              <EyeOff className="w-4 h-4 mr-1" />
+              <EyeOff className="w-4 h-4 sm:mr-1" />
             )}
-            {isIncognitoMode
-              ? t("إيقاف الخفي", "Exit Incognito")
-              : t("وضع خفي", "Incognito")}
+            <span className="hidden sm:inline">
+              {isIncognitoMode
+                ? t("إيقاف الخفي", "Exit Incognito")
+                : t("وضع خفي", "Incognito")}
+            </span>
           </Button>
 
           <Dialog open={showHistory} onOpenChange={setShowHistory}>
             <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className={`text-xs ${isIncognitoMode ? 'border-slate-600 text-slate-200 hover:bg-slate-700 hover:text-slate-100' : ''}`}
+              <Button
+                variant="outline"
+                size="sm"
+                className={`text-xs ${
+                  isIncognitoMode
+                    ? "border-slate-600 text-slate-200 hover:bg-slate-700 hover:text-slate-100"
+                    : ""
+                }`}
+                title={t("السجل", "History")}
               >
-                <History className="w-4 h-4 mr-1" />
-                {t("السجل", "History")}
+                <History className="w-4 h-4 sm:mr-1" />
+                <span className="hidden sm:inline">{t("السجل", "History")}</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
@@ -466,10 +474,15 @@ export default function ChatInterface() {
             variant="outline"
             size="sm"
             onClick={createNewSession}
-            className={`text-xs ${isIncognitoMode ? 'border-slate-600 text-slate-200 hover:bg-slate-700 hover:text-slate-100' : ''}`}
+            className={`text-xs ${
+              isIncognitoMode
+                ? "border-slate-600 text-slate-200 hover:bg-slate-700 hover:text-slate-100"
+                : ""
+            }`}
+            title={t("جديد", "New")}
           >
-            <Plus className="w-4 h-4 mr-1" />
-            {t("جديد", "New")}
+            <Plus className="w-4 h-4 sm:mr-1" />
+            <span className="hidden sm:inline">{t("جديد", "New")}</span>
           </Button>
         </div>
       </div>
