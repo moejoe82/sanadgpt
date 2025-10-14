@@ -231,18 +231,20 @@ export default function DashboardPage() {
             value={item.key}
             className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-transparent bg-muted/40 px-4 py-3 text-start text-sm font-medium text-muted-foreground transition focus-visible:ring-2 data-[state=active]:border-primary/60 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground"
           >
-            <span className="flex items-center gap-3">
-              <span className="flex size-10 items-center justify-center rounded-2xl bg-muted text-muted-foreground transition group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary">
+            <span className="flex items-center gap-3 min-w-0 flex-1">
+              <span className="flex size-10 items-center justify-center rounded-2xl bg-muted text-muted-foreground transition group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary flex-shrink-0">
                 <Icon className="size-5 rtl:flip" aria-hidden />
               </span>
-              <span className="flex flex-col text-start">
-                <span className="text-base font-semibold">{item.label}</span>
-                <span className="text-xs text-muted-foreground">
+              <span className="flex flex-col text-start min-w-0 flex-1">
+                <span className="text-base font-semibold truncate">
+                  {item.label}
+                </span>
+                <span className="text-xs text-muted-foreground leading-tight">
                   {item.description}
                 </span>
               </span>
             </span>
-            {item.badge}
+            {item.badge && <span className="flex-shrink-0">{item.badge}</span>}
           </TabsTrigger>
         );
       })}
@@ -262,7 +264,7 @@ export default function DashboardPage() {
       <Sheet open={navOpen} onOpenChange={setNavOpen}>
         <header
           ref={headerRef}
-          className="sticky top-0 z-50 border-b border-border/60 bg-background/80 px-safe pt-safe-t pb-3 shadow-[0_16px_40px_-32px_hsl(var(--shadow-soft))] backdrop-blur supports-[backdrop-filter]:bg-background/60"
+          className="sticky top-0 z-50 border-b border-border/60 bg-background px-safe pt-safe-t pb-3 shadow-[0_16px_40px_-32px_hsl(var(--shadow-soft))]"
         >
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -531,4 +533,3 @@ export default function DashboardPage() {
     </Tabs>
   );
 }
-

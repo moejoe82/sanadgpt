@@ -15,7 +15,7 @@ export default function LanguageShell({ children }: { children: ReactNode }) {
   return (
     <div dir={direction} className="relative flex min-h-screen flex-col">
       {!isDashboard && (
-        <header className="sticky top-0 z-40 flex items-center justify-end gap-3 border-b border-border/60 bg-background/70 px-safe pt-safe-t pb-3 text-sm shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55">
+        <header className="sticky top-0 z-40 flex items-center justify-end gap-3 border-b border-border/60 bg-background px-safe pt-safe-t pb-3 text-sm shadow-soft">
           <LanguageToggle />
         </header>
       )}

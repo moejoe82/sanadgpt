@@ -4,12 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
 import { useI18n, useLanguage } from "@/components/LanguageProvider";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -166,10 +161,10 @@ export default function DocumentsList() {
                       </CardTitle>
                     </div>
                     <Badge
-                      variant="outline"
-                      className="rounded-full border-primary/40 bg-primary/10 text-primary flex-shrink-0 text-xs px-2 py-1"
+                      variant="success"
+                      className="flex-shrink-0 text-xs px-2 py-1"
                     >
-                      {t("مؤرشف", "Archived")}
+                      {t("جاهز", "Ready")}
                     </Badge>
                   </div>
                   <div className="flex flex-wrap gap-1.5 text-xs text-muted-foreground">
