@@ -106,12 +106,6 @@ export default function ChatInterface() {
     setMessages((prev) => [...prev, msg]);
   }, []);
 
-  const updateAssistant = useCallback((id: string, delta: string) => {
-    setMessages((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, content: m.content + delta } : m))
-    );
-  }, []);
-
   const createNewSession = useCallback(() => {
     const newSessionId = crypto.randomUUID();
     setCurrentSessionId(newSessionId);
@@ -223,15 +217,6 @@ export default function ChatInterface() {
     
     appendMessage(userMessage);
     setAttachments([]);
-
-    const assistantId = crypto.randomUUID();
-    const assistantMessage: ChatMessage = {
-      id: assistantId,
-      role: "assistant",
-      content: "",
-      timestamp: new Date()
-    };
-    appendMessage(assistantMessage);
     setLoading(true);
 
     try {
@@ -263,7 +248,15 @@ export default function ChatInterface() {
 
       const data = await resp.json();
       if (data.content) {
-        updateAssistant(assistantId, data.content);
+        // Create assistant message only after we get the response
+        const assistantId = crypto.randomUUID();
+        const assistantMessage: ChatMessage = {
+          id: assistantId,
+          role: "assistant",
+          content: data.content,
+          timestamp: new Date()
+        };
+        appendMessage(assistantMessage);
       }
       
       // Save session after successful response (if not incognito)
@@ -274,10 +267,16 @@ export default function ChatInterface() {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       console.error("Chat error:", errorMessage);
-      updateAssistant(
-        assistantId,
-        `${t("حدث خطأ في الإجابة.", "An error occurred.")}: ${errorMessage}`
-      );
+      
+      // Create error message
+      const assistantId = crypto.randomUUID();
+      const errorMessageObj: ChatMessage = {
+        id: assistantId,
+        role: "assistant",
+        content: `${t("حدث خطأ في الإجابة.", "An error occurred.")}: ${errorMessage}`,
+        timestamp: new Date()
+      };
+      appendMessage(errorMessageObj);
     } finally {
       setLoading(false);
     }
