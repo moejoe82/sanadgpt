@@ -35,6 +35,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${tajawal.className} antialiased`}
       >
+        <Script
+          src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js"
+          async
+        />
         <Script id="theme-initializer" strategy="beforeInteractive">
           {`
             (function () {
