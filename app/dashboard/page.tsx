@@ -244,7 +244,15 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <Tabs
+      dir={direction}
+      value={activeTab}
+      onValueChange={(value) => {
+        setActiveTab(value as TabKey);
+        setNavOpen(false);
+      }}
+      className="flex h-screen flex-col overflow-hidden"
+    >
       <Sheet open={navOpen} onOpenChange={setNavOpen}>
         <header
           ref={headerRef}
@@ -350,7 +358,7 @@ export default function DashboardPage() {
             <SheetDescription>
               {t(
                 "اختر القسم الذي ترغب بالعمل عليه.",
-                "Choose where you’d like to work today."
+                "Choose where you'd like to work today."
               )}
             </SheetDescription>
           </SheetHeader>
@@ -360,15 +368,7 @@ export default function DashboardPage() {
         </SheetContent>
       </Sheet>
 
-      <Tabs
-        dir={direction}
-        value={activeTab}
-        onValueChange={(value) => {
-          setActiveTab(value as TabKey);
-          setNavOpen(false);
-        }}
-        className="flex flex-1 flex-col lg:flex-row overflow-hidden"
-      >
+      <div className="flex flex-1 flex-col lg:flex-row overflow-hidden">
         <aside
           className="hidden w-full max-w-xs flex-none border-border/60 lg:block lg:border-e overflow-y-auto"
         >
@@ -409,7 +409,7 @@ export default function DashboardPage() {
             </>
           )}
         </main>
-      </Tabs>
+      </div>
 
       {/* Profile Modal */}
       <Dialog open={profileModalOpen} onOpenChange={setProfileModalOpen}>
@@ -519,6 +519,6 @@ export default function DashboardPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </Tabs>
   );
 }
