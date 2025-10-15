@@ -255,7 +255,7 @@ export default function DashboardPage() {
       <Sheet open={navOpen} onOpenChange={setNavOpen}>
         <header
           ref={headerRef}
-          className="flex-none border-b border-border/60 bg-background px-safe pt-safe-t pb-3 shadow-[0_16px_40px_-32px_hsl(var(--shadow-soft))]"
+          className="flex-none border-b border-border/60 bg-background px-safe pt-safe-t pb-3 shadow-[0_16px_40px_-32px_hsl(var(--shadow-soft))] relative z-40"
         >
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -287,7 +287,10 @@ export default function DashboardPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setUserMenuOpen(!userMenuOpen);
+                  }}
                   className="rounded-full p-0 hover:bg-transparent"
                   aria-label={t("إعدادات الحساب", "Account settings")}
                 >
@@ -296,9 +299,21 @@ export default function DashboardPage() {
                   </span>
                 </Button>
 
+                {/* Overlay to catch clicks outside */}
+                {userMenuOpen && (
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setUserMenuOpen(false)}
+                    aria-hidden="true"
+                  />
+                )}
+
                 {/* User Menu Dropdown */}
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-border/60 bg-background/95 p-4 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/80">
+                  <div
+                    className="absolute end-0 top-full mt-2 w-64 rounded-2xl border border-border/60 bg-background/95 p-4 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-background/80 z-50"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div className="flex items-center gap-3">
                       {/* Bigger Avatar */}
                       <span className="inline-flex size-12 items-center justify-center rounded-full bg-primary/15 text-primary text-lg font-semibold">
