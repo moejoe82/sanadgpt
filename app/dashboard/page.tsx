@@ -179,7 +179,6 @@ export default function DashboardPage() {
     return base;
   }, [isAdmin, t]);
 
-
   // Close user menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -369,9 +368,7 @@ export default function DashboardPage() {
       </Sheet>
 
       <div className="flex flex-1 flex-col lg:flex-row overflow-hidden">
-        <aside
-          className="hidden w-full max-w-xs flex-none border-border/60 lg:block lg:border-e overflow-y-auto"
-        >
+        <aside className="hidden w-full max-w-xs flex-none border-border/60 lg:block lg:border-e overflow-y-auto">
           <nav className="px-6 py-4">
             <NavigationList layout="vertical" />
           </nav>
