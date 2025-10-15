@@ -90,6 +90,8 @@ export const containerSizes = {
 export const layoutVariants = {
   default: 'bg-background',
   'gradient-dark': 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900',
+  'gradient-sanadgpt':
+    'bg-gradient-to-br from-[#2e1b4a] via-[#5b2f86] to-[#8d4fbf] text-[#f4f1d0]',
   'solid-light': 'bg-background',
   none: '',
 } as const;
