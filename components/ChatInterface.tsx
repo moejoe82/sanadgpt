@@ -333,16 +333,15 @@ export default function ChatInterface() {
   }
 
   return (
-    <div dir={direction} className="flex h-full flex-col bg-background">
+    <div dir={direction} className="flex flex-col bg-background">
       {/* ChatKit Container */}
-      <div className="flex-1 overflow-hidden">
+      <div className="overflow-hidden h-[500px] md:h-[600px] lg:h-[700px]">
         {chatkit.control && (
           <ChatKit
             key={widgetInstanceKey}
             control={chatkit.control}
-            className="block h-full w-full"
+            className="block w-full h-full"
             style={{
-              minHeight: "400px",
               border: "1px solid #e5e7eb",
               borderRadius: "8px",
             }}
