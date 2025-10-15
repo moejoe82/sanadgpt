@@ -216,7 +216,7 @@ export default function ChatInterface() {
           shade: -4,
         },
         accent: {
-          primary: "#0f172a",
+          primary: "hsl(var(--primary))",
           level: 1,
         },
       },
@@ -278,30 +278,6 @@ export default function ChatInterface() {
   if (!isWorkflowConfigured) {
     return (
       <div dir={direction} className="flex h-full flex-col bg-background">
-        <div className="flex items-center justify-between border-b border-border/60 bg-background/80 p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
-                <svg
-                  className="w-5 h-5 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-foreground">
-                  {t("محادثة ذكية", "Smart Chat")}
-                </h2>
-              </div>
-            </div>
-          </div>
-        </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center p-8">
             <div className="text-red-500 mb-4">
@@ -333,49 +309,49 @@ export default function ChatInterface() {
   }
 
   return (
-    <div dir={direction} className="flex h-full flex-col bg-background">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-border/60 bg-background/80 p-4"></div>
-
-      {/* ChatKit Container */}
-      <div className="flex-1 overflow-hidden">
-        {chatkit.control && (
-          <ChatKit
-            key={widgetInstanceKey}
-            control={chatkit.control}
-            className="block h-full w-full"
-            style={{
-              minHeight: "400px",
-              border: "1px solid #e5e7eb",
-              borderRadius: "8px",
-            }}
-          />
-        )}
-        {!chatkit.control && (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-              <p className="text-sm text-muted-foreground">
-                {t("جاري تحميل المحادثة...", "Loading chat...")}
-              </p>
-            </div>
+    <div
+      dir={direction}
+      className="relative h-full rounded-3xl border border-border/60 bg-background shadow-soft overflow-hidden"
+    >
+      {chatkit.control && (
+        <ChatKit
+          key={widgetInstanceKey}
+          control={chatkit.control}
+          className="block h-full w-full chatkit-rounded"
+          style={{
+            minHeight: "500px",
+            maxHeight: "100%",
+            borderRadius: "1.5rem",
+            border: "none",
+            boxShadow: "none",
+            background: "transparent",
+          }}
+        />
+      )}
+      {!chatkit.control && (
+        <div className="flex items-center justify-center h-full min-h-[500px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-sm text-muted-foreground">
+              {t("جاري تحميل المحادثة...", "Loading chat...")}
+            </p>
           </div>
-        )}
-        {(blockingError || (isInitializingSession && !chatkit.control)) && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-              <p className="text-sm text-muted-foreground">
-                {scriptStatus === "error"
-                  ? t("خطأ في تحميل ChatKit", "Error loading ChatKit")
-                  : !isWorkflowConfigured
-                  ? t("خطأ في التكوين", "Configuration Error")
-                  : t("جاري تحميل المحادثة...", "Loading chat...")}
-              </p>
-            </div>
+        </div>
+      )}
+      {(blockingError || (isInitializingSession && !chatkit.control)) && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/95 backdrop-blur-sm rounded-3xl z-10">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-sm text-muted-foreground">
+              {scriptStatus === "error"
+                ? t("خطأ في تحميل ChatKit", "Error loading ChatKit")
+                : !isWorkflowConfigured
+                ? t("خطأ في التكوين", "Configuration Error")
+                : t("جاري تحميل المحادثة...", "Loading chat...")}
+            </p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -179,14 +179,6 @@ export default function DashboardPage() {
     return base;
   }, [isAdmin, t]);
 
-  const asideStyle: CSSProperties = useMemo(
-    () => ({
-      top: headerHeight,
-      insetInlineStart: 0,
-      blockSize: `calc(100dvh - ${headerHeight}px)`,
-    }),
-    [headerHeight]
-  );
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -219,8 +211,8 @@ export default function DashboardPage() {
     <TabsList
       className={
         layout === "vertical"
-          ? "flex h-full flex-col gap-2 rounded-3xl border-0 bg-transparent p-0"
-          : "grid w-full grid-cols-1 gap-2 rounded-3xl border-0 bg-transparent"
+          ? "flex flex-col gap-2 border-0 bg-transparent p-0 items-start"
+          : "grid w-full grid-cols-1 gap-2 border-0 bg-transparent"
       }
     >
       {navItems.map((item) => {
@@ -229,7 +221,7 @@ export default function DashboardPage() {
           <TabsTrigger
             key={item.key}
             value={item.key}
-            className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-transparent bg-muted/40 px-4 py-3 text-start text-sm font-medium text-muted-foreground transition focus-visible:ring-2 data-[state=active]:border-primary/60 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground"
+            className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-transparent bg-muted/40 px-4 py-3 text-start text-sm font-medium text-muted-foreground transition focus-visible:ring-2 data-[state=active]:border-primary/60 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground shrink-0"
           >
             <span className="flex items-center gap-3 min-w-0 flex-1">
               <span className="flex size-10 items-center justify-center rounded-2xl bg-muted text-muted-foreground transition group-data-[state=active]:bg-primary/15 group-data-[state=active]:text-primary flex-shrink-0">
@@ -252,19 +244,11 @@ export default function DashboardPage() {
   );
 
   return (
-    <Tabs
-      dir={direction}
-      value={activeTab}
-      onValueChange={(value) => {
-        setActiveTab(value as TabKey);
-        setNavOpen(false); // Close mobile navigation when tab changes
-      }}
-      className="flex min-h-[100dvh] flex-col"
-    >
+    <div className="flex h-screen flex-col overflow-hidden">
       <Sheet open={navOpen} onOpenChange={setNavOpen}>
         <header
           ref={headerRef}
-          className="sticky top-0 z-50 border-b border-border/60 bg-background px-safe pt-safe-t pb-3 shadow-[0_16px_40px_-32px_hsl(var(--shadow-soft))]"
+          className="flex-none border-b border-border/60 bg-background px-safe pt-safe-t pb-3 shadow-[0_16px_40px_-32px_hsl(var(--shadow-soft))]"
         >
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -376,51 +360,56 @@ export default function DashboardPage() {
         </SheetContent>
       </Sheet>
 
-      <div className="flex flex-1 flex-col lg:flex-row">
+      <Tabs
+        dir={direction}
+        value={activeTab}
+        onValueChange={(value) => {
+          setActiveTab(value as TabKey);
+          setNavOpen(false);
+        }}
+        className="flex flex-1 flex-col lg:flex-row overflow-hidden"
+      >
         <aside
-          className="relative hidden w-full max-w-xs flex-none border-border/60 lg:block lg:border-e lg:sticky"
-          style={asideStyle}
+          className="hidden w-full max-w-xs flex-none border-border/60 lg:block lg:border-e overflow-y-auto"
         >
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="flex h-full flex-col gap-4 overflow-y-auto px-6 pb-10 scrollbar-thin">
-              <NavigationList layout="vertical" />
-            </div>
-          </div>
+          <nav className="px-6 py-4">
+            <NavigationList layout="vertical" />
+          </nav>
         </aside>
 
-        <main className="flex-1 px-safe pb-safe-b pt-8">
+        <main className="flex-1 overflow-y-auto px-safe py-4">
           {loading ? (
-            <div className="flex min-h-[40vh] items-center justify-center">
+            <div className="flex h-full items-center justify-center">
               <span className="inline-flex items-center gap-3 rounded-full border border-border/60 bg-background/80 px-5 py-3 text-sm font-medium text-muted-foreground shadow-soft">
                 <Loader2 className="size-4 animate-spin" aria-hidden />
                 {t("جاري التحقق من الجلسة...", "Validating your session...")}
               </span>
             </div>
           ) : (
-            <div className="space-y-10">
-              <TabsContent value="chat" className="m-0">
+            <>
+              <TabsContent value="chat" className="m-0 h-full">
                 <ChatInterface />
               </TabsContent>
 
-              <TabsContent value="upload" className="m-0">
+              <TabsContent value="upload" className="m-0 h-full">
                 <DocumentUpload />
               </TabsContent>
 
-              <TabsContent value="documents" className="m-0">
+              <TabsContent value="documents" className="m-0 h-full">
                 <DocumentsList />
               </TabsContent>
 
               {isAdmin && (
-                <TabsContent value="admin" className="m-0">
-                  <div className="rounded-3xl border border-border/60 bg-background/70 p-6 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55">
+                <TabsContent value="admin" className="m-0 h-full">
+                  <div className="rounded-3xl border border-border/60 bg-background/70 p-6 shadow-soft backdrop-blur supports-[backdrop-filter]:bg-background/55 h-full">
                     <AdminDashboard />
                   </div>
                 </TabsContent>
               )}
-            </div>
+            </>
           )}
         </main>
-      </div>
+      </Tabs>
 
       {/* Profile Modal */}
       <Dialog open={profileModalOpen} onOpenChange={setProfileModalOpen}>
@@ -530,6 +519,6 @@ export default function DashboardPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </Tabs>
+    </div>
   );
 }

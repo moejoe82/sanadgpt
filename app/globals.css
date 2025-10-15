@@ -110,7 +110,8 @@
     @apply border-border;
   }
 
-  html, body {
+  html,
+  body {
     margin: 0;
     padding: 0;
   }
@@ -240,6 +241,46 @@
     background-color: hsl(var(--border));
     border-radius: 999px;
   }
+}
+
+/* ChatKit Integration Styles */
+openai-chatkit {
+  border-radius: 1.5rem !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  overflow: hidden !important;
+}
+
+/* Target the iframe inside ChatKit */
+openai-chatkit iframe {
+  border-radius: 1.5rem !important;
+  border: none !important;
+}
+
+/* Additional targeting for nested ChatKit elements */
+.chatkit-rounded openai-chatkit,
+.chatkit-rounded openai-chatkit iframe {
+  border-radius: 1.5rem !important;
+}
+
+/* ChatKit scrollbar styling */
+openai-chatkit * {
+  scrollbar-width: thin;
+}
+
+openai-chatkit *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+openai-chatkit *::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border));
+  border-radius: 999px;
+}
+
+openai-chatkit *::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 @media (prefers-reduced-motion: reduce) {
