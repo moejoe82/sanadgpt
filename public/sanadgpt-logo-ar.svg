@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 220" role="img" aria-labelledby="title desc">
+  <title id="title">شعار SanadGPT</title>
+  <desc id="desc">أيقونة شبكة جزيئية تتبعها كلمة SanadGPT مع عبارة تمكين الذكاء</desc>
+  <defs>
+    <linearGradient id="sanadgptGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#cdb4ff"/>
+      <stop offset="50%" stop-color="#b896f6"/>
+      <stop offset="100%" stop-color="#9c7adf"/>
+    </linearGradient>
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g transform="translate(120 110)" fill="#f4f1d0" filter="url(#softGlow)">
+    <circle cx="0" cy="0" r="18"/>
+    <circle cx="110" cy="-40" r="14"/>
+    <circle cx="115" cy="45" r="14"/>
+    <circle cx="55" cy="70" r="10"/>
+    <circle cx="-60" cy="-45" r="12"/>
+    <circle cx="-75" cy="40" r="9"/>
+    <circle cx="40" cy="-80" r="11"/>
+    <path d="M-60 -45 L0 0" stroke="#f4f1d0" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.8"/>
+    <path d="M-75 40 L0 0" stroke="#f4f1d0" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.8"/>
+    <path d="M40 -80 L0 0" stroke="#f4f1d0" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.8"/>
+    <path d="M110 -40 L0 0" stroke="#f4f1d0" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.8"/>
+    <path d="M115 45 L0 0" stroke="#f4f1d0" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.8"/>
+    <path d="M55 70 L0 0" stroke="#f4f1d0" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.8"/>
+  </g>
+  <g fill="#f4f1d0" font-family="'Poppins', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-weight="600">
+    <text x="320" y="115" font-size="72" letter-spacing="2">SANADGPT</text>
+    <text x="320" y="150" font-size="28" font-weight="400" letter-spacing="4" font-family="'Cairo', 'Tajawal', 'Poppins', sans-serif">تمكين الذكاء</text>
+  </g>
+</svg>
