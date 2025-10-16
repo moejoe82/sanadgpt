@@ -10,18 +10,19 @@ import {
   Upload,
   Search,
   MessageSquare,
-  FileText,
   Lock,
-  Zap,
   Users,
   Activity,
   FolderOpen,
 } from "lucide-react";
+import LocalizedLogo from "@/components/ui/localized-logo";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const t = useI18n();
-  const { direction } = useLanguage();
+  const { direction, language } = useLanguage();
   const isRTL = direction === "rtl";
+  const isArabic = language === "ar";
 
   const features = [
     {
@@ -105,21 +106,38 @@ export default function Home() {
   ];
 
   return (
-    <PageLayout variant="gradient-dark">
+    <PageLayout variant="gradient-sanadgpt">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-8">
+      <section className="relative overflow-hidden pt-8 min-h-screen">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-700" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#cdb4ff]/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-[28rem] h-[28rem] bg-[#f4f1d0]/10 rounded-full blur-3xl animate-pulse delay-700" />
         </div>
 
-        <Container size="lg">
-          <div className="relative py-16 md:py-24">
-            <div className="max-w-4xl mx-auto text-center overflow-visible">
+        <Container
+          size="lg"
+          className="relative z-10 flex min-h-screen flex-col items-center justify-center py-16 md:py-24"
+        >
+          <div className="w-full max-w-4xl mx-auto text-center overflow-visible">
+              <div className="flex justify-center mb-12 animate-fade-in-up">
+                <LocalizedLogo
+                  width={420}
+                  height={150}
+                  priority
+                  className="w-full max-w-[320px] md:max-w-[420px] h-auto drop-shadow-[0_25px_50px_rgba(244,241,208,0.25)]"
+                />
+              </div>
               {/* Main Headline */}
-              <div className="px-4 py-4">
-                <H1 className="mb-6 text-5xl md:text-7xl bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent animate-fade-in-up leading-[1.2]">
+              <div className={cn("px-4", isArabic ? "py-4" : "py-2")}> 
+                <H1
+                  className={cn(
+                    "mb-6 bg-gradient-to-r from-[#fdfbf1] via-[#f4f1d0] to-[#fdfbf1] bg-clip-text text-transparent animate-fade-in-up",
+                    isArabic
+                      ? "text-5xl md:text-7xl leading-[1.2]"
+                      : "text-4xl md:text-5xl lg:text-6xl leading-tight max-w-3xl mx-auto"
+                  )}
+                >
                   {t(
                     "نظام إدارة وثائق التدقيق",
                     "Audit Document Management System"
@@ -130,7 +148,7 @@ export default function Home() {
               {/* Subheadline */}
               <Body
                 size="lg"
-                className="mb-10 text-xl text-slate-300 max-w-2xl mx-auto animate-fade-in-up delay-200"
+                className="mb-10 text-xl text-[#f4f1d0] opacity-90 max-w-2xl mx-auto animate-fade-in-up delay-200"
               >
                 {t(
                   "منصة ذكية لإدارة وثائق التدقيق والبحث والاستفسار باستخدام الذكاء الاصطناعي",
@@ -143,7 +161,7 @@ export default function Home() {
                 <Button
                   asChild
                   size="lg"
-                  className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-2xl shadow-blue-500/30 group"
+                  className="text-lg px-8 py-6 bg-gradient-to-r from-[#9c7adf] via-[#b68df1] to-[#d6b8ff] hover:from-[#a784eb] hover:to-[#e0c9ff] text-[#2e1b4a] font-semibold shadow-2xl shadow-[#cdb4ff]/30 group"
                 >
                   <a href="/dashboard" className="flex items-center gap-2">
                     {t("الذهاب إلى لوحة التحكم", "Go to Dashboard")}
@@ -155,19 +173,18 @@ export default function Home() {
                   </a>
                 </Button>
               </div>
-            </div>
           </div>
         </Container>
       </section>
 
       {/* Quick Actions Section */}
-      <section className="py-16 border-y border-white/10 bg-white/5 backdrop-blur-sm">
+      <section className="py-16 border-y border-[#f4f1d0]/15 bg-[#f9f5e5]/10 backdrop-blur-sm">
         <Container size="lg">
           <div className="text-center mb-10">
             <H2 className="mb-2 text-3xl">
               {t("إجراءات سريعة", "Quick Actions")}
             </H2>
-            <Body className="text-slate-400">
+            <Body className="text-[#f4f1d0] opacity-80">
               {t("ابدأ العمل مباشرة", "Start working right away")}
             </Body>
           </div>
@@ -178,17 +195,17 @@ export default function Home() {
                 <a
                   key={index}
                   href={action.href}
-                  className="group relative rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur border border-white/10 p-8 hover:border-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 text-center"
+                  className="group relative rounded-2xl bg-gradient-to-br from-[#f4f1d0]/20 to-transparent backdrop-blur border border-[#f4f1d0]/20 p-8 hover:border-[#fdfbf1]/60 hover:shadow-[0_25px_50px_-20px_rgba(205,180,255,0.5)] transition-all duration-300 hover:-translate-y-1 text-center"
                 >
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 mb-5 group-hover:from-blue-500/30 group-hover:to-purple-500/30 transition-all">
-                    <Icon className="w-8 h-8 text-blue-400 group-hover:text-blue-300 transition-colors" />
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-[#9c7adf]/30 to-[#d8c1ff]/30 mb-5 group-hover:from-[#b68df1]/40 group-hover:to-[#f2e6ff]/40 transition-all">
+                    <Icon className="w-8 h-8 text-[#fdfbf1] drop-shadow group-hover:text-[#f4f1d0] transition-colors" />
                   </div>
-                  <H3 className="mb-2 text-white group-hover:text-blue-100 transition-colors">
+                  <H3 className="mb-2 text-[#fdfbf1] group-hover:text-[#ffffff] transition-colors">
                     {action.label}
                   </H3>
                   <Body
                     size="sm"
-                    className="text-slate-400 group-hover:text-slate-300 transition-colors"
+                    className="text-[#f4f1d0] opacity-80 group-hover:opacity-100 transition-opacity"
                   >
                     {action.description}
                   </Body>
@@ -203,10 +220,10 @@ export default function Home() {
       <section className="py-24">
         <Container size="lg">
           <div className="text-center mb-16">
-            <H2 className="mb-4 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+            <H2 className="mb-4 bg-gradient-to-r from-[#fdfbf1] via-[#efe4ff] to-[#f3e7ff] bg-clip-text text-transparent">
               {t("المميزات الرئيسية", "Key Features")}
             </H2>
-            <Body size="lg" className="text-slate-300 max-w-2xl mx-auto">
+            <Body size="lg" className="text-[#f4f1d0] opacity-90 max-w-2xl mx-auto">
               {t(
                 "أدوات شاملة لإدارة وثائق التدقيق بكفاءة",
                 "Comprehensive tools for efficient audit document management"
@@ -220,25 +237,25 @@ export default function Home() {
               return (
                 <div
                   key={index}
-                  className={`group relative rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur border border-white/10 p-8 hover:border-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 ${
+                  className={`group relative rounded-2xl bg-gradient-to-br from-[#f4f1d0]/18 to-transparent backdrop-blur border border-[#f4f1d0]/20 p-8 hover:border-[#fdfbf1]/60 hover:shadow-[0_25px_50px_-20px_rgba(205,180,255,0.5)] transition-all duration-300 hover:-translate-y-1 ${
                     isRTL ? "text-right" : "text-left"
                   }`}
                 >
                   {/* Gradient overlay on hover */}
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/5 group-hover:to-purple-500/5 transition-all duration-300" />
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-transparent to-transparent group-hover:from-[#b68df1]/20 group-hover:to-[#f4f1d0]/10 transition-all duration-300" />
 
                   <div className="relative">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 mb-5 group-hover:from-blue-500/30 group-hover:to-purple-500/30 transition-all">
-                      <Icon className="w-7 h-7 text-blue-400 group-hover:text-blue-300 transition-colors" />
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-[#9c7adf]/30 to-[#d8c1ff]/30 mb-5 group-hover:from-[#b68df1]/40 group-hover:to-[#f4f1d0]/40 transition-all">
+                      <Icon className="w-7 h-7 text-[#fdfbf1] drop-shadow group-hover:text-[#f4f1d0] transition-colors" />
                     </div>
 
-                    <H3 className="mb-3 text-white group-hover:text-blue-100 transition-colors">
+                    <H3 className="mb-3 text-[#fdfbf1] group-hover:text-[#ffffff] transition-colors">
                       {feature.title}
                     </H3>
 
                     <Body
                       size="sm"
-                      className="text-slate-400 group-hover:text-slate-300 transition-colors leading-relaxed"
+                      className="text-[#f4f1d0] opacity-80 group-hover:opacity-100 transition-opacity leading-relaxed"
                     >
                       {feature.description}
                     </Body>
@@ -251,13 +268,13 @@ export default function Home() {
       </section>
 
       {/* System Info Section */}
-      <section className="py-16 bg-gradient-to-b from-blue-950/20 to-transparent">
+      <section className="py-16 bg-gradient-to-b from-[#f4f1d0]/10 to-transparent">
         <Container size="lg">
           <div className="max-w-3xl mx-auto text-center">
             <H2 className="mb-6">
               {t("نظام داخلي متقدم", "Advanced Internal System")}
             </H2>
-            <Body size="lg" className="mb-8 text-slate-300">
+            <Body size="lg" className="mb-8 text-[#f4f1d0] opacity-90">
               {t(
                 "منصة SanadGPT توفر لك أدوات متقدمة لإدارة وثائق التدقيق باستخدام الذكاء الاصطناعي، مع حماية كاملة للبيانات وتحكم دقيق في الصلاحيات",
                 "SanadGPT platform provides you with advanced tools for managing audit documents using AI, with complete data protection and precise access control"
@@ -267,7 +284,7 @@ export default function Home() {
             <Button
               asChild
               size="lg"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              className="bg-gradient-to-r from-[#9c7adf] via-[#b68df1] to-[#d6b8ff] hover:from-[#a784eb] hover:to-[#e0c9ff] text-[#2e1b4a] font-semibold"
             >
               <a href="/login">{t("تسجيل الدخول", "Sign In")}</a>
             </Button>
