@@ -17,7 +17,7 @@ export default function LanguageToggle() {
       size="sm"
       aria-label={ariaLabel}
       onClick={toggleLanguage}
-      className="rounded-full border-border/60 bg-background/80 px-5 text-sm font-semibold text-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/70"
+      className="rounded-full border-[#d0def5] bg-white/80 px-5 text-xs font-semibold uppercase tracking-wide text-[#0f2a5a] shadow-sm transition hover:bg-white"
     >
       {label}
     </Button>

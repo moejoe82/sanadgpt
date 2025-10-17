@@ -107,16 +107,16 @@ export default function LoginPage() {
           <div className="pointer-events-none absolute inset-0 -z-10">
             <div
               className={cn(
-                "absolute -top-10 h-64 w-64 rounded-full bg-[#d6b8ff]/20 blur-3xl",
+                "absolute -top-10 h-64 w-64 rounded-full bg-[#bed6ff]/30 blur-3xl",
                 isRTL
                   ? "left-1/2 -translate-x-1/3"
                   : "right-1/2 translate-x-1/3"
               )}
             />
-            <div className="absolute bottom-8 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-[#f4f1d0]/20 blur-3xl" />
+            <div className="absolute bottom-8 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-[#f9b233]/25 blur-3xl" />
             <div
               className={cn(
-                "absolute top-1/3 h-48 w-48 rounded-full bg-[#9c7adf]/20 blur-2xl",
+                "absolute top-1/3 h-48 w-48 rounded-full bg-[#1e62b7]/25 blur-2xl",
                 isRTL ? "left-6" : "right-6"
               )}
             />
@@ -136,10 +136,10 @@ export default function LoginPage() {
                   alt={t("شعار SanadGPT", "SanadGPT logo")}
                   width={160}
                   height={60}
-                  className="w-36 h-auto drop-shadow-[0_12px_30px_rgba(141,79,191,0.35)]"
+                  className="h-auto w-36 drop-shadow-[0_12px_30px_rgba(30,98,183,0.3)]"
                   priority
                 />
-                <p className="text-sm text-[#5b2f86]">
+                <p className="text-sm text-[#1e62b7]">
                   {t(
                     "مرحباً بعودتك! واصل العمل على وثائق التدقيق بثقة.",
                     "Welcome back! Continue working with your audit documents confidently."
@@ -151,7 +151,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading || loading}
-                className="w-full justify-center gap-3 rounded-full border border-[#e4d7ff]/60 bg-[#fdfbf1]/80 py-3 text-[#2e1b4a] shadow-[0_20px_45px_-25px_rgba(46,27,74,0.45)] transition hover:border-[#d6b8ff]/80 hover:bg-[#fdfbf1]"
+                className="w-full justify-center gap-3 rounded-full border border-[#c8dcfa]/80 bg-[#f7f9fd]/90 py-3 text-[#0f2a5a] shadow-[0_20px_45px_-25px_rgba(15,58,125,0.45)] transition hover:border-[#a9c7f2]/90 hover:bg-white"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path
@@ -180,7 +180,7 @@ export default function LoginPage() {
                 <FormField>
                   <FormLabel
                     htmlFor="email"
-                    className="text-[#2e1b4a]"
+                    className="text-[#0f2a5a]"
                   >
                     {t("البريد الإلكتروني", "Email")}
                   </FormLabel>
@@ -192,14 +192,14 @@ export default function LoginPage() {
                     required
                     autoComplete="email"
                     placeholder={t("أدخل بريدك الإلكتروني", "Enter your email")}
-                    className="border-[#d6b8ff]/60 bg-[#fdfbf1]/90 text-[#2e1b4a] placeholder:text-[#8f75bf] focus-visible:ring-[#b68df1] focus-visible:border-[#b68df1]"
+                    className="border-[#c8dcfa]/80 bg-white/90 text-[#0f2a5a] placeholder:text-[#7a9ac6] focus-visible:border-[#1e62b7] focus-visible:ring-[#1e62b7]"
                   />
                 </FormField>
 
                 <FormField>
                   <FormLabel
                     htmlFor="password"
-                    className="text-[#2e1b4a]"
+                    className="text-[#0f2a5a]"
                   >
                     {t("كلمة المرور", "Password")}
                   </FormLabel>
@@ -211,7 +211,7 @@ export default function LoginPage() {
                     required
                     autoComplete="current-password"
                     placeholder={t("أدخل كلمة المرور", "Enter your password")}
-                    className="border-[#d6b8ff]/60 bg-[#fdfbf1]/90 text-[#2e1b4a] placeholder:text-[#8f75bf] focus-visible:ring-[#b68df1] focus-visible:border-[#b68df1]"
+                    className="border-[#c8dcfa]/80 bg-white/90 text-[#0f2a5a] placeholder:text-[#7a9ac6] focus-visible:border-[#1e62b7] focus-visible:ring-[#1e62b7]"
                   />
                 </FormField>
 
@@ -220,17 +220,17 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full rounded-full bg-gradient-to-r from-[#9c7adf] via-[#b68df1] to-[#d6b8ff] px-6 py-3 text-lg text-[#2e1b4a] shadow-[0_25px_60px_-30px_rgba(85,45,135,0.85)] transition hover:from-[#a784eb] hover:to-[#e0c9ff]"
+                  className="w-full rounded-full bg-gradient-to-r from-[#0f3c7d] via-[#1e62b7] to-[#2d7dd2] px-6 py-3 text-lg text-white shadow-[0_25px_60px_-30px_rgba(15,58,125,0.7)] transition hover:from-[#13488f] hover:to-[#3b8ae0]"
                 >
                   {loading ? "..." : t("دخول", "Sign in")}
                 </Button>
               </Form>
 
-              <p className="text-center text-sm text-[#51307a]">
+              <p className="text-center text-sm text-[#1e62b7]">
                 {t("ليس لديك حساب؟", "Don't have an account?")}{" "}
                 <a
                   href="/register"
-                  className="font-semibold text-[#f05e99] transition hover:text-[#ff72ad]"
+                  className="font-semibold text-[#f9b233] transition hover:text-[#f7a614]"
                 >
                   {t("إنشاء حساب جديد", "Create account")}
                 </a>
@@ -238,8 +238,8 @@ export default function LoginPage() {
             </div>
 
             <div className="pointer-events-none absolute inset-0 -z-10 opacity-40">
-              <div className="absolute -top-16 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-[#d6b8ff]/50 blur-3xl" />
-              <div className="absolute bottom-0 right-0 h-48 w-48 translate-x-1/4 translate-y-1/4 rounded-full bg-[#f4f1d0]/60 blur-3xl" />
+              <div className="absolute -top-16 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-[#bed6ff]/45 blur-3xl" />
+              <div className="absolute bottom-0 right-0 h-48 w-48 translate-x-1/4 translate-y-1/4 rounded-full bg-[#f9b233]/35 blur-3xl" />
             </div>
           </AuthCard>
         </div>
