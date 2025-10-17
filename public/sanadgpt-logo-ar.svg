@@ -31,9 +31,11 @@
     <path d="M55 70 L0 0" stroke="#f4f1d0" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.8"/>
   </g>
   <g fill="#f4f1d0" font-family="'Poppins', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-weight="600">
-    <text x="320" y="115" font-size="72" letter-spacing="2">SANADGPT</text>
+    <text x="768" y="115" font-size="72" letter-spacing="2" text-anchor="end">
+      SANADGPT
+    </text>
     <text
-      x="720"
+      x="768"
       y="150"
       font-size="28"
       font-weight="400"
