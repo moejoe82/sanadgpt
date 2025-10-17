@@ -1,8 +1,8 @@
-import { ReactNode } from "react";
+import { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
-interface AuthCardProps {
+interface AuthCardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   title?: string;
   version?: string;
@@ -39,12 +39,14 @@ export default function AuthCard({
   version,
   className,
   variant = "light",
+  ...props
 }: AuthCardProps) {
   const { container, header, title: titleClass, badge } = variantStyles[variant];
   const showBadge = typeof version === "string" && version.length > 0;
 
   return (
     <div
+      {...props}
       className={cn(
         "w-full max-w-md mx-auto p-8 space-y-6",
         container,

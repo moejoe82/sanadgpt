@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { useI18n } from "@/components/LanguageProvider";
+import { useI18n, useLanguage } from "@/components/LanguageProvider";
 import PageLayout from "@/components/layouts/PageLayout";
 import Container from "@/components/layouts/Container";
 import AuthCard from "@/components/ui/auth-card";
@@ -12,6 +12,7 @@ import { Form, FormField, FormLabel, FormError } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Divider from "@/components/ui/divider";
+import { cn } from "@/lib/utils";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -22,7 +23,9 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
   const t = useI18n();
+  const { direction } = useLanguage();
   const searchParams = useSearchParams();
+  const isRTL = direction === "rtl";
 
   useEffect(() => {
     const message = searchParams.get("error");
@@ -100,17 +103,33 @@ export default function RegisterPage() {
   return (
     <PageLayout variant="gradient-sanadgpt">
       <Container size="sm">
-        <div className="relative min-h-screen flex items-center justify-center py-16">
+        <div
+          dir={direction}
+          className="relative min-h-screen flex items-center justify-center py-16"
+        >
           <div className="pointer-events-none absolute inset-0 -z-10">
-            <div className="absolute -top-10 right-1/2 h-64 w-64 translate-x-1/3 rounded-full bg-[#d6b8ff]/20 blur-3xl" />
+            <div
+              className={cn(
+                "absolute -top-10 h-64 w-64 rounded-full bg-[#d6b8ff]/20 blur-3xl",
+                isRTL
+                  ? "left-1/2 -translate-x-1/3"
+                  : "right-1/2 translate-x-1/3"
+              )}
+            />
             <div className="absolute bottom-8 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-[#f4f1d0]/20 blur-3xl" />
-            <div className="absolute top-1/3 right-6 h-48 w-48 rounded-full bg-[#9c7adf]/20 blur-2xl" />
+            <div
+              className={cn(
+                "absolute top-1/3 h-48 w-48 rounded-full bg-[#9c7adf]/20 blur-2xl",
+                isRTL ? "left-6" : "right-6"
+              )}
+            />
           </div>
 
           <AuthCard
             title={t("إنشاء حساب", "Create account")}
             variant="brand"
             className="relative overflow-hidden"
+            dir={direction}
           >
             <div className="relative z-10 space-y-6">
               <div className="flex flex-col items-center gap-3 text-center">
