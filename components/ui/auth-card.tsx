@@ -26,10 +26,10 @@ const variantStyles = {
   },
   brand: {
     container:
-      "rounded-3xl bg-[#fdfbf1]/95 backdrop-blur-lg border border-[#f4f1d0]/60 text-[#2e1b4a] shadow-[0_35px_90px_-45px_rgba(40,7,75,0.65)] ring-1 ring-[#e4d7ff]/60",
+      "rounded-3xl bg-[#f7f9fd]/95 backdrop-blur-lg border border-[#dbe6f8]/80 text-[#0f2a5a] shadow-[0_35px_90px_-55px_rgba(15,58,125,0.55)] ring-1 ring-[#e0e9f8]/80",
     header: "flex flex-col items-center text-center gap-1.5 mb-4",
-    title: "text-3xl font-semibold text-[#2e1b4a]",
-    badge: "text-xs bg-[#e8dcff]/70 text-[#4d2a78] border-[#cdb4ff]/70",
+    title: "text-3xl font-semibold text-[#0f2a5a]",
+    badge: "text-xs bg-[#eaf2ff]/80 text-[#1e62b7] border-[#c8dcfa]/80",
   },
 };
 

@@ -22,9 +22,9 @@ interface BodyProps extends TypographyProps {
  */
 export function H1({ children, className, as: Component = "h1" }: HeadingProps) {
   return (
-    <Component 
+    <Component
       className={cn(
-        "text-4xl sm:text-5xl font-bold text-white",
+        "text-4xl sm:text-5xl font-bold text-[#0f2a5a]",
         className
       )}
     >
@@ -35,9 +35,9 @@ export function H1({ children, className, as: Component = "h1" }: HeadingProps) 
 
 export function H2({ children, className, as: Component = "h2" }: HeadingProps) {
   return (
-    <Component 
+    <Component
       className={cn(
-        "text-3xl sm:text-4xl font-bold text-white",
+        "text-3xl sm:text-4xl font-bold text-[#123b74]",
         className
       )}
     >
@@ -48,9 +48,9 @@ export function H2({ children, className, as: Component = "h2" }: HeadingProps) 
 
 export function H3({ children, className, as: Component = "h3" }: HeadingProps) {
   return (
-    <Component 
+    <Component
       className={cn(
-        "text-xl sm:text-2xl font-semibold text-white",
+        "text-xl sm:text-2xl font-semibold text-[#184a8c]",
         className
       )}
     >
@@ -61,9 +61,9 @@ export function H3({ children, className, as: Component = "h3" }: HeadingProps) 
 
 export function Body({ children, className, size = "base" }: BodyProps) {
   const sizeClasses = {
-    sm: "text-sm text-slate-200",
-    base: "text-base text-slate-200", 
-    lg: "text-lg text-slate-200",
+    sm: "text-sm text-[#4a607f]",
+    base: "text-base text-[#3a5175]",
+    lg: "text-lg text-[#2f4667]",
   };
 
   return (
@@ -75,7 +75,7 @@ export function Body({ children, className, size = "base" }: BodyProps) {
 
 export function Small({ children, className }: TypographyProps) {
   return (
-    <span className={cn("text-xs text-slate-300", className)}>
+    <span className={cn("text-xs text-[#6f85a8]", className)}>
       {children}
     </span>
   );
@@ -83,7 +83,7 @@ export function Small({ children, className }: TypographyProps) {
 
 export function Label({ children, className }: TypographyProps) {
   return (
-    <span className={cn("text-sm font-medium text-white", className)}>
+    <span className={cn("text-sm font-medium text-[#0f2a5a]", className)}>
       {children}
     </span>
   );
