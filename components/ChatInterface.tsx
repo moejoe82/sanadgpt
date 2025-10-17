@@ -20,7 +20,7 @@ export default function ChatInterface() {
   const [widgetInstanceKey, setWidgetInstanceKey] = useState(0);
   const isMountedRef = useRef(true);
   const t = useI18n();
-  const { direction } = useLanguage();
+  const { direction, language } = useLanguage();
 
   useEffect(() => {
     return () => {
@@ -207,6 +207,7 @@ export default function ChatInterface() {
 
   const chatkit = useChatKit({
     api: { getClientSecret },
+    locale: language === "ar" ? "ar" : "en",
     theme: {
       colorScheme: "light",
       color: {
@@ -332,6 +333,8 @@ export default function ChatInterface() {
     );
   }
 
+  const chatWidgetDirection = language === "ar" ? "rtl" : "auto";
+
   return (
     <div dir={direction} className="flex flex-col bg-background">
       {/* ChatKit Container */}
@@ -344,7 +347,10 @@ export default function ChatInterface() {
             style={{
               border: "1px solid #e5e7eb",
               borderRadius: "8px",
+              direction: language === "ar" ? "rtl" : undefined,
             }}
+            dir={chatWidgetDirection}
+            lang={language}
           />
         )}
         {!chatkit.control && (
