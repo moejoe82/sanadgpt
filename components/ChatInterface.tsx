@@ -333,6 +333,8 @@ export default function ChatInterface() {
     );
   }
 
+  const chatWidgetDirection = language === "ar" ? "rtl" : "auto";
+
   return (
     <div dir={direction} className="flex flex-col bg-background">
       {/* ChatKit Container */}
@@ -345,9 +347,9 @@ export default function ChatInterface() {
             style={{
               border: "1px solid #e5e7eb",
               borderRadius: "8px",
-              direction,
+              direction: language === "ar" ? "rtl" : undefined,
             }}
-            dir={direction}
+            dir={chatWidgetDirection}
             lang={language}
           />
         )}
